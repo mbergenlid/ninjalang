@@ -13,6 +13,25 @@
    <artifactId>ninjalang-parser</artifactId>
    <version>${parent.version}</version>
 
+   <dependencies>
+      <dependency>
+         <groupId>org.antlr</groupId>
+         <artifactId>antlr4-runtime</artifactId>
+         <version>4.0</version>
+      </dependency>
+      <dependency>
+         <groupId>org.projectlombok</groupId>
+         <artifactId>lombok</artifactId>
+         <version>1.16.6</version>
+      </dependency>
+      <dependency>
+         <groupId>org.assertj</groupId>
+         <artifactId>assertj-core</artifactId>
+         <version>3.3.0</version>
+         <scope>test</scope>
+      </dependency>
+   </dependencies>
+
    <build>
       <plugins>
          <plugin>
@@ -23,6 +42,18 @@
                <source>1.8</source>
                <target>1.8</target>
             </configuration>
+         </plugin>
+         <plugin>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-maven-plugin</artifactId>
+            <version>4.0</version>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>antlr4</goal>
+                  </goals>
+               </execution>
+            </executions>
          </plugin>
       </plugins>
    </build>
