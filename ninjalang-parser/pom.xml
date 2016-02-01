@@ -35,6 +35,12 @@
          <version>3.3.0</version>
          <scope>test</scope>
       </dependency>
+      <dependency>
+         <groupId>com.github.mbergenlid</groupId>
+         <artifactId>ninjalang-test</artifactId>
+         <version>0.1-SNAPSHOT</version>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 
    <build>

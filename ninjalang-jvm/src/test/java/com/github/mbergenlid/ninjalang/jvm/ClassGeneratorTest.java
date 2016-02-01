@@ -1,5 +1,6 @@
 package com.github.mbergenlid.ninjalang.jvm;
 
+import com.github.mbergenlid.ninjalang.parser.Parser;
 import com.github.mbergenlid.ninjalang.parser.model.ClassDefinition;
 import com.github.mbergenlid.ninjalang.parser.model.PrimaryConstructor;
 import org.apache.bcel.classfile.JavaClass;
@@ -18,6 +19,16 @@ public class ClassGeneratorTest {
 
       File classFile = File.createTempFile("SimpleClass", ".class");
       blaha.dump(classFile);
+      System.out.println(classFile.getAbsoluteFile());
+   }
+
+   @Test
+   public void testClassWithProperties() throws IOException {
+      ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/ClassWithProperties.ninja"));
+      JavaClass javaClass = ClassGenerator.generateClass(classDefinition);
+
+      File classFile = File.createTempFile("/ClassWithProperties", ".class");
+      javaClass.dump(classFile);
       System.out.println(classFile.getAbsoluteFile());
    }
 }

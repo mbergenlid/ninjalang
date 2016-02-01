@@ -1,0 +1,4 @@
+
+class ClassWithProperties {
+    val name: String = 42;
+}
