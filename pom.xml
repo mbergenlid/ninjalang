@@ -11,6 +11,7 @@
 
    <modules>
       <module>ninjalang-parser</module>
+      <module>ninjalang-jvm</module>
    </modules>
 
    <dependencies>
