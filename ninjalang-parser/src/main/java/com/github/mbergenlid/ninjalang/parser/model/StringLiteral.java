@@ -1,16 +1,15 @@
 package com.github.mbergenlid.ninjalang.parser.model;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.List;
-
 @Data
-@Builder
 @EqualsAndHashCode(callSuper = false)
-public class PrimaryConstructor extends TreeNode {
+public class StringLiteral extends Expression {
 
-   private final List<Argument> arguments;
+   private final String value;
 
+   public StringLiteral(String value) {
+      this.value = value;
+   }
 }

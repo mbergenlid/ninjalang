@@ -16,10 +16,19 @@ classBody:
     '{' properties=propertyDefinition* '}';
 
 propertyDefinition:
-    'val' name=Identifier ':' type=Identifier '=' value=Integer ';';
+    'val' name=Identifier ':' type=Identifier '=' value=expression ';';
+
+expression:
+    literal;
+
+literal:
+    Integer
+    | StringLiteral;
+
 
 Identifier: ('A'..'Z' | 'a'..'z' )+ ;
 Integer: ('0'..'9')+;
+StringLiteral: '"' .*? '"';
 
 LPAREN: '(';
 RPAREN: ')';

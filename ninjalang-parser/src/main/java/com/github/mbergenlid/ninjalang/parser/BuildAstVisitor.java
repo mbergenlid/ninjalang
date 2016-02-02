@@ -36,7 +36,7 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
    public TreeNode visitClassArgument(ClassParser.ClassArgumentContext ctx) {
       return Argument.builder()
          .name(ctx.name.getText())
-         .type(ctx.type.getText())
+         .argumentType(ctx.type.getText())
          .build();
    }
 
@@ -52,7 +52,19 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public Property visitPropertyDefinition(ClassParser.PropertyDefinitionContext ctx) {
-      return new Property(ctx.name.getText(), ctx.type.getText(), ctx.value.getText());
+      Expression expression = (Expression) visit(ctx.expression());
+      return new Property(ctx.name.getText(), ctx.type.getText(), expression);
+   }
+
+   @Override
+   public TreeNode visitLiteral(ClassParser.LiteralContext ctx) {
+      if(ctx.Integer() != null) {
+         return new IntLiteral(Integer.parseInt(ctx.Integer().getText()));
+      } else if(ctx.StringLiteral() != null) {
+         final String value = ctx.StringLiteral().getText();
+         return new StringLiteral(value.substring(1, value.length()-1));
+      }
+      throw new IllegalArgumentException("Unknown literal: " + ctx);
    }
 
    private static boolean isNotNull(final TreeNode node) {

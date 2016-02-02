@@ -34,11 +34,11 @@ public class ClassGeneratorTest {
 
       Object instance = aClass.newInstance();
       Method name = aClass.getMethod("name");
-      int result = (int) name.invoke(instance);
-      assertThat(result).isEqualTo(42);
+      String result = (String) name.invoke(instance);
+      assertThat(result).isEqualTo("hello");
 
       Method prop = aClass.getMethod("prop");
-      result = (int) prop.invoke(instance);
-      assertThat(result).isEqualTo(1);
+      int intResult = (int) prop.invoke(instance);
+      assertThat(intResult).isEqualTo(42);
    }
 }
