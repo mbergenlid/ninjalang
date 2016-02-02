@@ -23,4 +23,11 @@ public class TyperTest {
       assertThat(stringProperty.getType()).isEqualTo(new Type("ninjalang.String"));
    }
 
+   @Test(expected = TypeException.class)
+   public void shouldFailIfDeclaredTypeDoesntMatchRealType() {
+      final Property prop = new Property("prop", "String", new IntLiteral(5));
+      final Typer typer = new Typer();
+      typer.typeTree(prop);
+   }
+
 }

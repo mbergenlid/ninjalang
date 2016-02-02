@@ -5,6 +5,12 @@ import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 
 public class Typer implements TreeVisitor<Void> {
 
+   private final SymbolTable symbolTable;
+
+   public Typer() {
+      symbolTable = new SymbolTable();
+   }
+
    public void typeTree(final TreeNode tree) {
       tree.foreachPostfix(this);
    }
@@ -36,7 +42,14 @@ public class Typer implements TreeVisitor<Void> {
 
    @Override
    public Void visit(Property property) {
-      property.setType(property.getValue().getType());
+      final Type inferredType = property.getValue().getType();
+      final Type declaredType = symbolTable.lookupTypeName(property.getPropertyType());
+
+      if(!declaredType.equals(inferredType)) {
+         throw new TypeException();
+      }
+
+      property.setType(inferredType);
       return null;
    }
 
