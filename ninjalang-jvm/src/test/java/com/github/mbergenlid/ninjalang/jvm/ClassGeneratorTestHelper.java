@@ -2,6 +2,7 @@ package com.github.mbergenlid.ninjalang.jvm;
 
 import com.github.mbergenlid.ninjalang.parser.Parser;
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
+import com.github.mbergenlid.ninjalang.typer.Typer;
 import com.google.common.io.Files;
 import org.apache.bcel.classfile.JavaClass;
 
@@ -24,6 +25,7 @@ public class ClassGeneratorTestHelper {
          ClassDefinition classDefinition = Parser.classDefinition(
             ClassGeneratorTestHelper.class.getResourceAsStream(String.format("/%s.ninja", ninjaClass))
          );
+         new Typer().typeTree(classDefinition);
          JavaClass javaClass = ClassGenerator.generateClass(classDefinition);
 
          final File classDirectory = Files.createTempDir();
