@@ -1,6 +1,5 @@
 package com.github.mbergenlid.ninjalang.jvm;
 
-import com.github.mbergenlid.ninjalang.parser.Parser;
 import com.github.mbergenlid.ninjalang.parser.model.ClassDefinition;
 import com.github.mbergenlid.ninjalang.parser.model.PrimaryConstructor;
 import org.apache.bcel.classfile.JavaClass;
@@ -8,7 +7,11 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ClassGeneratorTest {
 
@@ -23,12 +26,16 @@ public class ClassGeneratorTest {
    }
 
    @Test
-   public void testClassWithProperties() throws IOException {
-      ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/ClassWithProperties.ninja"));
-      JavaClass javaClass = ClassGenerator.generateClass(classDefinition);
+   public void testClassWithProperties() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+      final ClassGeneratorTestHelper helper = new ClassGeneratorTestHelper("ClassWithProperties");
+      Class<?> aClass = helper.loadClass();
 
-      File classFile = File.createTempFile("/ClassWithProperties", ".class");
-      javaClass.dump(classFile);
-      System.out.println(classFile.getAbsoluteFile());
+      assertThat(aClass.getName()).isEqualTo("ClassWithProperties");
+
+      Object instance = aClass.newInstance();
+      Method name = aClass.getMethod("name");
+      int result = (int) name.invoke(instance);
+
+      assertThat(result).isEqualTo(42);
    }
 }

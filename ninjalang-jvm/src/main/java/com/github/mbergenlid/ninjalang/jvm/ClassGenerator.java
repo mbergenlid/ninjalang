@@ -14,7 +14,7 @@ public class ClassGenerator {
 
    public static JavaClass generateClass(final ClassDefinition classDef) throws IOException {
       final ClassGen classGen = new ClassGen(classDef.getName(), "java.lang.Object", classDef.getName(), Constants.ACC_PUBLIC, new String[]{});
-      classGen.addEmptyConstructor(0);
+      classGen.addEmptyConstructor(Constants.ACC_PUBLIC);
       if(classDef.getBody().isPresent()) {
          generateBody(classDef.getBody().get(), classGen);
       }
