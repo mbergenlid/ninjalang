@@ -30,7 +30,7 @@ public class BasicParserTest {
       assertThat(classDefinition.getName()).isEqualTo("ClassWithProperties");
       assertThat(classDefinition.getPrimaryConstructor()).isEmpty();
       assertThat(classDefinition.getBody()).isPresent();
-      assertThat(classDefinition.getBody().get().getProperties()).contains(
+      assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
          new Property("name", "String", "42")
       );
    }

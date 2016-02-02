@@ -44,6 +44,7 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
    public TreeNode visitClassBody(ClassParser.ClassBodyContext ctx) {
       List<Property> properties = ctx.children.stream()
          .map(this::visit)
+         .filter(BuildAstVisitor::isNotNull)
          .map(node -> (Property) node)
          .collect(Collectors.toList());
       return new ClassBody(properties);
@@ -52,5 +53,9 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
    @Override
    public Property visitPropertyDefinition(ClassParser.PropertyDefinitionContext ctx) {
       return new Property(ctx.name.getText(), ctx.type.getText(), ctx.value.getText());
+   }
+
+   private static boolean isNotNull(final TreeNode node) {
+      return node != null;
    }
 }

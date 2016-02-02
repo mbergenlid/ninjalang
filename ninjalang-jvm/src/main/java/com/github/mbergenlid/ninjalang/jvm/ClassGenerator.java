@@ -22,7 +22,11 @@ public class ClassGenerator {
    }
 
    private static void generateBody(ClassBody body, ClassGen classGen) {
-      final Property property = body.getProperties().get(1);
+      final Property property = body.getProperties().get(0);
+      generateProperty(property, classGen);
+   }
+
+   private static void generateProperty(Property property, ClassGen classGen) {
       final InstructionList il = new InstructionList();
       final ConstantPoolGen cp = classGen.getConstantPool();
       final MethodGen methodGen = new MethodGen(Constants.ACC_PUBLIC, Type.INT, new Type[]{}, new String[]{},
@@ -34,5 +38,6 @@ public class ClassGenerator {
       methodGen.setMaxStack();
       classGen.addMethod(methodGen.getMethod());
       il.dispose();
+
    }
 }
