@@ -35,7 +35,10 @@ public class ClassGeneratorTest {
       Object instance = aClass.newInstance();
       Method name = aClass.getMethod("name");
       int result = (int) name.invoke(instance);
-
       assertThat(result).isEqualTo(42);
+
+      Method prop = aClass.getMethod("prop");
+      result = (int) prop.invoke(instance);
+      assertThat(result).isEqualTo(1);
    }
 }

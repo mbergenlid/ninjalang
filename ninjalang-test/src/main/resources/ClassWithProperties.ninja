@@ -1,4 +1,5 @@
 
 class ClassWithProperties {
     val name: String = 42;
+    val prop: Int = 1;
 }

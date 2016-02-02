@@ -31,7 +31,8 @@ public class BasicParserTest {
       assertThat(classDefinition.getPrimaryConstructor()).isEmpty();
       assertThat(classDefinition.getBody()).isPresent();
       assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
-         new Property("name", "String", "42")
+         new Property("name", "String", "42"),
+         new Property("prop", "Int", "1")
       );
    }
 }

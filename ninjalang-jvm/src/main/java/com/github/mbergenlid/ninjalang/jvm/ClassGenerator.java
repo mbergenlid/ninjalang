@@ -22,8 +22,8 @@ public class ClassGenerator {
    }
 
    private static void generateBody(ClassBody body, ClassGen classGen) {
-      final Property property = body.getProperties().get(0);
-      generateProperty(property, classGen);
+      body.getProperties().stream()
+         .forEach(p -> generateProperty(p, classGen));
    }
 
    private static void generateProperty(Property property, ClassGen classGen) {
