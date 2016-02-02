@@ -1,7 +1,7 @@
 package com.github.mbergenlid.ninjalang.jvm;
 
-import com.github.mbergenlid.ninjalang.parser.model.ClassDefinition;
-import com.github.mbergenlid.ninjalang.parser.model.PrimaryConstructor;
+import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
+import com.github.mbergenlid.ninjalang.ast.PrimaryConstructor;
 import org.apache.bcel.classfile.JavaClass;
 import org.junit.Test;
 

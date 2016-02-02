@@ -1,7 +1,7 @@
 package com.github.mbergenlid.ninjalang.jvm;
 
 import com.github.mbergenlid.ninjalang.parser.Parser;
-import com.github.mbergenlid.ninjalang.parser.model.ClassDefinition;
+import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.google.common.io.Files;
 import org.apache.bcel.classfile.JavaClass;
 

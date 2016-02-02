@@ -1,4 +1,4 @@
-package com.github.mbergenlid.ninjalang.parser.model;
+package com.github.mbergenlid.ninjalang.ast;
 
 public class Type {
 

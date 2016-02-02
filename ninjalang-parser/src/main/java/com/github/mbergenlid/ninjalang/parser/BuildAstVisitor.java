@@ -2,7 +2,7 @@ package com.github.mbergenlid.ninjalang.parser;
 
 import com.github.mbergenlid.ninjalang.ClassBaseVisitor;
 import com.github.mbergenlid.ninjalang.ClassParser;
-import com.github.mbergenlid.ninjalang.parser.model.*;
+import com.github.mbergenlid.ninjalang.ast.*;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;

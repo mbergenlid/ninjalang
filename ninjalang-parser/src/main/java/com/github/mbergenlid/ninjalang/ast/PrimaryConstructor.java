@@ -1,4 +1,4 @@
-package com.github.mbergenlid.ninjalang.parser.model;
+package com.github.mbergenlid.ninjalang.ast;
 
 import lombok.Builder;
 import lombok.Data;

@@ -1,9 +1,9 @@
 package com.github.mbergenlid.ninjalang.parser;
 
-import com.github.mbergenlid.ninjalang.parser.model.ClassDefinition;
-import com.github.mbergenlid.ninjalang.parser.model.IntLiteral;
-import com.github.mbergenlid.ninjalang.parser.model.Property;
-import com.github.mbergenlid.ninjalang.parser.model.StringLiteral;
+import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
+import com.github.mbergenlid.ninjalang.ast.IntLiteral;
+import com.github.mbergenlid.ninjalang.ast.Property;
+import com.github.mbergenlid.ninjalang.ast.StringLiteral;
 import org.junit.Test;
 
 import java.io.IOException;

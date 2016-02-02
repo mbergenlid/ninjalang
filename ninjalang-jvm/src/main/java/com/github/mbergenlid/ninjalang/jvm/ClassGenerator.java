@@ -1,9 +1,8 @@
 package com.github.mbergenlid.ninjalang.jvm;
 
-import com.github.mbergenlid.ninjalang.parser.model.*;
+import com.github.mbergenlid.ninjalang.ast.*;
 import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.JavaClass;
-import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.*;
 import org.apache.bcel.generic.Type;
 

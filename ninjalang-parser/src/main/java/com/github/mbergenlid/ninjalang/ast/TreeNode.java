@@ -1,4 +1,4 @@
-package com.github.mbergenlid.ninjalang.parser.model;
+package com.github.mbergenlid.ninjalang.ast;
 
 public abstract class TreeNode {
    private Type type = Type.NO_TYPE;
