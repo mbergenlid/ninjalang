@@ -1,5 +1,6 @@
 package com.github.mbergenlid.ninjalang.ast;
 
+import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -14,5 +15,16 @@ public class Property extends TreeNode {
       this.name = name;
       this.propertyType = propertyType;
       this.value = value;
+   }
+
+   @Override
+   public <T> T visit(TreeVisitor<T> visitor) {
+      return visitor.visit(this);
+   }
+
+   @Override
+   public void foreachPostfix(TreeVisitor<Void> visitor) {
+      value.foreachPostfix(visitor);
+      visitor.visit(this);
    }
 }
