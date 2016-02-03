@@ -53,6 +53,12 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
    @Override
    public Property visitPropertyDefinition(ClassParser.PropertyDefinitionContext ctx) {
       Expression expression = (Expression) visit(ctx.expression());
+      if(ctx.modifier.getText().equals("var")) {
+         return new Property(ctx.name.getText(), ctx.type.getText(), expression,
+            new Setter(
+               new Assign(String.format("this.%s", ctx.name.getText()), new VariableReference("value")))
+            );
+      }
       return new Property(ctx.name.getText(), ctx.type.getText(), expression);
    }
 

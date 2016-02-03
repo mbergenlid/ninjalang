@@ -2,4 +2,5 @@
 class ClassWithProperties {
     val name: String = "hello";
     val prop: Int = 42;
+    var mutableProperty: Int = 1;
 }

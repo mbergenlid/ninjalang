@@ -1,9 +1,6 @@
 package com.github.mbergenlid.ninjalang.parser;
 
-import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
-import com.github.mbergenlid.ninjalang.ast.IntLiteral;
-import com.github.mbergenlid.ninjalang.ast.Property;
-import com.github.mbergenlid.ninjalang.ast.StringLiteral;
+import com.github.mbergenlid.ninjalang.ast.*;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -34,7 +31,11 @@ public class BasicParserTest {
       assertThat(classDefinition.getBody()).isPresent();
       assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
          new Property("name", "String", new StringLiteral("hello")),
-         new Property("prop", "Int", new IntLiteral(42))
+         new Property("prop", "Int", new IntLiteral(42)),
+         new Property("mutableProperty", "Int", new IntLiteral(1),
+            new Setter(
+               new Assign("this.mutableProperty", new VariableReference("value")))
+            )
       );
    }
 }

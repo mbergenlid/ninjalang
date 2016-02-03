@@ -16,7 +16,7 @@ classBody:
     '{' properties=propertyDefinition* '}';
 
 propertyDefinition:
-    'val' name=Identifier ':' type=Identifier '=' value=expression ';';
+    modifier=('val' | 'var') name=Identifier ':' type=Identifier '=' value=expression ';';
 
 expression:
     literal;

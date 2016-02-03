@@ -12,7 +12,7 @@ public class Typer implements TreeVisitor<Void> {
    }
 
    public void typeTree(final TreeNode tree) {
-      tree.foreachPostfix(this);
+      tree.visit(this);
    }
 
    @Override
@@ -27,21 +27,27 @@ public class Typer implements TreeVisitor<Void> {
 
    @Override
    public Void visit(ClassBody classBody) {
+      classBody.getProperties().stream().forEach(p -> p.visit(this));
       return null;
    }
 
    @Override
    public Void visit(ClassDefinition classDefinition) {
+      classDefinition.getPrimaryConstructor().ifPresent(pc -> pc.visit(this));
+      classDefinition.getBody().ifPresent(b -> b.visit(this));
       return null;
    }
 
    @Override
    public Void visit(PrimaryConstructor primaryConstructor) {
+      primaryConstructor.getArguments().stream().forEach(a -> a.visit(this));
       return null;
    }
 
    @Override
    public Void visit(Property property) {
+      property.getValue().visit(this);
+      property.getSetter().ifPresent(s -> s.visit(this));
       final Type inferredType = property.getValue().getType();
       final Type declaredType = symbolTable.lookupTypeName(property.getPropertyType());
 
@@ -54,7 +60,32 @@ public class Typer implements TreeVisitor<Void> {
    }
 
    @Override
+   public Void visit(FunctionDefinition functionDefinition) {
+      functionDefinition.getArgumentList().stream().forEach(a -> a.visit(this));
+      symbolTable.newScope();
+      functionDefinition.getArgumentList().stream().forEach(a -> {
+         symbolTable.addSymbol(a.getName(), new Symbol(a.getType()));
+      });
+      functionDefinition.getBody().visit(this);
+      symbolTable.exitScope();
+      return null;
+   }
+
+   @Override
    public Void visit(Expression expression) {
+      return null;
+   }
+
+   @Override
+   public Void visit(Assign assign) {
+      assign.getValue().visit(this);
+      return null;
+   }
+
+   @Override
+   public Void visit(VariableReference reference) {
+      if(!symbolTable.hasSymbol(reference.getVariable()))
+         throw new TypeException();
       return null;
    }
 

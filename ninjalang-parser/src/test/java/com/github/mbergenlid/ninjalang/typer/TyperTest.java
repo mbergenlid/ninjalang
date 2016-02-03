@@ -1,14 +1,17 @@
 package com.github.mbergenlid.ninjalang.typer;
 
-import com.github.mbergenlid.ninjalang.ast.IntLiteral;
-import com.github.mbergenlid.ninjalang.ast.Property;
-import com.github.mbergenlid.ninjalang.ast.StringLiteral;
-import com.github.mbergenlid.ninjalang.ast.Type;
+import com.github.mbergenlid.ninjalang.ast.*;
+import com.google.common.collect.ImmutableList;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TyperTest {
+
+   @Rule
+   public ExpectedException expectedException = ExpectedException.none();
 
    @Test
    public void testPropertyTypes() {
@@ -28,6 +31,23 @@ public class TyperTest {
       final Property prop = new Property("prop", "String", new IntLiteral(5));
       final Typer typer = new Typer();
       typer.typeTree(prop);
+   }
+
+   @Test
+   public void testUsingUndeclaredVariable() {
+      final Property intProperty = new Property("prop", "Int", new VariableReference("unknown"));
+      final Typer typer = new Typer();
+
+      expectedException.expect(TypeException.class);
+      typer.typeTree(intProperty);
+   }
+
+   @Test
+   public void testMethodDeclarationWithInputParameter() {
+      final Setter setter = new Setter(new VariableReference("value"));
+      final Typer typer = new Typer();
+
+      typer.typeTree(setter);
    }
 
 }

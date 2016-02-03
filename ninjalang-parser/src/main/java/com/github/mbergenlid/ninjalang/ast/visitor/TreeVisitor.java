@@ -11,9 +11,12 @@ public interface TreeVisitor<T> {
    T visit(final ClassDefinition classDefinition);
    T visit(final PrimaryConstructor primaryConstructor);
    T visit(final Property property);
+   T visit(final FunctionDefinition functionDefinition);
 
    //Expression
    T visit(final Expression expression);
+   T visit(final Assign assign);
+   T visit(final VariableReference reference);
    T visit(final IntLiteral intLiteral);
    T visit(final StringLiteral stringLiteral);
 }

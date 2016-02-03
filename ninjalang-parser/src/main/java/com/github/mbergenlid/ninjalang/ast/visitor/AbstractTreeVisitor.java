@@ -3,6 +3,22 @@ package com.github.mbergenlid.ninjalang.ast.visitor;
 import com.github.mbergenlid.ninjalang.ast.*;
 
 public abstract class AbstractTreeVisitor implements TreeVisitor<Void> {
+
+   @Override
+   public Void visit(FunctionDefinition functionDefinition) {
+      return null;
+   }
+
+   @Override
+   public Void visit(Assign assign) {
+      return null;
+   }
+
+   @Override
+   public Void visit(VariableReference reference) {
+      return null;
+   }
+
    @Override
    public Void visit(TreeNode treeNode) {
       return null;
