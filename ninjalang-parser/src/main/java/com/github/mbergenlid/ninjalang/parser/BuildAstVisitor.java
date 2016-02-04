@@ -3,6 +3,7 @@ package com.github.mbergenlid.ninjalang.parser;
 import com.github.mbergenlid.ninjalang.ClassBaseVisitor;
 import com.github.mbergenlid.ninjalang.ClassParser;
 import com.github.mbergenlid.ninjalang.ast.*;
+import com.github.mbergenlid.ninjalang.typer.Symbol;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -35,8 +36,8 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
    @Override
    public TreeNode visitClassArgument(ClassParser.ClassArgumentContext ctx) {
       return Argument.builder()
-         .name(ctx.name.getText())
-         .argumentType(ctx.type.getText())
+         .symbol(new Symbol(ctx.name.getText()))
+         .declaredType(ctx.type.getText())
          .build();
    }
 
@@ -56,7 +57,7 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
       if(ctx.modifier.getText().equals("var")) {
          return new Property(ctx.name.getText(), ctx.type.getText(), expression,
             new Setter(
-               new Assign(String.format("this.%s", ctx.name.getText()), new VariableReference("value")))
+               new Assign(new Symbol(String.format("this.%s", ctx.name.getText())), new VariableReference("value")))
             );
       }
       return new Property(ctx.name.getText(), ctx.type.getText(), expression);

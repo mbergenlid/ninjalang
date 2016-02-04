@@ -43,6 +43,10 @@ public class SymbolTable {
       scopes.peek().put(name, symbol);
    }
 
+   public void addSymbol(final Symbol symbol) {
+      scopes.peek().put(symbol.getName(), symbol);
+   }
+
    public void newScope() {
       scopes.push(new HashMap<>());
    }

@@ -1,6 +1,7 @@
 package com.github.mbergenlid.ninjalang.parser;
 
 import com.github.mbergenlid.ninjalang.ast.*;
+import com.github.mbergenlid.ninjalang.typer.Symbol;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class BasicParserTest {
          new Property("prop", "Int", new IntLiteral(42)),
          new Property("mutableProperty", "Int", new IntLiteral(1),
             new Setter(
-               new Assign("this.mutableProperty", new VariableReference("value")))
+               new Assign(new Symbol("this.mutableProperty"), new VariableReference("value")))
             )
       );
    }

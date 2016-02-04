@@ -1,6 +1,7 @@
 package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
+import com.github.mbergenlid.ninjalang.typer.Symbol;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -8,7 +9,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class Assign extends Expression {
 
-   private final String variable;
+   private final Symbol variable;
    private final Expression value;
 
    @Override

@@ -6,9 +6,16 @@ import lombok.Data;
 @Data
 public class Symbol {
 
-   private final Type type;
+   private final String name;
+   private Type type = Type.NO_TYPE;
 
-   public Symbol(Type type) {
-      this.type = type;
+   public Symbol(String name) {
+      this.name = name;
    }
+   public Symbol(Type type, String name) {
+      this.type = type;
+      this.name = name;
+   }
+
+
 }

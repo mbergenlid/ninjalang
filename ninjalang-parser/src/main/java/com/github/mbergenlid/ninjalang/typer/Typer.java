@@ -64,7 +64,9 @@ public class Typer implements TreeVisitor<Void> {
       functionDefinition.getArgumentList().stream().forEach(a -> a.visit(this));
       symbolTable.newScope();
       functionDefinition.getArgumentList().stream().forEach(a -> {
-         symbolTable.addSymbol(a.getName(), new Symbol(a.getType()));
+         final Type type = symbolTable.lookupTypeName(a.getDeclaredType());
+         a.getSymbol().setType(type);
+         symbolTable.addSymbol(a.getSymbol());
       });
       functionDefinition.getBody().visit(this);
       symbolTable.exitScope();
