@@ -4,6 +4,8 @@ import com.github.mbergenlid.ninjalang.ast.*;
 import com.github.mbergenlid.ninjalang.typer.Symbol;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
+import com.google.common.collect.ImmutableList;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -60,6 +62,20 @@ public class BasicParserTest {
                new AssignBackingField(new Symbol("property"), new VariableReference("value"))
             )
          )
+      );
+   }
+
+   @Test
+   public void testSelectAndApply() throws IOException {
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/Features.ninja"));
+      assertThat(classDefinition.getBody().get().getProperties()).isNotEmpty();
+      final Property property1 = classDefinition.getBody().get().getProperties().get(0);
+      assertThat(property1.getInitialValue()).isEqualTo(
+         new Select(new Select(new TermSymbol("Array")), new TermSymbol("ofSize"))
+      );
+      final Property property2 = classDefinition.getBody().get().getProperties().get(1);
+      assertThat(property2.getInitialValue()).isEqualTo(
+         new Apply(new Select(new Select(new TermSymbol("Array")), new TermSymbol("empty")), ImmutableList.of())
       );
    }
 }

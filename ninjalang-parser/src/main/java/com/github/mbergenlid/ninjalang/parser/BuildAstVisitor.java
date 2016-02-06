@@ -4,8 +4,10 @@ import com.github.mbergenlid.ninjalang.ClassBaseVisitor;
 import com.github.mbergenlid.ninjalang.ClassParser;
 import com.github.mbergenlid.ninjalang.ast.*;
 import com.github.mbergenlid.ninjalang.typer.Symbol;
+import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
 import com.google.common.collect.ImmutableList;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.List;
 import java.util.Optional;
@@ -90,6 +92,24 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
    }
 
 
+
+   @Override
+   public TreeNode visitExpression(ClassParser.ExpressionContext ctx) {
+      if(ctx.expression() == null) {
+         if(ctx.Identifier() != null) {
+            return new Select(new TermSymbol(ctx.Identifier().getText()));
+         } else {
+            return super.visitExpression(ctx);
+         }
+      } else if(ctx.Identifier() != null) {
+         final TerminalNode identifier = ctx.Identifier();
+         final TreeNode qualifier = visitExpression(ctx.expression());
+         return new Select(qualifier, new TermSymbol(identifier.getText()));
+      } else {
+         final Expression function = (Expression) visitExpression(ctx.expression());
+         return new Apply(function, ImmutableList.of());
+      }
+   }
 
    private static boolean isNotNull(final TreeNode node) {
       return node != null;
