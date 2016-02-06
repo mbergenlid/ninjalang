@@ -1,0 +1,4 @@
+
+class ClassWithPrivateProperty {
+    private var property: Int = 1;
+}

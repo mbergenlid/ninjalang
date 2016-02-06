@@ -42,4 +42,19 @@ public class BasicParserTest {
             )
       );
    }
+
+   @Test
+   public void testClassWithPrivateProperty() throws IOException {
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/ClassWithPrivateProperty.ninja"));
+      assertThat(classDefinition.getName()).isEqualTo("ClassWithPrivateProperty");
+
+      assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
+         new Property("property", "Int", new IntLiteral(1),
+            new Setter(
+               "setProperty", new TypeSymbol("Nothing"),
+               new AssignBackingField(new Symbol("property"), new VariableReference("value"))
+            )
+         )
+      );
+   }
 }

@@ -16,7 +16,10 @@ classBody:
     '{' properties=propertyDefinition* '}';
 
 propertyDefinition:
-    modifier=('val' | 'var') name=Identifier ':' type=Identifier '=' value=expression ';';
+    accessModifier? modifier=('val' | 'var') name=Identifier ':' type=Identifier '=' value=expression ';';
+
+accessModifier:
+    'private' | 'public';
 
 expression:
     literal;
