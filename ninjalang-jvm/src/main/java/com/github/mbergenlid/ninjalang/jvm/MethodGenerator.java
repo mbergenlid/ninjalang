@@ -99,6 +99,11 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
    }
 
    @Override
+   public Void visit(Apply apply) {
+      return null;
+   }
+
+   @Override
    public Void visit(AssignBackingField assign) {
       instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
       assign.getValue().visit(this);
