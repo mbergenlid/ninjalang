@@ -10,7 +10,8 @@ public class SymbolTable {
    private static final List<Symbol> PREDEFINED = ImmutableList.of(
       new TypeSymbol("Nothing", Types.NOTHING),
       new TypeSymbol("Int", Types.INT),
-      new TypeSymbol("String", Types.STRING)
+      new TypeSymbol("String", Types.STRING),
+      new TypeSymbol("Array", Types.ARRAY)
    );
 
    private final Stack<Map<String, Symbol>> scopes;

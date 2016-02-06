@@ -36,4 +36,9 @@ public class Select extends Expression {
    public void foreachPostfix(TreeVisitor<Void> visitor) {
 
    }
+
+   @Override
+   public Type getType() {
+      return symbol.getType();
+   }
 }

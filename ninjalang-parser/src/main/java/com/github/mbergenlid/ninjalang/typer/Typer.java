@@ -2,6 +2,7 @@ package com.github.mbergenlid.ninjalang.typer;
 
 import com.github.mbergenlid.ninjalang.ast.*;
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
+import com.github.mbergenlid.ninjalang.types.FunctionType;
 
 public class Typer implements TreeVisitor<Void> {
 
@@ -117,8 +118,25 @@ public class Typer implements TreeVisitor<Void> {
    @Override
    public Void visit(Select select) {
       select.getQualifier().ifPresent(tree -> tree.visit(this));
-      select.getSymbol().resolveType(symbolTable);
-      select.setType(select.getSymbol().getType());
+      if(select.getQualifier().isPresent()) {
+         select.getQualifier()
+            .map(TreeNode::getType)
+            .map(type -> type.member(select.getSymbol().getName()))
+            .ifPresent(symbol -> select.getSymbol().setType(symbol.getType()));
+      } else {
+         select.getSymbol().resolveType(symbolTable);
+      }
+      return null;
+   }
+
+   @Override
+   public Void visit(Apply apply) {
+      apply.getFunction().visit(this);
+      final Type type = apply.getFunction().getType();
+      if(!type.isFunctionType()) {
+         throw new TypeException();
+      }
+      apply.setType(type.asFunctionType().getReturnType());
       return null;
    }
 

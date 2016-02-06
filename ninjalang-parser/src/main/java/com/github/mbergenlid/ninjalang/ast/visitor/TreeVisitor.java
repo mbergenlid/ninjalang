@@ -16,6 +16,7 @@ public interface TreeVisitor<T> {
    //Expression
    T visit(final Expression expression);
    T visit(final Select select);
+   T visit(final Apply apply);
    T visit(final AssignBackingField assign);
    T visit(final AccessBackingField access);
    T visit(final VariableReference reference);
