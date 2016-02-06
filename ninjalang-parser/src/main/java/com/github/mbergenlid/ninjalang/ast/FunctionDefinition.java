@@ -11,12 +11,18 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class FunctionDefinition extends TreeNode {
 
+   private final AccessModifier accessModifier;
    private final String name;
    private final List<Argument> argumentList;
    private final TypeSymbol returnType;
    private final Expression body;
 
    public FunctionDefinition(String name, List<Argument> argumentList, TypeSymbol returnType, Expression body) {
+      this(AccessModifier.PUBLIC, name, argumentList, returnType, body);
+   }
+
+   public FunctionDefinition(AccessModifier accessModifier, String name, List<Argument> argumentList, TypeSymbol returnType, Expression body) {
+      this.accessModifier = accessModifier;
       this.name = name;
       this.argumentList = argumentList;
       this.returnType = returnType;

@@ -56,7 +56,7 @@ public class Typer implements TreeVisitor<Void> {
 
       symbolTable.newScope();
       symbolTable.addSymbol(typeSymbol);
-      property.getValue().visit(this);
+      property.getGetter().visit(this);
       property.getSetter().ifPresent(s -> s.visit(this));
       final Type inferredType = property.getInitialValue().getType();
 

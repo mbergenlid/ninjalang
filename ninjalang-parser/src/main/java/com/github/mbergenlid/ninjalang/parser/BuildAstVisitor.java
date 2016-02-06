@@ -56,10 +56,18 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
    public Property visitPropertyDefinition(ClassParser.PropertyDefinitionContext ctx) {
       final Expression expression = (Expression) visit(ctx.expression());
       final String declaredType = ctx.type.getText();
+      final String accessModifier = ctx.accessModifier() != null ? ctx.accessModifier().getText() : "public";
       if(ctx.modifier.getText().equals("var")) {
          final String name = ctx.name.getText();
          return new Property(ctx.name.getText(), declaredType, expression,
+            new Getter(
+               AccessModifier.valueOf(accessModifier.toUpperCase()),
+               String.format("get%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
+               new TypeSymbol("Int"),
+               new AccessBackingField(new Symbol(name))
+            ),
             new Setter(
+               AccessModifier.valueOf(accessModifier.toUpperCase()),
                String.format("set%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
                new TypeSymbol("Nothing"),
                new AssignBackingField(

@@ -2,6 +2,7 @@ package com.github.mbergenlid.ninjalang.parser;
 
 import com.github.mbergenlid.ninjalang.ast.*;
 import com.github.mbergenlid.ninjalang.typer.Symbol;
+import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
 import org.junit.Test;
 
@@ -50,7 +51,11 @@ public class BasicParserTest {
 
       assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
          new Property("property", "Int", new IntLiteral(1),
+            new Getter(
+              AccessModifier.PRIVATE, "getProperty", new TypeSymbol("Int"), new AccessBackingField(new Symbol("property"))
+            ),
             new Setter(
+               AccessModifier.PRIVATE,
                "setProperty", new TypeSymbol("Nothing"),
                new AssignBackingField(new Symbol("property"), new VariableReference("value"))
             )

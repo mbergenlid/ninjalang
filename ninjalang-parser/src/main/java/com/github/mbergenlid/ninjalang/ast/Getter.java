@@ -8,4 +8,8 @@ public class Getter extends FunctionDefinition {
    public Getter(String name, TypeSymbol returnType, Expression body) {
       super(name, ImmutableList.of(), returnType, body);
    }
+
+   public Getter(AccessModifier accessModifier, String name, TypeSymbol returnType, Expression body) {
+      super(accessModifier, name, ImmutableList.of(), returnType, body);
+   }
 }

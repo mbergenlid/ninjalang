@@ -14,7 +14,7 @@ public class Property extends TreeNode {
    private final String name;
    private final String propertyType;
    private final Expression initialValue;
-   private final Getter value;
+   private final Getter getter;
    private final Optional<Setter> setter;
 
    public Property(String name, String propertyType, Expression value) {
@@ -28,15 +28,23 @@ public class Property extends TreeNode {
       final String getterName = setter != null ?
          String.format("get%s%s", name.substring(0,1).toUpperCase(), name.substring(1)) : name;
       if(setter == null) {
-         this.value = new Getter(getterName, new TypeSymbol(propertyType), initialValue);
+         this.getter = new Getter(getterName, new TypeSymbol(propertyType), initialValue);
       } else {
-         this.value = new Getter(getterName, new TypeSymbol(propertyType), new AccessBackingField(new Symbol(name)));
+         this.getter = new Getter(getterName, new TypeSymbol(propertyType), new AccessBackingField(new Symbol(name)));
       }
       this.setter = Optional.ofNullable(setter);
    }
 
+   public Property(String name, String propertyType, Expression initialValue, Getter getter, Setter setter) {
+      this.name = name;
+      this.propertyType = propertyType;
+      this.initialValue = initialValue;
+      this.getter = getter;
+      this.setter = Optional.ofNullable(setter);
+   }
+
    public Getter getter() {
-      return value;
+      return getter;
    }
 
    @Override
@@ -46,7 +54,7 @@ public class Property extends TreeNode {
 
    @Override
    public void foreachPostfix(TreeVisitor<Void> visitor) {
-      value.foreachPostfix(visitor);
+      getter.foreachPostfix(visitor);
       visitor.visit(this);
    }
 
