@@ -1,0 +1,4 @@
+
+class ArrayList {
+    private var array: Array = Array(10);
+}
