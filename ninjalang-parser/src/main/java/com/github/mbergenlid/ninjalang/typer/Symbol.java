@@ -12,10 +12,13 @@ public class Symbol {
    public Symbol(String name) {
       this.name = name;
    }
-   public Symbol(Type type, String name) {
-      this.type = type;
+
+   public Symbol(String name, Type type) {
       this.name = name;
+      this.type = type;
    }
-
-
+   
+   public void resolveType(SymbolTable symbolTable) {
+      setType(symbolTable.lookup(name).getType());
+   }
 }

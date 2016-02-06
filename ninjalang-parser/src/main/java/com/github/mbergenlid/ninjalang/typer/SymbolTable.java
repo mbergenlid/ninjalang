@@ -12,6 +12,7 @@ import java.util.Stack;
 public class SymbolTable {
 
    private static final Map<String, Type> PREDEFINED = ImmutableMap.of(
+      "Nothing", Types.NOTHING,
       "Int", Types.INT,
       "String", Types.STRING
    );
@@ -21,6 +22,13 @@ public class SymbolTable {
    public SymbolTable() {
       scopes = new Stack<>();
       scopes.push(new HashMap<>());
+      addSymbol(new Symbol("this"));
+   }
+
+   public static SymbolTable of(final Symbol symbol) {
+      final SymbolTable symbolTable = new SymbolTable();
+      symbolTable.addSymbol(symbol);
+      return symbolTable;
    }
 
    public Type lookupTypeName(final String name) {
@@ -37,10 +45,6 @@ public class SymbolTable {
          .findFirst()
          .map(s -> s.get(name))
          .orElseThrow(() -> new NoSuchElementException("No symbol with name " + name));
-   }
-
-   public void addSymbol(final String name, Symbol symbol) {
-      scopes.peek().put(name, symbol);
    }
 
    public void addSymbol(final Symbol symbol) {

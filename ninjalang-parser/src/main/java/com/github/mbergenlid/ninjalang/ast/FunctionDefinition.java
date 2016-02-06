@@ -1,6 +1,7 @@
 package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
+import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -10,8 +11,17 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class FunctionDefinition extends TreeNode {
 
+   private final String name;
    private final List<Argument> argumentList;
+   private final TypeSymbol returnType;
    private final Expression body;
+
+   public FunctionDefinition(String name, List<Argument> argumentList, TypeSymbol returnType, Expression body) {
+      this.name = name;
+      this.argumentList = argumentList;
+      this.returnType = returnType;
+      this.body = body;
+   }
 
    @Override
    public <T> T visit(TreeVisitor<T> visitor) {

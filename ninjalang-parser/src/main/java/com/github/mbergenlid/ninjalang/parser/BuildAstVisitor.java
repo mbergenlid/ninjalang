@@ -4,6 +4,7 @@ import com.github.mbergenlid.ninjalang.ClassBaseVisitor;
 import com.github.mbergenlid.ninjalang.ClassParser;
 import com.github.mbergenlid.ninjalang.ast.*;
 import com.github.mbergenlid.ninjalang.typer.Symbol;
+import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -53,14 +54,20 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public Property visitPropertyDefinition(ClassParser.PropertyDefinitionContext ctx) {
-      Expression expression = (Expression) visit(ctx.expression());
+      final Expression expression = (Expression) visit(ctx.expression());
+      final String declaredType = ctx.type.getText();
       if(ctx.modifier.getText().equals("var")) {
-         return new Property(ctx.name.getText(), ctx.type.getText(), expression,
+         final String name = ctx.name.getText();
+         return new Property(ctx.name.getText(), declaredType, expression,
             new Setter(
-               new Assign(new Symbol(String.format("this.%s", ctx.name.getText())), new VariableReference("value")))
+               String.format("set%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
+               new TypeSymbol("Nothing"),
+               new AssignBackingField(
+                  new Symbol(name),
+                  new VariableReference("value")))
             );
       }
-      return new Property(ctx.name.getText(), ctx.type.getText(), expression);
+      return new Property(ctx.name.getText(), declaredType, expression);
    }
 
    @Override
@@ -73,6 +80,8 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
       }
       throw new IllegalArgumentException("Unknown literal: " + ctx);
    }
+
+
 
    private static boolean isNotNull(final TreeNode node) {
       return node != null;

@@ -2,65 +2,72 @@ package com.github.mbergenlid.ninjalang.ast.visitor;
 
 import com.github.mbergenlid.ninjalang.ast.*;
 
-public abstract class AbstractTreeVisitor implements TreeVisitor<Void> {
+import java.util.Optional;
+
+public abstract class AbstractTreeVisitor<T> implements TreeVisitor<Optional<T>> {
 
    @Override
-   public Void visit(FunctionDefinition functionDefinition) {
-      return null;
+   public Optional<T> visit(TreeNode treeNode) {
+      return Optional.empty();
    }
 
    @Override
-   public Void visit(Assign assign) {
-      return null;
+   public Optional<T> visit(Argument argument) {
+      return Optional.empty();
    }
 
    @Override
-   public Void visit(VariableReference reference) {
-      return null;
+   public Optional<T> visit(ClassBody classBody) {
+      return Optional.empty();
    }
 
    @Override
-   public Void visit(TreeNode treeNode) {
-      return null;
+   public Optional<T> visit(ClassDefinition classDefinition) {
+      return Optional.empty();
    }
 
    @Override
-   public Void visit(Argument argument) {
-      return null;
+   public Optional<T> visit(PrimaryConstructor primaryConstructor) {
+      return Optional.empty();
    }
 
    @Override
-   public Void visit(ClassBody classBody) {
-      return null;
+   public Optional<T> visit(Property property) {
+      return Optional.empty();
    }
 
    @Override
-   public Void visit(ClassDefinition classDefinition) {
-      return null;
+   public Optional<T> visit(FunctionDefinition functionDefinition) {
+      return Optional.empty();
    }
 
    @Override
-   public Void visit(PrimaryConstructor primaryConstructor) {
-      return null;
+   public Optional<T> visit(Expression expression) {
+      return Optional.empty();
    }
 
    @Override
-   public Void visit(Property property) {
-      return null;
+   public Optional<T> visit(Select select) {
+      return Optional.empty();
    }
 
    @Override
-   public Void visit(Expression expression) {
-      return null;
+   public Optional<T> visit(AssignBackingField assign) {
+      return Optional.empty();
    }
 
    @Override
-   public Void visit(IntLiteral intLiteral) {
-      return null;
+   public Optional<T> visit(VariableReference reference) {
+      return Optional.empty();
    }
 
    @Override
-   public Void visit(StringLiteral stringLiteral) {
-      return null;
+   public Optional<T> visit(IntLiteral intLiteral) {
+      return Optional.empty();
+   }
+
+   @Override
+   public Optional<T> visit(StringLiteral stringLiteral) {
+      return Optional.empty();
    }
 }

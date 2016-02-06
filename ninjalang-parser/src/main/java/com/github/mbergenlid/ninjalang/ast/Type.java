@@ -13,5 +13,4 @@ public class Type {
    public Type(String identifier) {
       this.identifier = identifier;
    }
-
 }

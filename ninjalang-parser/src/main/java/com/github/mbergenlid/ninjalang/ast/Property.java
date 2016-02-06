@@ -1,6 +1,8 @@
 package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
+import com.github.mbergenlid.ninjalang.typer.Symbol;
+import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,7 +13,8 @@ import java.util.Optional;
 public class Property extends TreeNode {
    private final String name;
    private final String propertyType;
-   private final Expression value;
+   private final Expression initialValue;
+   private final Getter value;
    private final Optional<Setter> setter;
 
    public Property(String name, String propertyType, Expression value) {
@@ -21,11 +24,18 @@ public class Property extends TreeNode {
    public Property(String name, String propertyType, Expression initialValue, Setter setter) {
       this.name = name;
       this.propertyType = propertyType;
-      this.value = initialValue;
+      this.initialValue = initialValue;
+      final String getterName = setter != null ?
+         String.format("get%s%s", name.substring(0,1).toUpperCase(), name.substring(1)) : name;
+      if(setter == null) {
+         this.value = new Getter(getterName, new TypeSymbol(propertyType), initialValue);
+      } else {
+         this.value = new Getter(getterName, new TypeSymbol(propertyType), new AccessBackingField(new Symbol(name)));
+      }
       this.setter = Optional.ofNullable(setter);
    }
 
-   public Expression getter() {
+   public Getter getter() {
       return value;
    }
 
@@ -38,5 +48,9 @@ public class Property extends TreeNode {
    public void foreachPostfix(TreeVisitor<Void> visitor) {
       value.foreachPostfix(visitor);
       visitor.visit(this);
+   }
+
+   public boolean needsBackingField() {
+      return setter.isPresent();
    }
 }

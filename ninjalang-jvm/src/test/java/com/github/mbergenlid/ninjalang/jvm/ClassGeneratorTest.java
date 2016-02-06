@@ -40,5 +40,13 @@ public class ClassGeneratorTest {
       Method prop = aClass.getMethod("prop");
       int intResult = (int) prop.invoke(instance);
       assertThat(intResult).isEqualTo(42);
+
+      final Method getMutableProperty = aClass.getMethod("getMutableProperty");
+      final int originalValue = (int) getMutableProperty.invoke(instance);
+      assertThat(originalValue).isEqualTo(1);
+      final Method setMutableProperty = aClass.getMethod("setMutableProperty", int.class);
+      setMutableProperty.invoke(instance, 5);
+      final int updatedValue = (int) getMutableProperty.invoke(instance);
+      assertThat(updatedValue).isEqualTo(5);
    }
 }

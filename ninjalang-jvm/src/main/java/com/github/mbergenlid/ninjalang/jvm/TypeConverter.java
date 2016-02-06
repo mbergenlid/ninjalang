@@ -5,6 +5,8 @@ import org.apache.bcel.generic.Type;
 public class TypeConverter {
    static Type fromNinjaType(final com.github.mbergenlid.ninjalang.ast.Type type) {
       switch (type.getIdentifier()) {
+         case "ninjalang.Nothing":
+            return Type.VOID;
          case "ninjalang.Int":
             return Type.INT;
          case "ninjalang.String":

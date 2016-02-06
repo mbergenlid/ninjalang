@@ -44,10 +44,35 @@ public class TyperTest {
 
    @Test
    public void testMethodDeclarationWithInputParameter() {
-      final Setter setter = new Setter(new VariableReference("value"));
+      final Property property = new Property(
+         "property", "Int", new IntLiteral(1),
+         new Setter("setProperty", new TypeSymbol("Nothing"), new AssignBackingField(new Symbol("property"), new VariableReference("value")))
+      );
+
       final Typer typer = new Typer();
 
-      typer.typeTree(setter);
+      typer.typeTree(property);
+      assertThat(property.getSetter().get().getReturnType().getType()).isEqualTo(Types.NOTHING);
+   }
+
+   @Test
+   public void testFieldGetter() {
+      final Getter getter = new Getter("getProperty", new TypeSymbol("Int"), new Select(new Symbol("property")));
+      final Typer typer = new Typer(SymbolTable.of(new Symbol("property", Types.INT)));
+      typer.typeTree(getter);
+
+      assertThat(getter.getBody().getType()).isEqualTo(Types.INT);
+   }
+
+   @Test
+   public void testTypeOfVariableReference() {
+      final FunctionDefinition function = new FunctionDefinition(
+         "echo", ImmutableList.of(Argument.builder().symbol(new Symbol("value")).declaredType("String").build()),
+         new TypeSymbol("Int"), new VariableReference("value"));
+      final Typer typer = new Typer();
+
+      expectedException.expect(TypeException.class);
+      typer.typeTree(function);
    }
 
 }

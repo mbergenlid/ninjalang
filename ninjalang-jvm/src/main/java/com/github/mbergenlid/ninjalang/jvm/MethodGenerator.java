@@ -1,14 +1,19 @@
 package com.github.mbergenlid.ninjalang.jvm;
 
-import com.github.mbergenlid.ninjalang.ast.IntLiteral;
-import com.github.mbergenlid.ninjalang.ast.Property;
-import com.github.mbergenlid.ninjalang.ast.StringLiteral;
+import com.github.mbergenlid.ninjalang.ast.*;
+import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.visitor.AbstractTreeVisitor;
+import com.github.mbergenlid.ninjalang.ast.visitor.AbstractVoidTreeVisitor;
 import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.*;
+import org.apache.bcel.generic.Type;
 
-public class MethodGenerator extends AbstractTreeVisitor {
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+public class MethodGenerator extends AbstractVoidTreeVisitor {
 
    private final ClassGen classGen;
    private final ConstantPoolGen constantPoolGen;
@@ -22,12 +27,52 @@ public class MethodGenerator extends AbstractTreeVisitor {
       this.factory = new InstructionFactory(classGen);
    }
 
-   public Method generateFromProperty(final Property property) {
-      final Type type = TypeConverter.fromNinjaType(property.getType());
-      final MethodGen methodGen = new MethodGen(Constants.ACC_PUBLIC, type, new Type[]{}, new String[]{},
-         property.getName(), classGen.getClassName(), instructionList, constantPoolGen);
+   public Method generateConstructor(List<Property> properties) {
+      final MethodGen methodGen = new MethodGen(
+         Constants.ACC_PUBLIC,
+         Type.VOID,
+         new Type[0],
+         new String[0],
+         "<init>",
+         classGen.getClassName(),
+         instructionList,
+         constantPoolGen);
+      instructionList.append(InstructionConstants.THIS);
+      instructionList.append(new INVOKESPECIAL(classGen.getConstantPool().addMethodref(classGen.getSuperclassName(), "<init>", "()V")));
+      properties.stream().forEach(prop -> {
+         instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+         prop.getInitialValue().visit(this);
+         instructionList.append(factory.createPutField(
+            classGen.getClassName(), prop.getName(), TypeConverter.fromNinjaType(prop.getType())));
+      });
+      instructionList.append(InstructionConstants.RETURN);
 
-      property.foreachPostfix(this);
+      methodGen.setMaxStack();
+      final Method method = methodGen.getMethod();
+      instructionList.dispose();
+      return method;
+   }
+
+   public Method generateFromFunction(final FunctionDefinition function) {
+      final Type type = TypeConverter.fromNinjaType(function.getReturnType().getType());
+      final List<Type> typeList = function.getArgumentList().stream()
+         .map(a -> a.getSymbol().getType())
+         .map(TypeConverter::fromNinjaType)
+         .collect(Collectors.toList());
+      final List<String> nameList = function.getArgumentList().stream()
+         .map(t -> t.getSymbol().getName())
+         .collect(Collectors.toList());
+      final MethodGen methodGen = new MethodGen(
+         Constants.ACC_PUBLIC,
+         type,
+         typeList.toArray(new Type[typeList.size()]),
+         nameList.toArray(new String[nameList.size()]),
+         function.getName(),
+         classGen.getClassName(),
+         instructionList,
+         constantPoolGen);
+
+      function.getBody().visit(this);
       instructionList.append(InstructionFactory.createReturn(type));
 
       methodGen.setMaxStack();
@@ -48,4 +93,31 @@ public class MethodGenerator extends AbstractTreeVisitor {
       return super.visit(stringLiteral);
    }
 
+   @Override
+   public Void visit(Select select) {
+      return null;
+   }
+
+   @Override
+   public Void visit(AssignBackingField assign) {
+      instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+      assign.getValue().visit(this);
+      instructionList.append(factory.createPutField(classGen.getClassName(),
+         assign.getBackingField().getName(), TypeConverter.fromNinjaType(assign.getBackingField().getType())));
+      return super.visit(assign);
+   }
+
+   @Override
+   public Void visit(AccessBackingField field) {
+      instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+      instructionList.append(factory.createGetField(classGen.getClassName(), field.getBackingField().getName(),
+         TypeConverter.fromNinjaType(field.getBackingField().getType())));
+      return null;
+   }
+
+   @Override
+   public Void visit(VariableReference reference) {
+      instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(reference.getType()), 1));
+      return super.visit(reference);
+   }
 }

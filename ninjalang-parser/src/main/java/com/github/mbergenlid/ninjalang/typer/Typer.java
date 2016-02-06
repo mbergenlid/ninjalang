@@ -8,7 +8,11 @@ public class Typer implements TreeVisitor<Void> {
    private final SymbolTable symbolTable;
 
    public Typer() {
-      symbolTable = new SymbolTable();
+      this(new SymbolTable());
+   }
+
+   public Typer(SymbolTable symbolTable) {
+      this.symbolTable = symbolTable;
    }
 
    public void typeTree(final TreeNode tree) {
@@ -46,16 +50,21 @@ public class Typer implements TreeVisitor<Void> {
 
    @Override
    public Void visit(Property property) {
+      final Type declaredType = symbolTable.lookupTypeName(property.getPropertyType());
+      final Symbol typeSymbol = new Symbol(property.getName());
+      typeSymbol.setType(declaredType);
+
+      symbolTable.newScope();
+      symbolTable.addSymbol(typeSymbol);
       property.getValue().visit(this);
       property.getSetter().ifPresent(s -> s.visit(this));
-      final Type inferredType = property.getValue().getType();
-      final Type declaredType = symbolTable.lookupTypeName(property.getPropertyType());
+      final Type inferredType = property.getInitialValue().getType();
 
       if(!declaredType.equals(inferredType)) {
          throw new TypeException();
       }
-
       property.setType(inferredType);
+      symbolTable.exitScope();
       return null;
    }
 
@@ -69,6 +78,14 @@ public class Typer implements TreeVisitor<Void> {
          symbolTable.addSymbol(a.getSymbol());
       });
       functionDefinition.getBody().visit(this);
+      final Type returnType = symbolTable.lookupTypeName(functionDefinition.getReturnType().getName());
+      functionDefinition.getReturnType().setType(returnType);
+      final Type inferredType = functionDefinition.getBody().getType();
+      final Type declaredType = functionDefinition.getReturnType().getType();
+      if(!declaredType.equals(inferredType)) {
+         throw new TypeException();
+      }
+
       symbolTable.exitScope();
       return null;
    }
@@ -79,8 +96,29 @@ public class Typer implements TreeVisitor<Void> {
    }
 
    @Override
-   public Void visit(Assign assign) {
+   public Void visit(AssignBackingField assign) {
       assign.getValue().visit(this);
+      assign.getBackingField().resolveType(symbolTable);
+      final Type declaredType = assign.getBackingField().getType();
+      final Type inferredType = assign.getValue().getType();
+      if(!declaredType.equals(inferredType)) {
+         throw new TypeException();
+      }
+      assign.setType(Types.NOTHING);
+      return null;
+   }
+
+   @Override
+   public Void visit(AccessBackingField access) {
+      access.getBackingField().resolveType(symbolTable);
+      return null;
+   }
+
+   @Override
+   public Void visit(Select select) {
+      select.getQualifier().ifPresent(tree -> tree.visit(this));
+      select.getSymbol().resolveType(symbolTable);
+      select.setType(select.getSymbol().getType());
       return null;
    }
 
@@ -88,6 +126,9 @@ public class Typer implements TreeVisitor<Void> {
    public Void visit(VariableReference reference) {
       if(!symbolTable.hasSymbol(reference.getVariable()))
          throw new TypeException();
+
+      final Symbol symbol = symbolTable.lookup(reference.getVariable());
+      reference.setType(symbol.getType());
       return null;
    }
 

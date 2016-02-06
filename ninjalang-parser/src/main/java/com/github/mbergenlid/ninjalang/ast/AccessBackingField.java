@@ -7,10 +7,10 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class Assign extends Expression {
+public class AccessBackingField extends Expression {
 
-   private final Symbol variable;
-   private final Expression value;
+   private final Symbol backingField;
+
 
    @Override
    public <T> T visit(TreeVisitor<T> visitor) {
@@ -19,7 +19,11 @@ public class Assign extends Expression {
 
    @Override
    public void foreachPostfix(TreeVisitor<Void> visitor) {
-      value.foreachPostfix(visitor);
       visit(visitor);
+   }
+
+   @Override
+   public Type getType() {
+      return backingField.getType();
    }
 }
