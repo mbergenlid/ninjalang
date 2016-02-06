@@ -7,15 +7,12 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class TermSymbol extends Symbol {
 
-   private final String declaredType;
-
-   public TermSymbol(String name, String declaredType) {
+   public TermSymbol(String name) {
       super(name);
-      this.declaredType = declaredType;
    }
 
    @Override
    public void resolveType(SymbolTable symbolTable) {
-      setType(symbolTable.lookupTypeName(declaredType));
+      setType(symbolTable.lookup(name).getType());
    }
 }

@@ -50,7 +50,7 @@ public class Typer implements TreeVisitor<Void> {
 
    @Override
    public Void visit(Property property) {
-      final Type declaredType = symbolTable.lookupTypeName(property.getPropertyType());
+      final Type declaredType = symbolTable.lookup(property.getPropertyType()).getType();
       final Symbol typeSymbol = new Symbol(property.getName());
       typeSymbol.setType(declaredType);
 
@@ -73,12 +73,12 @@ public class Typer implements TreeVisitor<Void> {
       functionDefinition.getArgumentList().stream().forEach(a -> a.visit(this));
       symbolTable.newScope();
       functionDefinition.getArgumentList().stream().forEach(a -> {
-         final Type type = symbolTable.lookupTypeName(a.getDeclaredType());
+         final Type type = symbolTable.lookup(a.getDeclaredType().getName()).getType();
          a.getSymbol().setType(type);
          symbolTable.addSymbol(a.getSymbol());
       });
       functionDefinition.getBody().visit(this);
-      final Type returnType = symbolTable.lookupTypeName(functionDefinition.getReturnType().getName());
+      final Type returnType = symbolTable.lookup(functionDefinition.getReturnType().getName()).getType();
       functionDefinition.getReturnType().setType(returnType);
       final Type inferredType = functionDefinition.getBody().getType();
       final Type declaredType = functionDefinition.getReturnType().getType();

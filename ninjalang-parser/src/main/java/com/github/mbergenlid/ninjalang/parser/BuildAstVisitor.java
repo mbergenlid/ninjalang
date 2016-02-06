@@ -38,7 +38,7 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
    public TreeNode visitClassArgument(ClassParser.ClassArgumentContext ctx) {
       return Argument.builder()
          .symbol(new Symbol(ctx.name.getText()))
-         .declaredType(ctx.type.getText())
+         .declaredType(new TypeSymbol(ctx.type.getText()))
          .build();
    }
 

@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class Symbol {
 
-   private final String name;
+   protected final String name;
    private Type type = Type.NO_TYPE;
 
    public Symbol(String name) {
