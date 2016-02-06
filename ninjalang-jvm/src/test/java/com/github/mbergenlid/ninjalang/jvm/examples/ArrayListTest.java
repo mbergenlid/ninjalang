@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
 
 public class ArrayListTest {
 
-   @Test(expected = NoSuchElementException.class)
+   @Test(expected = RuntimeException.class)
    public void shouldCompile() throws IOException, ClassNotFoundException {
       new ClassGeneratorTestHelper("examples/ArrayList").loadClass();
    }
