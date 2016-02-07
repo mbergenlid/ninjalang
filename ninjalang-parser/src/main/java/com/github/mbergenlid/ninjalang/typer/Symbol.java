@@ -21,4 +21,15 @@ public class Symbol {
    public void resolveType(SymbolTable symbolTable) {
       setType(symbolTable.lookup(name).getType());
    }
+
+   public void setType(Type type) {
+      if(this.type != Type.NO_TYPE) {
+         throw new IllegalStateException("Not allowed to set type twice.");
+      }
+      this.type = type;
+   }
+
+   public Type getType() {
+      return type;
+   }
 }

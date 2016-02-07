@@ -5,11 +5,10 @@ import com.github.mbergenlid.ninjalang.ast.Type;
 public class TypeSymbol extends Symbol {
 
    public TypeSymbol(String name) {
-      this(name, Type.NO_TYPE);
+      super(name);
    }
 
    public TypeSymbol(String name, Type type) {
-      super(name);
-      setType(type);
+      super(name, type);
    }
 }
