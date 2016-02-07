@@ -11,7 +11,7 @@ public class SymbolTable {
       new TypeSymbol("Nothing", Types.NOTHING),
       new TypeSymbol("Int", Types.INT),
       new TypeSymbol("String", Types.STRING),
-      new TypeSymbol("Array", Types.ARRAY)
+      new TypeSymbol("Array", Types.ARRAY_OBJECT)
    );
 
    private final Stack<Map<String, Symbol>> scopes;

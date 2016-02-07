@@ -31,10 +31,17 @@ public class FunctionTest {
 
    @Test(expected = TypeException.class)
    public void shouldNotBeAbleToApplyOnNonFunction() {
+      typer = new Typer(SymbolTable.of(new TermSymbol("array", Types.ARRAY)));
       final Apply apply = new Apply(
-         new Select(new Select(new TermSymbol("Array")), new TermSymbol("size")), ImmutableList.of());
+         new Select(new Select(new TermSymbol("array")), new TermSymbol("size")), ImmutableList.of());
 
       typer.typeTree(apply);
    }
 
+   @Test(expected = TypeException.class)
+   public void shouldNotBeAbleToAccessInstanceMemberFromStaticContext() {
+      final Select apply = new Select(new Select(new TermSymbol("Array")), new TermSymbol("size"));
+
+      typer.typeTree(apply);
+   }
 }

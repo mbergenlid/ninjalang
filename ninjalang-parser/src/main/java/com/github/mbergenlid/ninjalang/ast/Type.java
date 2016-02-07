@@ -8,9 +8,8 @@ import lombok.EqualsAndHashCode;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
-@Data
-@EqualsAndHashCode(callSuper = false)
 public class Type {
 
    public static final Type NO_TYPE = new Type("<noType>");
@@ -26,8 +25,8 @@ public class Type {
       this.symbols = symbols;
    }
 
-   public Symbol member(final String name) {
-      return symbols.stream().filter(s -> s.getName().equals(name)).findFirst().orElseThrow(NoSuchElementException::new);
+   public Optional<Symbol> member(final String name) {
+      return symbols.stream().filter(s -> s.getName().equals(name)).findFirst();
    }
 
 
@@ -37,5 +36,27 @@ public class Type {
 
    public FunctionType asFunctionType() {
       return (FunctionType) this;
+   }
+
+
+   public String getIdentifier() {
+      return identifier;
+   }
+
+
+   @Override
+   public int hashCode() {
+      return getIdentifier().hashCode();
+   }
+
+   @Override
+   public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      Type type = (Type) o;
+
+      return getIdentifier().equals(type.getIdentifier());
+
    }
 }
