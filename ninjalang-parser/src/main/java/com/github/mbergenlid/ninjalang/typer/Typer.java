@@ -2,7 +2,6 @@ package com.github.mbergenlid.ninjalang.typer;
 
 import com.github.mbergenlid.ninjalang.ast.*;
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
-import com.github.mbergenlid.ninjalang.types.FunctionType;
 
 public class Typer implements TreeVisitor<Void> {
 
@@ -51,18 +50,21 @@ public class Typer implements TreeVisitor<Void> {
 
    @Override
    public Void visit(Property property) {
-      final Type declaredType = symbolTable.lookup(property.getPropertyType()).getType();
-      final Symbol typeSymbol = new Symbol(property.getName());
-      typeSymbol.setType(declaredType);
+      property.getPropertyType().resolveType(symbolTable);
+      final Type declaredType = property.getPropertyType().getType();
+      final Symbol typeSymbol = new TermSymbol(property.getName(), declaredType);
 
       symbolTable.newScope();
       symbolTable.addSymbol(typeSymbol);
-      property.getGetter().visit(this);
+      final Getter getter = property.getGetter();
+      getter.visit(this);
+
       property.getSetter().ifPresent(s -> s.visit(this));
+      property.getInitialValue().visit(this);
       final Type inferredType = property.getInitialValue().getType();
 
       if(!declaredType.equals(inferredType)) {
-         throw new TypeException();
+         throw TypeException.incompatibleTypes(declaredType, inferredType);
       }
       property.setType(inferredType);
       symbolTable.exitScope();
@@ -74,17 +76,19 @@ public class Typer implements TreeVisitor<Void> {
       functionDefinition.getArgumentList().stream().forEach(a -> a.visit(this));
       symbolTable.newScope();
       functionDefinition.getArgumentList().stream().forEach(a -> {
-         final Type type = symbolTable.lookup(a.getDeclaredType().getName()).getType();
+         final Type type = symbolTable.lookupType(a.getDeclaredType().getName()).getType();
          a.getSymbol().setType(type);
          symbolTable.addSymbol(a.getSymbol());
       });
       functionDefinition.getBody().visit(this);
-      final Type returnType = symbolTable.lookup(functionDefinition.getReturnType().getName()).getType();
-      functionDefinition.getReturnType().setType(returnType);
+      if(functionDefinition.getReturnType().getType() == Type.NO_TYPE) {
+         final Type returnType = symbolTable.lookupType(functionDefinition.getReturnType().getName()).getType();
+         functionDefinition.getReturnType().setType(returnType);
+      }
       final Type inferredType = functionDefinition.getBody().getType();
       final Type declaredType = functionDefinition.getReturnType().getType();
       if(!declaredType.equals(inferredType)) {
-         throw new TypeException();
+         throw TypeException.incompatibleTypes(declaredType, inferredType);
       }
 
       symbolTable.exitScope();
@@ -103,7 +107,7 @@ public class Typer implements TreeVisitor<Void> {
       final Type declaredType = assign.getBackingField().getType();
       final Type inferredType = assign.getValue().getType();
       if(!declaredType.equals(inferredType)) {
-         throw new TypeException();
+         throw TypeException.incompatibleTypes(declaredType, inferredType);
       }
       assign.setType(Types.NOTHING);
       return null;
@@ -127,7 +131,7 @@ public class Typer implements TreeVisitor<Void> {
          select.getSymbol().resolveType(symbolTable);
       }
       if(!select.hasType()) {
-         throw new TypeException();
+         throw new TypeException("Fucked up error");
       }
       return null;
    }
@@ -137,7 +141,7 @@ public class Typer implements TreeVisitor<Void> {
       apply.getFunction().visit(this);
       final Type type = apply.getFunction().getType();
       if(!type.isFunctionType()) {
-         throw new TypeException();
+         throw new TypeException(String.format("%s is not a function", type));
       }
       apply.setType(type.asFunctionType().getReturnType());
       return null;
@@ -145,10 +149,10 @@ public class Typer implements TreeVisitor<Void> {
 
    @Override
    public Void visit(VariableReference reference) {
-      if(!symbolTable.hasSymbol(reference.getVariable()))
-         throw new TypeException();
+      if(!symbolTable.hasTerm(reference.getVariable()))
+         throw new TypeException("WTF!");
 
-      final Symbol symbol = symbolTable.lookup(reference.getVariable());
+      final Symbol symbol = symbolTable.lookupTerm(reference.getVariable());
       reference.setType(symbol.getType());
       return null;
    }

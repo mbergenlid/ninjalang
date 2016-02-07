@@ -1,6 +1,6 @@
 package com.github.mbergenlid.ninjalang.ast;
 
-import com.github.mbergenlid.ninjalang.typer.Symbol;
+import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
 import com.google.common.collect.ImmutableList;
 
@@ -10,7 +10,9 @@ public class Setter extends FunctionDefinition {
       this(AccessModifier.PUBLIC, name, returnType, body);
    }
 
-   public Setter(AccessModifier accessModifier, String name, TypeSymbol returnType, Expression body) {
-      super(accessModifier, name, ImmutableList.of(Argument.builder().symbol(new Symbol("value")).declaredType(new TypeSymbol("Int")).build()), returnType, body);
+   public Setter(AccessModifier accessModifier, String name, TypeSymbol propertyType, Expression body) {
+      super(accessModifier, name,
+         ImmutableList.of(Argument.builder().symbol(new TermSymbol("value")).declaredType(propertyType).build()),
+         new TypeSymbol("Nothing"), body);
    }
 }

@@ -46,7 +46,7 @@ public class TyperTest {
    public void testMethodDeclarationWithInputParameter() {
       final Property property = new Property(
          "property", "Int", new IntLiteral(1),
-         new Setter("setProperty", new TypeSymbol("Nothing"), new AssignBackingField(new Symbol("property"), new VariableReference("value")))
+         new Setter("setProperty", new TypeSymbol("Int"), new AssignBackingField(new TermSymbol("property"), new VariableReference("value")))
       );
 
       final Typer typer = new Typer();
@@ -57,8 +57,8 @@ public class TyperTest {
 
    @Test
    public void testFieldGetter() {
-      final Getter getter = new Getter("getProperty", new TypeSymbol("Int"), new Select(new Symbol("property")));
-      final Typer typer = new Typer(SymbolTable.of(new Symbol("property", Types.INT)));
+      final Getter getter = new Getter("getProperty", new TypeSymbol("Int"), new Select(new TermSymbol("property")));
+      final Typer typer = new Typer(SymbolTable.of(new TermSymbol("property", Types.INT)));
       typer.typeTree(getter);
 
       assertThat(getter.getBody().getType()).isEqualTo(Types.INT);
@@ -67,7 +67,7 @@ public class TyperTest {
    @Test
    public void testTypeOfVariableReference() {
       final FunctionDefinition function = new FunctionDefinition(
-         "echo", ImmutableList.of(Argument.builder().symbol(new Symbol("value")).declaredType(new TypeSymbol("String")).build()),
+         "echo", ImmutableList.of(Argument.builder().symbol(new TermSymbol("value")).declaredType(new TypeSymbol("String")).build()),
          new TypeSymbol("Int"), new VariableReference("value"));
       final Typer typer = new Typer();
 

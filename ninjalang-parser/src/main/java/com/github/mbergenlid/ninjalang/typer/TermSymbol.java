@@ -18,6 +18,6 @@ public class TermSymbol extends Symbol {
 
    @Override
    public void resolveType(SymbolTable symbolTable) {
-      setType(symbolTable.lookup(name).getType());
+      setType(symbolTable.lookupTerm(name).getType());
    }
 }

@@ -14,16 +14,22 @@ import java.net.URLClassLoader;
 public class ClassGeneratorTestHelper {
 
    private final String ninjaClass;
+   private final String path;
    private Class<?> theClass;
 
    public ClassGeneratorTestHelper(final String ninjaClassName) {
+      this("", ninjaClassName);
+   }
+
+   public ClassGeneratorTestHelper(final String path, final String ninjaClassName) {
       this.ninjaClass = ninjaClassName;
+      this.path = path;
    }
 
    public Class<?> loadClass() throws IOException, ClassNotFoundException {
       if(theClass == null) {
          ClassDefinition classDefinition = Parser.classDefinition(
-            ClassGeneratorTestHelper.class.getResourceAsStream(String.format("/%s.ninja", ninjaClass))
+            ClassGeneratorTestHelper.class.getResourceAsStream(String.format("%s/%s.ninja", path, ninjaClass))
          );
          new Typer().typeTree(classDefinition);
          JavaClass javaClass = ClassGenerator.generateClass(classDefinition);

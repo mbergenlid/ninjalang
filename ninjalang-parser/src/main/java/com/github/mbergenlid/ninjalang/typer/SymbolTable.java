@@ -11,14 +11,15 @@ public class SymbolTable {
       new TypeSymbol("Nothing", Types.NOTHING),
       new TypeSymbol("Int", Types.INT),
       new TypeSymbol("String", Types.STRING),
-      new TypeSymbol("Array", Types.ARRAY_OBJECT)
+      new TypeSymbol("Array", Types.ARRAY),
+      new TermSymbol("Array", Types.ARRAY_OBJECT)
    );
 
-   private final Stack<Map<String, Symbol>> scopes;
+   private final Stack<Scope> scopes;
 
    public SymbolTable() {
       scopes = new Stack<>();
-      scopes.push(new HashMap<>());
+      scopes.push(new Scope());
       addSymbol(new TermSymbol("this"));
       PREDEFINED.forEach(this::addSymbol);
    }
@@ -29,27 +30,52 @@ public class SymbolTable {
       return symbolTable;
    }
 
-   public boolean hasSymbol(final String name) {
-      return scopes.stream().filter(scope -> scope.containsKey(name)).findFirst().isPresent();
+   public boolean hasType(final String name) {
+      return scopes.stream().filter(scope -> scope.typeSymbols.containsKey(name)).findFirst().isPresent();
    }
 
-   public Symbol lookup(final String name) {
+   public boolean hasTerm(final String name) {
+      return scopes.stream().filter(scope -> scope.termSymbols.containsKey(name)).findFirst().isPresent();
+   }
+
+   public Symbol lookupType(final String name) {
       return scopes.stream()
-         .filter(scope -> scope.containsKey(name))
+         .filter(scope -> scope.typeSymbols.containsKey(name))
          .findFirst()
-         .map(s -> s.get(name))
+         .map(s -> s.typeSymbols.get(name))
+         .orElseThrow(() -> new NoSuchElementException("No symbol with name " + name));
+   }
+
+   public Symbol lookupTerm(final String name) {
+      return scopes.stream()
+         .filter(scope -> scope.termSymbols.containsKey(name))
+         .findFirst()
+         .map(s -> s.termSymbols.get(name))
          .orElseThrow(() -> new NoSuchElementException("No symbol with name " + name));
    }
 
    public void addSymbol(final Symbol symbol) {
-      scopes.peek().put(symbol.getName(), symbol);
+      scopes.peek().addSymbol(symbol);
    }
 
    public void newScope() {
-      scopes.push(new HashMap<>());
+      scopes.push(new Scope());
    }
 
    public void exitScope() {
       scopes.pop();
+   }
+
+   private class Scope {
+      private final Map<String, Symbol> typeSymbols = new HashMap<>();
+      private final Map<String, Symbol> termSymbols = new HashMap<>();
+
+      public void addSymbol(final Symbol symbol) {
+         if(symbol instanceof TypeSymbol) {
+            typeSymbols.put(symbol.getName(), symbol);
+         } else {
+            termSymbols.put(symbol.getName(), symbol);
+         }
+      }
    }
 }

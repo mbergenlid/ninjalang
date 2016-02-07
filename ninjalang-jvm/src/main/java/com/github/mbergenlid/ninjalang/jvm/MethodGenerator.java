@@ -95,6 +95,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
 
    @Override
    public Void visit(Select select) {
+      instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(select.getType()), 1));
       return null;
    }
 

@@ -43,6 +43,11 @@ public class Select extends Expression {
    }
 
    @Override
+   public boolean hasType() {
+      return symbol.getType() != Type.NO_TYPE;
+   }
+
+   @Override
    public void setType(Type type) {
       super.setType(type);
       symbol.setType(type);

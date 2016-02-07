@@ -11,6 +11,8 @@ public class TypeConverter {
             return Type.INT;
          case "ninjalang.String":
             return Type.STRING;
+         case "ninjalang.Array":
+            return Type.OBJECT;
          default:
             //Should have been caught in typer.
             throw new IllegalArgumentException("Unknown type " + type);

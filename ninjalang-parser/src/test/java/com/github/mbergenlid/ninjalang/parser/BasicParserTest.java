@@ -1,11 +1,9 @@
 package com.github.mbergenlid.ninjalang.parser;
 
 import com.github.mbergenlid.ninjalang.ast.*;
-import com.github.mbergenlid.ninjalang.typer.Symbol;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
 import com.google.common.collect.ImmutableList;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -40,8 +38,8 @@ public class BasicParserTest {
          new Property("mutableProperty", "Int", new IntLiteral(1),
             new Setter(
                "setMutableProperty",
-               new TypeSymbol("Nothing"),
-               new AssignBackingField(new Symbol("mutableProperty"), new VariableReference("value")))
+               new TypeSymbol("Int"),
+               new AssignBackingField(new TermSymbol("mutableProperty"), new Select(new TermSymbol("value"))))
             )
       );
    }
@@ -52,14 +50,14 @@ public class BasicParserTest {
       assertThat(classDefinition.getName()).isEqualTo("ClassWithPrivateProperty");
 
       assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
-         new Property("property", "Int", new IntLiteral(1),
+         new Property("property", new TypeSymbol("Int"), new IntLiteral(1),
             new Getter(
-              AccessModifier.PRIVATE, "getProperty", new TypeSymbol("Int"), new AccessBackingField(new Symbol("property"))
+              AccessModifier.PRIVATE, "getProperty", new TypeSymbol("Int"), new AccessBackingField(new TermSymbol("property"))
             ),
             new Setter(
                AccessModifier.PRIVATE,
-               "setProperty", new TypeSymbol("Nothing"),
-               new AssignBackingField(new Symbol("property"), new VariableReference("value"))
+               "setProperty", new TypeSymbol("Int"),
+               new AssignBackingField(new TermSymbol("property"), new Select(new TermSymbol("value")))
             )
          )
       );

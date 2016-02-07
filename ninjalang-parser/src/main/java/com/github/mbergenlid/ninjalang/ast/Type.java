@@ -3,11 +3,8 @@ package com.github.mbergenlid.ninjalang.ast;
 import com.github.mbergenlid.ninjalang.typer.Symbol;
 import com.github.mbergenlid.ninjalang.types.FunctionType;
 import com.google.common.collect.ImmutableList;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class Type {
@@ -58,5 +55,10 @@ public class Type {
 
       return getIdentifier().equals(type.getIdentifier());
 
+   }
+
+   @Override
+   public String toString() {
+      return getIdentifier();
    }
 }

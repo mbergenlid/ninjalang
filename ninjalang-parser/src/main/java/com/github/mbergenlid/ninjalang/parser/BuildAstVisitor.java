@@ -3,7 +3,6 @@ package com.github.mbergenlid.ninjalang.parser;
 import com.github.mbergenlid.ninjalang.ClassBaseVisitor;
 import com.github.mbergenlid.ninjalang.ClassParser;
 import com.github.mbergenlid.ninjalang.ast.*;
-import com.github.mbergenlid.ninjalang.typer.Symbol;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
 import com.google.common.collect.ImmutableList;
@@ -39,7 +38,7 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
    @Override
    public TreeNode visitClassArgument(ClassParser.ClassArgumentContext ctx) {
       return Argument.builder()
-         .symbol(new Symbol(ctx.name.getText()))
+         .symbol(new TermSymbol(ctx.name.getText()))
          .declaredType(new TypeSymbol(ctx.type.getText()))
          .build();
    }
@@ -57,7 +56,7 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
    @Override
    public Property visitPropertyDefinition(ClassParser.PropertyDefinitionContext ctx) {
       final Expression expression = (Expression) visit(ctx.expression());
-      final String declaredType = ctx.type.getText();
+      final TypeSymbol declaredType = new TypeSymbol(ctx.type.getText());
       final String accessModifier = ctx.accessModifier() != null ? ctx.accessModifier().getText() : "public";
       if(ctx.modifier.getText().equals("var")) {
          final String name = ctx.name.getText();
@@ -65,19 +64,19 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
             new Getter(
                AccessModifier.valueOf(accessModifier.toUpperCase()),
                String.format("get%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
-               new TypeSymbol("Int"),
-               new AccessBackingField(new Symbol(name))
+               new TypeSymbol(declaredType.getName()),
+               new AccessBackingField(new TermSymbol(name))
             ),
             new Setter(
                AccessModifier.valueOf(accessModifier.toUpperCase()),
                String.format("set%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
-               new TypeSymbol("Nothing"),
+               new TypeSymbol(declaredType.getName()),
                new AssignBackingField(
-                  new Symbol(name),
-                  new VariableReference("value")))
+                  new TermSymbol(name),
+                  new Select(new TermSymbol("value"))))
             );
       }
-      return new Property(ctx.name.getText(), declaredType, expression);
+      return new Property(ctx.name.getText(), declaredType.getName(), expression);
    }
 
    @Override

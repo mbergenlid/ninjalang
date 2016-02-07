@@ -25,7 +25,7 @@ public class FunctionTest {
          new Select(new Select(new TermSymbol("Array")), new TermSymbol("empty")), ImmutableList.of());
 
       typer.typeTree(apply);
-      assertThat(apply.getFunction().getType()).isEqualTo(new Type("()->ninjalang.Array"));
+      assertThat(apply.getFunction().getType().getIdentifier()).isEqualTo("()->ninjalang.Array");
       assertThat(apply.getType()).isEqualTo(Types.ARRAY);
    }
 

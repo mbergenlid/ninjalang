@@ -4,7 +4,7 @@ import com.github.mbergenlid.ninjalang.ast.Type;
 import lombok.Data;
 
 @Data
-public class Symbol {
+public abstract class Symbol {
 
    protected final String name;
    private Type type = Type.NO_TYPE;
@@ -18,9 +18,7 @@ public class Symbol {
       this.type = type;
    }
    
-   public void resolveType(SymbolTable symbolTable) {
-      setType(symbolTable.lookup(name).getType());
-   }
+   public abstract void resolveType(SymbolTable symbolTable);
 
    public void setType(Type type) {
       if(this.type != Type.NO_TYPE) {
