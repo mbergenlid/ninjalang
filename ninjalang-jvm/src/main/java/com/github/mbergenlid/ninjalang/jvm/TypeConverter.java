@@ -1,5 +1,6 @@
 package com.github.mbergenlid.ninjalang.jvm;
 
+import org.apache.bcel.generic.ArrayType;
 import org.apache.bcel.generic.Type;
 
 public class TypeConverter {
@@ -12,7 +13,7 @@ public class TypeConverter {
          case "ninjalang.String":
             return Type.STRING;
          case "ninjalang.Array":
-            return Type.OBJECT;
+            return new ArrayType(Type.OBJECT, 1);
          default:
             //Should have been caught in typer.
             throw new IllegalArgumentException("Unknown type " + type);
