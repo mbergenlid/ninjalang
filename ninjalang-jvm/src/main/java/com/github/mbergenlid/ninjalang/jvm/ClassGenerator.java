@@ -35,6 +35,13 @@ public class ClassGenerator {
    private static void generateBody(ClassBody body, ClassGen classGen) {
       body.getProperties().stream()
          .forEach(p -> generateProperty(p, classGen));
+      body.getFunctions().stream()
+         .forEach(f -> generateFunction(f, classGen));
+   }
+
+   private static void generateFunction(FunctionDefinition functionDefinition, ClassGen classGen) {
+      final Method method = new MethodGenerator(classGen).generateFromFunction(functionDefinition);
+      classGen.addMethod(method);
    }
 
    private static void generateProperty(Property property, ClassGen classGen) {

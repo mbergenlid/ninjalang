@@ -1,6 +1,7 @@
 package com.github.mbergenlid.ninjalang.typer;
 
 import com.github.mbergenlid.ninjalang.ast.Apply;
+import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
 import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.Types;
 import com.google.common.collect.ImmutableList;

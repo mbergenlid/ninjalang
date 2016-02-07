@@ -2,6 +2,4 @@
 class Features {
     val array1: Array = Array.ofSize;
     val array2: Array = Array.empty();
-
-    def get(): Int = 5;
 }

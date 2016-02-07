@@ -21,7 +21,7 @@ public abstract class Symbol {
    public abstract void resolveType(SymbolTable symbolTable);
 
    public void setType(Type type) {
-      if(this.type != Type.NO_TYPE) {
+      if(this.type != Type.NO_TYPE && !this.type.equals(type)) {
          throw new IllegalStateException("Not allowed to set type twice.");
       }
       this.type = type;

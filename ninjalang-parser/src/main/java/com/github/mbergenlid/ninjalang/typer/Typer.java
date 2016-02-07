@@ -32,6 +32,7 @@ public class Typer implements TreeVisitor<Void> {
    @Override
    public Void visit(ClassBody classBody) {
       classBody.getProperties().stream().forEach(p -> p.visit(this));
+      classBody.getFunctions().stream().forEach(f -> f.visit(this));
       return null;
    }
 

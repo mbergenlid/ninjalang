@@ -49,4 +49,16 @@ public class ClassGeneratorTest {
       final int updatedValue = (int) getMutableProperty.invoke(instance);
       assertThat(updatedValue).isEqualTo(5);
    }
+
+   @Test
+   public void testFeatureClass() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+      final ClassGeneratorTestHelper helper = new ClassGeneratorTestHelper("Functions");
+      Class<?> aClass = helper.loadClass();
+
+      final Object instance = aClass.newInstance();
+      final Method get = aClass.getMethod("get");
+      int result = (int) get.invoke(instance);
+
+      assertThat(result).isEqualTo(5);
+   }
 }

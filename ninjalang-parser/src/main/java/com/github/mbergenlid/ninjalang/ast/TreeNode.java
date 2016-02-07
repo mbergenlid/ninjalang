@@ -6,7 +6,7 @@ public abstract class TreeNode {
    private Type type = null;
 
    public void setType(Type type) {
-      if(this.type != null) {
+      if(this.type != null && !this.type.equals(type)) {
          throw new IllegalStateException("Not allowed to set type twice.");
       }
       this.type = type;

@@ -1,0 +1,3 @@
+class Functions {
+    def get(): Int = 5;
+}
