@@ -13,10 +13,13 @@ classArgument:
     'val'? name=Identifier ':' type=Identifier;
 
 classBody:
-    '{' properties=propertyDefinition* '}';
+    '{' (propertyDefinition | functionDefinition)* '}';
 
 propertyDefinition:
     accessModifier? modifier=('val' | 'var') name=Identifier ':' type=Identifier '=' getter=expression ';';
+
+functionDefinition:
+    'def' name=Identifier '(' ')' ':' returnType=Identifier '=' body=expression ';';
 
 accessModifier:
     'private' | 'public';
