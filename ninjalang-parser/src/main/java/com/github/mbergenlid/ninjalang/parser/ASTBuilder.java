@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
+public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitClassDefinition(ClassParser.ClassDefinitionContext ctx) {
@@ -47,7 +47,7 @@ public class BuildAstVisitor extends ClassBaseVisitor<TreeNode> {
    public TreeNode visitClassBody(ClassParser.ClassBodyContext ctx) {
       List<Property> properties = ctx.children.stream()
          .map(this::visit)
-         .filter(BuildAstVisitor::isNotNull)
+         .filter(ASTBuilder::isNotNull)
          .map(node -> (Property) node)
          .collect(Collectors.toList());
       return new ClassBody(properties);

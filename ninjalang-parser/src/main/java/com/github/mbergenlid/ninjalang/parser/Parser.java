@@ -20,7 +20,7 @@ public class Parser extends ClassBaseListener {
       if(p.getNumberOfSyntaxErrors() > 0) {
          throw new RuntimeException("PARSE FAIL");
       }
-      return (ClassDefinition) new BuildAstVisitor().visit(classDefinitionContext);
+      return (ClassDefinition) new ASTBuilder().visit(classDefinitionContext);
    }
 
    private Parser() {}
