@@ -5,6 +5,7 @@ import com.github.mbergenlid.ninjalang.ClassParser;
 import com.github.mbergenlid.ninjalang.ast.*;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -45,12 +46,21 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitClassBody(ClassParser.ClassBodyContext ctx) {
-      List<Property> properties = ctx.children.stream()
+      List<TreeNode> children = ctx.children.stream()
          .map(this::visit)
          .filter(ASTBuilder::isNotNull)
+         .collect(Collectors.toList());
+
+      List<Property> properties = children.stream()
+         .filter(node -> node instanceof Property)
          .map(node -> (Property) node)
          .collect(Collectors.toList());
-      return new ClassBody(properties);
+
+      List<FunctionDefinition> functions = children.stream()
+         .filter(node -> node instanceof FunctionDefinition)
+         .map(node -> (FunctionDefinition) node)
+         .collect(Collectors.toList());
+      return new ClassBody(properties, functions);
    }
 
    @Override
@@ -77,6 +87,15 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
             );
       }
       return new Property(ctx.name.getText(), declaredType.getName(), expression);
+   }
+
+   @Override
+   public TreeNode visitFunctionDefinition(ClassParser.FunctionDefinitionContext ctx) {
+      final Expression functionBody = (Expression) visit(ctx.body);
+      return new FunctionDefinition(
+         AccessModifier.PUBLIC, ctx.name.getText(), ImmutableList.of(),
+         new TypeSymbol(ctx.returnType.getText()), functionBody
+      );
    }
 
    @Override

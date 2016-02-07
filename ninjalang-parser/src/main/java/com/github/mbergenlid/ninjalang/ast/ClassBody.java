@@ -10,9 +10,11 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class ClassBody extends TreeNode {
    private final List<Property> properties;
+   private final List<FunctionDefinition> functions;
 
-   public ClassBody(List<Property> properties) {
+   public ClassBody(List<Property> properties, List<FunctionDefinition> functions) {
       this.properties = properties;
+      this.functions = functions;
    }
 
    @Override

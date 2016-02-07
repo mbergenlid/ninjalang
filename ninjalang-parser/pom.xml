@@ -73,6 +73,23 @@
                </execution>
             </executions>
          </plugin>
+         <plugin>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-assertions-generator-maven-plugin</artifactId>
+            <version>2.0.0</version>
+            <configuration>
+               <packages>
+                  <param>com.github.mbergenlid.ninjalang.ast</param>
+               </packages>
+            </configuration>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>generate-assertions</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
       </plugins>
    </build>
 </project>
