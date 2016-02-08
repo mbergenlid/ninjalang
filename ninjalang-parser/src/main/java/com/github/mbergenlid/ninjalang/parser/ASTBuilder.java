@@ -89,10 +89,19 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
    @Override
    public TreeNode visitFunctionDefinition(ClassParser.FunctionDefinitionContext ctx) {
       final Expression functionBody = (Expression) visit(ctx.body);
+      final List<Argument> argumentList = ctx.functionArgument().stream()
+         .map(this::visit)
+         .map(a -> (Argument) a)
+         .collect(Collectors.toList());
       return new FunctionDefinition(
-         AccessModifier.PUBLIC, ctx.name.getText(), ImmutableList.of(),
+         AccessModifier.PUBLIC, ctx.name.getText(), argumentList,
          new TypeSymbol(ctx.returnType.getText()), functionBody
       );
+   }
+
+   @Override
+   public TreeNode visitFunctionArgument(ClassParser.FunctionArgumentContext ctx) {
+      return new Argument(new TermSymbol(ctx.name.getText()), new TypeSymbol(ctx.type.getText()));
    }
 
    @Override
