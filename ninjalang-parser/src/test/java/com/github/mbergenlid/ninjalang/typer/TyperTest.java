@@ -67,7 +67,7 @@ public class TyperTest {
    @Test
    public void testTypeOfVariableReference() {
       final FunctionDefinition function = new FunctionDefinition(
-         "echo", ImmutableList.of(Argument.builder().symbol(new TermSymbol("value")).declaredType(new TypeSymbol("String")).build()),
+         "echo", ImmutableList.of(new Argument(new TermSymbol("value"), new TypeSymbol("String"))),
          new TypeSymbol("Int"), new VariableReference("value"));
       final Typer typer = new Typer();
 

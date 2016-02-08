@@ -12,7 +12,7 @@ public class Setter extends FunctionDefinition {
 
    public Setter(AccessModifier accessModifier, String name, TypeSymbol propertyType, Expression body) {
       super(accessModifier, name,
-         ImmutableList.of(Argument.builder().symbol(new TermSymbol("value")).declaredType(propertyType).build()),
+         ImmutableList.of(new Argument(new TermSymbol("value"), propertyType)),
          new TypeSymbol("Nothing"), body);
    }
 }

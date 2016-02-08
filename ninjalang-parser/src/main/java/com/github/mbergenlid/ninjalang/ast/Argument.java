@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@Builder
 @EqualsAndHashCode(callSuper = false)
 public class Argument extends TreeNode {
    private final Symbol symbol;

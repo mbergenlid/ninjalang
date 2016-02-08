@@ -38,10 +38,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitClassArgument(ClassParser.ClassArgumentContext ctx) {
-      return Argument.builder()
-         .symbol(new TermSymbol(ctx.name.getText()))
-         .declaredType(new TypeSymbol(ctx.type.getText()))
-         .build();
+      return new Argument(new TermSymbol(ctx.name.getText()), new TypeSymbol(ctx.type.getText()));
    }
 
    @Override
