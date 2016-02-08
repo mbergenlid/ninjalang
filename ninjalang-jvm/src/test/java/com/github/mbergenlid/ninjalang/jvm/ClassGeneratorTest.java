@@ -57,8 +57,12 @@ public class ClassGeneratorTest {
 
       final Object instance = aClass.newInstance();
       final Method get = aClass.getMethod("get");
-      int result = (int) get.invoke(instance);
+      final int result = (int) get.invoke(instance);
 
       assertThat(result).isEqualTo(5);
+
+      final Method echo = aClass.getMethod("echo", int.class);
+      final int echoResult = (int) echo.invoke(instance, 10);
+      assertThat(echoResult).isEqualTo(10);
    }
 }

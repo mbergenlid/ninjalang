@@ -1,4 +1,4 @@
 class Functions {
     def get(): Int = 5;
-    def echo(x: Int): Int = 5;
+    def echo(x: Int): Int = x;
 }
