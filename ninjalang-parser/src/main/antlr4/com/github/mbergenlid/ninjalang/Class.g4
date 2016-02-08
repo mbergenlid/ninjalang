@@ -19,7 +19,10 @@ propertyDefinition:
     accessModifier? modifier=('val' | 'var') name=Identifier ':' type=Identifier '=' getter=expression ';';
 
 functionDefinition:
-    'def' name=Identifier '(' ')' ':' returnType=Identifier '=' body=expression ';';
+    'def' name=Identifier '(' argumentList* ')' ':' returnType=Identifier '=' body=expression ';';
+
+argumentList:
+    name=Identifier ':' type=Identifier;
 
 accessModifier:
     'private' | 'public';

@@ -22,4 +22,9 @@ public class FunctionDeclarations {
          .hasBody(new IntLiteral(5))
          ;
    }
+
+   @Test
+   public void functionWithOneParameter() throws IOException {
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/Functions.ninja"));
+   }
 }
