@@ -1,6 +1,7 @@
 package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.typer.Symbol;
+import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.github.mbergenlid.ninjalang.types.FunctionType;
 import com.google.common.collect.ImmutableList;
 
@@ -26,6 +27,9 @@ public class Type {
       return symbols.stream().filter(s -> s.getName().equals(name)).findFirst();
    }
 
+   public Optional<TermSymbol> termMemmber(final String name) {
+      return symbols.stream().filter(Symbol::isTermSymbol).filter(s -> s.getName().equals(name)).map(Symbol::asTermSymbol).findAny();
+   }
 
    public boolean isFunctionType() {
       return false;

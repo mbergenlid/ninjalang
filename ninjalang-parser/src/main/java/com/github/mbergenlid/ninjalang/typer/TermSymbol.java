@@ -43,4 +43,9 @@ public class TermSymbol extends Symbol {
    public boolean isTypeSymbol() {
       return false;
    }
+
+   @Override
+   public String toString() {
+      return "TermSymbol(" + name + ")";
+   }
 }

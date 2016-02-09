@@ -1,7 +1,6 @@
 package com.github.mbergenlid.ninjalang.typer;
 
 import com.github.mbergenlid.ninjalang.ast.Apply;
-import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
 import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.Types;
 import com.google.common.collect.ImmutableList;
@@ -22,7 +21,7 @@ public class FunctionTest {
    @Test
    public void test() {
       final Apply apply = new Apply(
-         new Select(new Select(new TermSymbol("Array")), new TermSymbol("empty")), ImmutableList.of());
+         new Select(new Select("Array"), "empty"), ImmutableList.of());
 
       typer.typeTree(apply);
       assertThat(apply.getFunction().getType().getIdentifier()).isEqualTo("()->ninjalang.Array");
@@ -33,14 +32,14 @@ public class FunctionTest {
    public void shouldNotBeAbleToApplyOnNonFunction() {
       typer = new Typer(SymbolTable.of(new TermSymbol("array", Types.ARRAY)));
       final Apply apply = new Apply(
-         new Select(new Select(new TermSymbol("array")), new TermSymbol("size")), ImmutableList.of());
+         new Select(new Select("array"), "size"), ImmutableList.of());
 
       typer.typeTree(apply);
    }
 
    @Test(expected = TypeException.class)
    public void shouldNotBeAbleToAccessInstanceMemberFromStaticContext() {
-      final Select apply = new Select(new Select(new TermSymbol("Array")), new TermSymbol("size"));
+      final Select apply = new Select(new Select("Array"), "size");
 
       typer.typeTree(apply);
    }

@@ -128,10 +128,10 @@ public class Typer implements TreeVisitor<Void> {
       if(select.getQualifier().isPresent()) {
          select.getQualifier()
             .map(TreeNode::getType)
-            .flatMap(type -> type.member(select.getSymbol().getName()))
-            .ifPresent(symbol -> select.getSymbol().setType(symbol.getType()));
+            .flatMap(type -> type.termMemmber(select.getName()))
+            .ifPresent(select::setSymbol);
       } else {
-         select.getSymbol().resolveType(symbolTable);
+         select.setSymbol(symbolTable.lookupTerm(select.getName()));
       }
       if(!select.hasType()) {
          throw new TypeException("Fucked up error");

@@ -39,7 +39,7 @@ public class BasicParserTest {
             new Setter(
                "setMutableProperty",
                new TypeSymbol("Int"),
-               new AssignBackingField(new TermSymbol("mutableProperty"), new Select(new TermSymbol("value"))))
+               new AssignBackingField(new TermSymbol("mutableProperty"), new Select("value")))
             )
       );
    }
@@ -57,7 +57,7 @@ public class BasicParserTest {
             new Setter(
                AccessModifier.PRIVATE,
                "setProperty", new TypeSymbol("Int"),
-               new AssignBackingField(new TermSymbol("property"), new Select(new TermSymbol("value")))
+               new AssignBackingField(new TermSymbol("property"), new Select("value"))
             )
          )
       );
@@ -69,11 +69,11 @@ public class BasicParserTest {
       assertThat(classDefinition.getBody().get().getProperties()).isNotEmpty();
       final Property property1 = classDefinition.getBody().get().getProperties().get(0);
       assertThat(property1.getInitialValue()).isEqualTo(
-         new Select(new Select(new TermSymbol("Array")), new TermSymbol("ofSize"))
+         new Select(new Select("Array"), "ofSize")
       );
       final Property property2 = classDefinition.getBody().get().getProperties().get(1);
       assertThat(property2.getInitialValue()).isEqualTo(
-         new Apply(new Select(new Select(new TermSymbol("Array")), new TermSymbol("empty")), ImmutableList.of())
+         new Apply(new Select(new Select("Array"), "empty"), ImmutableList.of())
       );
    }
 }

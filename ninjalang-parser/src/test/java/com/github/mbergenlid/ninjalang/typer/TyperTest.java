@@ -57,7 +57,7 @@ public class TyperTest {
 
    @Test
    public void testFieldGetter() {
-      final Getter getter = new Getter("getProperty", new TypeSymbol("Int"), new Select(new TermSymbol("property")));
+      final Getter getter = new Getter("getProperty", new TypeSymbol("Int"), new Select("property"));
       final Typer typer = new Typer(SymbolTable.of(new TermSymbol("property", Types.INT)));
       typer.typeTree(getter);
 

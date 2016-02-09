@@ -1,9 +1,11 @@
 package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
+import com.github.mbergenlid.ninjalang.typer.SymbolReference;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Optional;
 
@@ -12,20 +14,21 @@ import java.util.Optional;
 public class Select extends Expression {
 
    private final Optional<TreeNode> qualifier;
-//   private final Name name;
-   private final TermSymbol symbol;
+   private final String name;
+   private final SymbolReference<TermSymbol> symbol;
 
-   public Select(TermSymbol symbol) {
-      this(Optional.empty(), symbol);
+   public Select(String name) {
+      this(Optional.empty(), name);
    }
 
-   public Select(TreeNode qualifier, TermSymbol symbol) {
-      this(Optional.of(qualifier), symbol);
+   public Select(TreeNode qualifier, String name) {
+      this(Optional.of(qualifier), name);
    }
 
-   public Select(Optional<TreeNode> qualifier, TermSymbol symbol) {
+   public Select(Optional<TreeNode> qualifier, String name) {
       this.qualifier = qualifier;
-      this.symbol = symbol;
+      this.name = name;
+      this.symbol = new SymbolReference<>(new TermSymbol("<no-symbol>"));
    }
 
    @Override
@@ -40,17 +43,19 @@ public class Select extends Expression {
 
    @Override
    public Type getType() {
-      return symbol.getType();
+      return symbol.get().getType();
    }
 
    @Override
    public boolean hasType() {
-      return symbol.getType() != Type.NO_TYPE;
+      return symbol.get().getType() != Type.NO_TYPE;
    }
 
-   @Override
-   public void setType(Type type) {
-      super.setType(type);
-      symbol.setType(type);
+   public TermSymbol getSymbol() {
+      return symbol.get();
+   }
+
+   public void setSymbol(final TermSymbol symbol) {
+      this.symbol.set(symbol);
    }
 }

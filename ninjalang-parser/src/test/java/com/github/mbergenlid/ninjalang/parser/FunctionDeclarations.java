@@ -39,7 +39,7 @@ public class FunctionDeclarations {
       final FunctionDefinition functionDefinition = classDefinition.getBody().get().getFunctions().get(2);
       assertThat(functionDefinition)
          .hasName("accessProperty")
-         .hasBody(new Select(new TermSymbol("prop")))
+         .hasBody(new Select("prop"))
       ;
    }
 }

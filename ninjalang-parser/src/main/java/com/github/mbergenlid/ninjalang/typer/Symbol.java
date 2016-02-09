@@ -33,4 +33,8 @@ public abstract class Symbol {
 
    public abstract boolean isTermSymbol();
    public abstract boolean isTypeSymbol();
+
+   public TermSymbol asTermSymbol() {
+      return (TermSymbol) this;
+   }
 }

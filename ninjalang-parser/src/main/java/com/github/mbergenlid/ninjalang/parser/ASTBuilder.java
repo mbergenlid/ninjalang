@@ -80,7 +80,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
                new TypeSymbol(declaredType.getName()),
                new AssignBackingField(
                   new TermSymbol(name),
-                  new Select(new TermSymbol("value"))))
+                  new Select("value")))
             );
       }
       return new Property(ctx.name.getText(), declaredType.getName(), expression);
@@ -121,14 +121,14 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
    public TreeNode visitExpression(ClassParser.ExpressionContext ctx) {
       if(ctx.expression() == null) {
          if(ctx.Identifier() != null) {
-            return new Select(new TermSymbol(ctx.Identifier().getText()));
+            return new Select(ctx.Identifier().getText());
          } else {
             return super.visitExpression(ctx);
          }
       } else if(ctx.Identifier() != null) {
          final TerminalNode identifier = ctx.Identifier();
          final TreeNode qualifier = visitExpression(ctx.expression());
-         return new Select(qualifier, new TermSymbol(identifier.getText()));
+         return new Select(qualifier, identifier.getText());
       } else {
          final Expression function = (Expression) visitExpression(ctx.expression());
          return new Apply(function, ImmutableList.of());
