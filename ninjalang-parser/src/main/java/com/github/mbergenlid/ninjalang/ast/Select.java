@@ -12,6 +12,7 @@ import java.util.Optional;
 public class Select extends Expression {
 
    private final Optional<TreeNode> qualifier;
+//   private final Name name;
    private final TermSymbol symbol;
 
    public Select(TermSymbol symbol) {

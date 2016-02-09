@@ -27,11 +27,20 @@ public class TermSymbol extends Symbol {
       return termSymbol;
    }
 
-
    @Override
    public void resolveType(SymbolTable symbolTable) {
       TermSymbol symbol = symbolTable.lookupTerm(name);
       setType(symbol.getType());
       propertySymbol = symbol.propertySymbol;
+   }
+
+   @Override
+   public boolean isTermSymbol() {
+      return true;
+   }
+
+   @Override
+   public boolean isTypeSymbol() {
+      return false;
    }
 }

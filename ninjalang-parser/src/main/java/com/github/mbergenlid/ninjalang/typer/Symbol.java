@@ -30,4 +30,7 @@ public abstract class Symbol {
    public Type getType() {
       return type;
    }
+
+   public abstract boolean isTermSymbol();
+   public abstract boolean isTypeSymbol();
 }
