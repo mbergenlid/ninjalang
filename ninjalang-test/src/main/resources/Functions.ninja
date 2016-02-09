@@ -1,4 +1,8 @@
 class Functions {
     def get(): Int = 5;
     def echo(x: Int): Int = x;
+
+    val prop: Int = 42;
+
+    def accessProperty(): Int = prop;
 }

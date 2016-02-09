@@ -46,7 +46,7 @@ public class SymbolTable {
          .orElseThrow(() -> new NoSuchElementException("No symbol with name " + name));
    }
 
-   public Symbol lookupTerm(final String name) {
+   public TermSymbol lookupTerm(final String name) {
       return scopes.stream()
          .filter(scope -> scope.termSymbols.containsKey(name))
          .findFirst()
@@ -68,13 +68,13 @@ public class SymbolTable {
 
    private class Scope {
       private final Map<String, Symbol> typeSymbols = new HashMap<>();
-      private final Map<String, Symbol> termSymbols = new HashMap<>();
+      private final Map<String, TermSymbol> termSymbols = new HashMap<>();
 
       public void addSymbol(final Symbol symbol) {
          if(symbol instanceof TypeSymbol) {
             typeSymbols.put(symbol.getName(), symbol);
          } else {
-            termSymbols.put(symbol.getName(), symbol);
+            termSymbols.put(symbol.getName(), (TermSymbol) symbol);
          }
       }
    }

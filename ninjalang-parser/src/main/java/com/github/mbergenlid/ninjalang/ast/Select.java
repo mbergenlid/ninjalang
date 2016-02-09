@@ -1,7 +1,7 @@
 package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
-import com.github.mbergenlid.ninjalang.typer.Symbol;
+import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -12,17 +12,17 @@ import java.util.Optional;
 public class Select extends Expression {
 
    private final Optional<TreeNode> qualifier;
-   private final Symbol symbol;
+   private final TermSymbol symbol;
 
-   public Select(Symbol symbol) {
+   public Select(TermSymbol symbol) {
       this(Optional.empty(), symbol);
    }
 
-   public Select(TreeNode qualifier, Symbol symbol) {
+   public Select(TreeNode qualifier, TermSymbol symbol) {
       this(Optional.of(qualifier), symbol);
    }
 
-   public Select(Optional<TreeNode> qualifier, Symbol symbol) {
+   public Select(Optional<TreeNode> qualifier, TermSymbol symbol) {
       this.qualifier = qualifier;
       this.symbol = symbol;
    }

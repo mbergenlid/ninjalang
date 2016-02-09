@@ -69,6 +69,8 @@ public class Typer implements TreeVisitor<Void> {
       }
       property.setType(inferredType);
       symbolTable.exitScope();
+
+      symbolTable.addSymbol(TermSymbol.propertyTermSymbol(property.getName(), property.getType()));
       return null;
    }
 

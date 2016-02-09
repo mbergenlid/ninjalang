@@ -32,4 +32,14 @@ public class FunctionDeclarations {
          .hasArgumentList(new Argument(new TermSymbol("x"), new TypeSymbol("Int")))
          ;
    }
+
+   @Test
+   public void accessPropertyFromFunction() throws IOException {
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/Functions.ninja"));
+      final FunctionDefinition functionDefinition = classDefinition.getBody().get().getFunctions().get(2);
+      assertThat(functionDefinition)
+         .hasName("accessProperty")
+         .hasBody(new Select(new TermSymbol("prop")))
+      ;
+   }
 }

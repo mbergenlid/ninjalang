@@ -2,15 +2,14 @@ package com.github.mbergenlid.ninjalang.jvm;
 
 import com.github.mbergenlid.ninjalang.ast.*;
 import com.github.mbergenlid.ninjalang.ast.Select;
-import com.github.mbergenlid.ninjalang.ast.visitor.AbstractTreeVisitor;
 import com.github.mbergenlid.ninjalang.ast.visitor.AbstractVoidTreeVisitor;
+import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.*;
 import org.apache.bcel.generic.Type;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MethodGenerator extends AbstractVoidTreeVisitor {
@@ -95,7 +94,14 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
 
    @Override
    public Void visit(Select select) {
-      instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(select.getType()), 1));
+      TermSymbol symbol = select.getSymbol();
+      if(symbol.isPropertySymbol()) {
+         instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+         instructionList.append(factory.createGetField(classGen.getClassName(),
+            symbol.getName(), TypeConverter.fromNinjaType(symbol.getType())));
+      } else {
+         instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(select.getType()), 1));
+      }
       return null;
    }
 
