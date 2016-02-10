@@ -10,6 +10,6 @@ public class ArrayListTest {
 
    @Test
    public void shouldCompile() throws IOException, ClassNotFoundException {
-      new ClassGeneratorTestHelper("/examples", "ArrayList").loadClass();
+      Class<?> arrayList = new ClassGeneratorTestHelper("/examples", "ArrayList").loadClass();
    }
 }

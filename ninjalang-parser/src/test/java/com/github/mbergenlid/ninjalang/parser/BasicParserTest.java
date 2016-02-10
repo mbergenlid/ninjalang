@@ -69,7 +69,7 @@ public class BasicParserTest {
       assertThat(classDefinition.getBody().get().getProperties()).isNotEmpty();
       final Property property1 = classDefinition.getBody().get().getProperties().get(0);
       assertThat(property1.getInitialValue()).isEqualTo(
-         new Select(new Select("Array"), "ofSize")
+         new Apply(new Select(new Select("Array"), "ofSize"), ImmutableList.of(new IntLiteral(10)))
       );
       final Property property2 = classDefinition.getBody().get().getProperties().get(1);
       assertThat(property2.getInitialValue()).isEqualTo(

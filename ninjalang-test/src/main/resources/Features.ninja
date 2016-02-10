@@ -1,5 +1,5 @@
 
 class Features {
-    val array1: Array = Array.ofSize;
+    val array1: Array = Array.ofSize(10);
     val array2: Array = Array.empty();
 }

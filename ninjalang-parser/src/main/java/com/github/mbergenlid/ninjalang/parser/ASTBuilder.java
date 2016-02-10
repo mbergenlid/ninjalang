@@ -131,7 +131,14 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
          return new Select(qualifier, identifier.getText());
       } else {
          final Expression function = (Expression) visitExpression(ctx.expression());
-         return new Apply(function, ImmutableList.of());
+         final List<Expression> arguments = ctx.expressionList() == null ?
+            ImmutableList.of()
+            :
+            ctx.expressionList().expression().stream()
+               .map(this::visitExpression)
+               .map(t -> (Expression)t)
+               .collect(Collectors.toList());
+         return new Apply(function, arguments);
       }
    }
 

@@ -30,10 +30,12 @@ accessModifier:
 expression
     :   literal
     |   expression '.' Identifier
-    |   expression '(' ')'
+    |   expression '(' expressionList? ')'
     |   Identifier
     ;
 
+expressionList:
+    expression (',' expression)*;
 
 literal:
     Integer
