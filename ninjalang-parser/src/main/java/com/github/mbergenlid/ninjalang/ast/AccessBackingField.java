@@ -2,15 +2,21 @@ package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 import com.github.mbergenlid.ninjalang.typer.Symbol;
+import com.github.mbergenlid.ninjalang.typer.SymbolReference;
+import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@Data
 @EqualsAndHashCode(callSuper = false)
 public class AccessBackingField extends Expression {
 
-   private final Symbol backingField;
+   private final String fieldName;
+   private final SymbolReference<TermSymbol> backingField;
 
+   public AccessBackingField(String fieldName) {
+      this.fieldName = fieldName;
+      this.backingField = new SymbolReference<>(TermSymbol.NO_SYMBOL);
+   }
 
    @Override
    public <T> T visit(TreeVisitor<T> visitor) {
@@ -24,6 +30,18 @@ public class AccessBackingField extends Expression {
 
    @Override
    public Type getType() {
-      return backingField.getType();
+      return getBackingField().getType();
+   }
+
+   public String getFieldName() {
+      return fieldName;
+   }
+
+   public TermSymbol getBackingField() {
+      return backingField.get();
+   }
+
+   public void assignSymbol(final TermSymbol symbol) {
+      backingField.set(symbol);
    }
 }

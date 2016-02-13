@@ -10,6 +10,9 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper = false)
 public class TermSymbol extends Symbol {
 
+   public static final TermSymbol NO_SYMBOL = new TermSymbol("<no-symbol", Type.NO_TYPE);
+
+
    @Setter(AccessLevel.PRIVATE)
    private boolean propertySymbol = false;
 
@@ -21,6 +24,10 @@ public class TermSymbol extends Symbol {
       super(name, type);
    }
 
+   public static TermSymbol withName(final String name) {
+      return new TermSymbol(name);
+   }
+
    public static TermSymbol propertyTermSymbol(String name, Type type) {
       TermSymbol termSymbol = new TermSymbol(name, type);
       termSymbol.propertySymbol = true;
@@ -29,7 +36,7 @@ public class TermSymbol extends Symbol {
 
    @Override
    public void resolveType(SymbolTable symbolTable) {
-      TermSymbol symbol = symbolTable.lookupTerm(name);
+      final TermSymbol symbol = symbolTable.lookupTerm(name);
       setType(symbol.getType());
       propertySymbol = symbol.propertySymbol;
    }
@@ -48,4 +55,5 @@ public class TermSymbol extends Symbol {
    public String toString() {
       return "TermSymbol(" + name + ")";
    }
+
 }

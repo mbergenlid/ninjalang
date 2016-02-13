@@ -38,7 +38,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitClassArgument(ClassParser.ClassArgumentContext ctx) {
-      return new Argument(new TermSymbol(ctx.name.getText()), new TypeSymbol(ctx.type.getText()));
+      return new Argument(ctx.name.getText(), new TypeSymbol(ctx.type.getText()));
    }
 
    @Override
@@ -72,14 +72,14 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
                AccessModifier.valueOf(accessModifier.toUpperCase()),
                String.format("get%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
                new TypeSymbol(declaredType.getName()),
-               new AccessBackingField(new TermSymbol(name))
+               new AccessBackingField(name)
             ),
             new Setter(
                AccessModifier.valueOf(accessModifier.toUpperCase()),
                String.format("set%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
                new TypeSymbol(declaredType.getName()),
                new AssignBackingField(
-                  new TermSymbol(name),
+                  name,
                   new Select("value")))
             );
       }
@@ -101,7 +101,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitFunctionArgument(ClassParser.FunctionArgumentContext ctx) {
-      return new Argument(new TermSymbol(ctx.name.getText()), new TypeSymbol(ctx.type.getText()));
+      return new Argument(ctx.name.getText(), new TypeSymbol(ctx.type.getText()));
    }
 
    @Override

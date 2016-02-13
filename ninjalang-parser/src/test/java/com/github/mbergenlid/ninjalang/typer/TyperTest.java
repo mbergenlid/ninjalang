@@ -46,7 +46,7 @@ public class TyperTest {
    public void testMethodDeclarationWithInputParameter() {
       final Property property = new Property(
          "property", "Int", new IntLiteral(1),
-         new Setter("setProperty", new TypeSymbol("Int"), new AssignBackingField(new TermSymbol("property"), new VariableReference("value")))
+         new Setter("setProperty", new TypeSymbol("Int"), new AssignBackingField("property", new Select("value")))
       );
 
       final Typer typer = new Typer();
@@ -67,7 +67,7 @@ public class TyperTest {
    @Test
    public void testTypeOfVariableReference() {
       final FunctionDefinition function = new FunctionDefinition(
-         "echo", ImmutableList.of(new Argument(new TermSymbol("value"), new TypeSymbol("String"))),
+         "echo", ImmutableList.of(new Argument("value", new TypeSymbol("String"))),
          new TypeSymbol("Int"), new VariableReference("value"));
       final Typer typer = new Typer();
 

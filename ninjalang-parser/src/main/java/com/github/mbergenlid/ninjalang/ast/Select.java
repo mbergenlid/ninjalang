@@ -28,7 +28,7 @@ public class Select extends Expression {
    public Select(Optional<TreeNode> qualifier, String name) {
       this.qualifier = qualifier;
       this.name = name;
-      this.symbol = new SymbolReference<>(new TermSymbol("<no-symbol>"));
+      this.symbol = new SymbolReference<>(TermSymbol.NO_SYMBOL);
    }
 
    @Override

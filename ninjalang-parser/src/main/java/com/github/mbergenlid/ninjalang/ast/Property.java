@@ -31,7 +31,7 @@ public class Property extends TreeNode {
       if(setter == null) {
          this.getter = new Getter(getterName, new TypeSymbol(propertyType), initialValue);
       } else {
-         this.getter = new Getter(getterName, new TypeSymbol(propertyType), new AccessBackingField(new TermSymbol(name)));
+         this.getter = new Getter(getterName, new TypeSymbol(propertyType), new AccessBackingField(name));
       }
       this.setter = Optional.ofNullable(setter);
    }

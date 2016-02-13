@@ -1,5 +1,6 @@
 package com.github.mbergenlid.ninjalang.typer;
 
+import com.github.mbergenlid.ninjalang.ast.Type;
 import com.github.mbergenlid.ninjalang.ast.Types;
 import com.google.common.collect.ImmutableList;
 
@@ -28,6 +29,15 @@ public class SymbolTable {
       final SymbolTable symbolTable = new SymbolTable();
       symbolTable.addSymbol(symbol);
       return symbolTable;
+   }
+
+   protected TermSymbol newTermSymbol(final String name, final Type type) {
+      if(scopes.peek().hasTermSymbol(name)) {
+         throw new TypeException(String.format("%s has already been defined in this scope", name));
+      }
+      TermSymbol termSymbol = new TermSymbol(name, type);
+      this.addSymbol(termSymbol);
+      return termSymbol;
    }
 
    public boolean hasType(final String name) {
@@ -76,6 +86,10 @@ public class SymbolTable {
          } else {
             termSymbols.put(symbol.getName(), (TermSymbol) symbol);
          }
+      }
+
+      public boolean hasTermSymbol(final String name) {
+         return termSymbols.containsKey(name);
       }
    }
 }

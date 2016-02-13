@@ -107,6 +107,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
 
    @Override
    public Void visit(Apply apply) {
+
       return null;
    }
 
