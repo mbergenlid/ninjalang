@@ -38,7 +38,7 @@ public class BasicParserTest {
          new Property("mutableProperty", "Int", new IntLiteral(1),
             new Setter(
                "setMutableProperty",
-               new TypeSymbol("Int"),
+               "Int",
                new AssignBackingField("mutableProperty", new Select("value")))
             )
       );
@@ -52,11 +52,11 @@ public class BasicParserTest {
       assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
          new Property("property", "Int", new IntLiteral(1),
             new Getter(
-              AccessModifier.PRIVATE, "getProperty", new TypeSymbol("Int"), new AccessBackingField("property")
+              AccessModifier.PRIVATE, "getProperty", "Int", new AccessBackingField("property")
             ),
             new Setter(
                AccessModifier.PRIVATE,
-               "setProperty", new TypeSymbol("Int"),
+               "setProperty", "Int",
                new AssignBackingField("property", new Select("value"))
             )
          )

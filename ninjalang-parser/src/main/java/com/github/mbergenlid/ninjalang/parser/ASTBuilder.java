@@ -69,13 +69,13 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
             new Getter(
                AccessModifier.valueOf(accessModifier.toUpperCase()),
                String.format("get%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
-               new TypeSymbol(declaredType),
+               declaredType,
                new AccessBackingField(name)
             ),
             new Setter(
                AccessModifier.valueOf(accessModifier.toUpperCase()),
                String.format("set%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
-               new TypeSymbol(declaredType),
+               declaredType,
                new AssignBackingField(
                   name,
                   new Select("value")))
@@ -93,7 +93,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
          .collect(Collectors.toList());
       return new FunctionDefinition(
          AccessModifier.PUBLIC, ctx.name.getText(), argumentList,
-         new TypeSymbol(ctx.returnType.getText()), functionBody
+         ctx.returnType.getText(), functionBody
       );
    }
 

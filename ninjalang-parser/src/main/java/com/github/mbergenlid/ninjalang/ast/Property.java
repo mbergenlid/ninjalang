@@ -30,9 +30,9 @@ public class Property extends TreeNode {
       final String getterName = setter != null ?
          String.format("get%s%s", name.substring(0,1).toUpperCase(), name.substring(1)) : name;
       if(setter == null) {
-         this.getter = new Getter(getterName, new TypeSymbol(propertyType), initialValue);
+         this.getter = new Getter(getterName, propertyType, initialValue);
       } else {
-         this.getter = new Getter(getterName, new TypeSymbol(propertyType), new AccessBackingField(name));
+         this.getter = new Getter(getterName, propertyType, new AccessBackingField(name));
       }
       this.setter = Optional.ofNullable(setter);
    }

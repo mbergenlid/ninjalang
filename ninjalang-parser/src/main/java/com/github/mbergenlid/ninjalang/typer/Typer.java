@@ -87,10 +87,8 @@ public class Typer implements TreeVisitor<Void> {
          symbolTable.addSymbol(a.getSymbol());
       });
       functionDefinition.getBody().visit(this);
-      if(functionDefinition.getReturnType().getType() == Type.NO_TYPE) {
-         final Type returnType = symbolTable.lookupType(functionDefinition.getReturnType().getName()).getType();
-         functionDefinition.getReturnType().setType(returnType);
-      }
+      functionDefinition.assignTypeSymbol(symbolTable.lookupType(functionDefinition.getReturnTypeName()));
+      
       final Type inferredType = functionDefinition.getBody().getType();
       final Type declaredType = functionDefinition.getReturnType().getType();
       if(!declaredType.equals(inferredType)) {
