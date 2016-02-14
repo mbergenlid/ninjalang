@@ -1,6 +1,5 @@
 package com.github.mbergenlid.ninjalang.typer;
 
-import com.github.mbergenlid.ninjalang.ast.Type;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,11 +15,11 @@ public class TermSymbol extends Symbol {
    @Setter(AccessLevel.PRIVATE)
    private boolean propertySymbol = false;
 
-   public TermSymbol(String name) {
+   protected TermSymbol(String name) {
       super(name);
    }
 
-   public TermSymbol(String name, Type type) {
+   protected TermSymbol(String name, Type type) {
       super(name, type);
    }
 

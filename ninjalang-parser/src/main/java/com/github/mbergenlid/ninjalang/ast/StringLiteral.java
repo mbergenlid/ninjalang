@@ -1,6 +1,7 @@
 package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
+import com.github.mbergenlid.ninjalang.typer.Type;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

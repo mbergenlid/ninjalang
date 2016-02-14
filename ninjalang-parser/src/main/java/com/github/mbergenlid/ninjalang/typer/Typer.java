@@ -109,7 +109,7 @@ public class Typer implements TreeVisitor<Void> {
    @Override
    public Void visit(AssignBackingField assign) {
       assign.getValue().visit(this);
-      assign.assignSymbol(symbolTable.lookupTerm(assign.getBackingField().getName()));
+      assign.assignSymbol(symbolTable.lookupTerm(assign.getFieldName()));
       final Type declaredType = assign.getBackingField().getType();
       final Type inferredType = assign.getValue().getType();
       if(!declaredType.equals(inferredType)) {

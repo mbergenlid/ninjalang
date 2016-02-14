@@ -1,7 +1,5 @@
-package com.github.mbergenlid.ninjalang.ast;
+package com.github.mbergenlid.ninjalang.typer;
 
-import com.github.mbergenlid.ninjalang.typer.Symbol;
-import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.github.mbergenlid.ninjalang.types.FunctionType;
 import com.google.common.collect.ImmutableList;
 

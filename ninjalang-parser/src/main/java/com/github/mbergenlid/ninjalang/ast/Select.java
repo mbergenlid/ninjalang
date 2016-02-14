@@ -3,9 +3,9 @@ package com.github.mbergenlid.ninjalang.ast;
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 import com.github.mbergenlid.ninjalang.typer.SymbolReference;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
+import com.github.mbergenlid.ninjalang.typer.Type;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 import java.util.Optional;
 

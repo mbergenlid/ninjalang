@@ -4,7 +4,7 @@ import org.apache.bcel.generic.ArrayType;
 import org.apache.bcel.generic.Type;
 
 public class TypeConverter {
-   static Type fromNinjaType(final com.github.mbergenlid.ninjalang.ast.Type type) {
+   static Type fromNinjaType(final com.github.mbergenlid.ninjalang.typer.Type type) {
       switch (type.getIdentifier()) {
          case "ninjalang.Nothing":
             return Type.VOID;

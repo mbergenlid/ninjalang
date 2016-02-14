@@ -1,6 +1,5 @@
 package com.github.mbergenlid.ninjalang.typer;
 
-import com.github.mbergenlid.ninjalang.ast.Type;
 import lombok.Data;
 
 @Data

@@ -1,7 +1,5 @@
 package com.github.mbergenlid.ninjalang.typer;
 
-import com.github.mbergenlid.ninjalang.ast.Type;
-
 public class TypeException extends RuntimeException {
 
    public TypeException(String message) {

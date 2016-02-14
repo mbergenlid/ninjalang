@@ -1,10 +1,9 @@
 package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
-import com.github.mbergenlid.ninjalang.typer.Symbol;
 import com.github.mbergenlid.ninjalang.typer.SymbolReference;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
-import lombok.Data;
+import com.github.mbergenlid.ninjalang.typer.Type;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = false)

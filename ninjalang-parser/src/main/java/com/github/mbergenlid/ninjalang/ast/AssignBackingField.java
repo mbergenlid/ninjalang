@@ -10,11 +10,13 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class AssignBackingField extends Expression {
 
+   private final String fieldName;
    private final SymbolReference<TermSymbol> backingField;
    private final Expression value;
 
    public AssignBackingField(final String fieldName, final Expression expression) {
       this.backingField = new SymbolReference<>(TermSymbol.withName(fieldName));
+      this.fieldName = fieldName;
       this.value = expression;
    }
 
@@ -40,5 +42,9 @@ public class AssignBackingField extends Expression {
 
    public Expression getValue() {
       return value;
+   }
+
+   public String getFieldName() {
+      return fieldName;
    }
 }

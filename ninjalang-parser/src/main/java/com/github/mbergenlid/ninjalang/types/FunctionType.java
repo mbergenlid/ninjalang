@@ -1,6 +1,6 @@
 package com.github.mbergenlid.ninjalang.types;
 
-import com.github.mbergenlid.ninjalang.ast.Type;
+import com.github.mbergenlid.ninjalang.typer.Type;
 
 import java.util.List;
 import java.util.function.Supplier;
