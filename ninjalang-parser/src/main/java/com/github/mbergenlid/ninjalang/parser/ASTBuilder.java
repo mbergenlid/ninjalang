@@ -36,7 +36,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitClassArgument(ClassParser.ClassArgumentContext ctx) {
-      return new Argument(ctx.name.getText(), new TypeSymbol(ctx.type.getText()));
+      return new Argument(ctx.name.getText(), ctx.type.getText());
    }
 
    @Override
@@ -99,7 +99,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitFunctionArgument(ClassParser.FunctionArgumentContext ctx) {
-      return new Argument(ctx.name.getText(), new TypeSymbol(ctx.type.getText()));
+      return new Argument(ctx.name.getText(), ctx.type.getText());
    }
 
    @Override

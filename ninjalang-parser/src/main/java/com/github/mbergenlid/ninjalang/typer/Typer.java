@@ -26,8 +26,9 @@ public class Typer implements TreeVisitor<Void> {
 
    @Override
    public Void visit(Argument argument) {
-      final Type type = symbolTable.lookupType(argument.getDeclaredType().getName()).getType();
-      final TermSymbol termSymbol = symbolTable.newTermSymbol(argument.getName(), type);
+      final TypeSymbol typeSymbol = symbolTable.lookupType(argument.getTypeName());
+      final TermSymbol termSymbol = symbolTable.newTermSymbol(argument.getName(), typeSymbol.getType());
+      argument.assignTypeSymbol(typeSymbol);
       argument.assignSymbol(termSymbol);
       return null;
    }
@@ -88,7 +89,7 @@ public class Typer implements TreeVisitor<Void> {
       });
       functionDefinition.getBody().visit(this);
       functionDefinition.assignTypeSymbol(symbolTable.lookupType(functionDefinition.getReturnTypeName()));
-      
+
       final Type inferredType = functionDefinition.getBody().getType();
       final Type declaredType = functionDefinition.getReturnType().getType();
       if(!declaredType.equals(inferredType)) {

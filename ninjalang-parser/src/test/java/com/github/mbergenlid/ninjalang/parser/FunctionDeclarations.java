@@ -28,7 +28,7 @@ public class FunctionDeclarations {
       final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/Functions.ninja"));
       final FunctionDefinition functionDefinition = classDefinition.getBody().get().getFunctions().get(1);
       assertThat(functionDefinition)
-         .hasArgumentList(new Argument("x", new TypeSymbol("Int")))
+         .hasArgumentList(new Argument("x", "Int"))
          ;
    }
 

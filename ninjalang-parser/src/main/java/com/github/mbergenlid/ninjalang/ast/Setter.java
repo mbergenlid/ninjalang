@@ -11,6 +11,6 @@ public class Setter extends FunctionDefinition {
 
    public Setter(AccessModifier accessModifier, String name, String propertyType, Expression body) {
       super(accessModifier, name,
-         ImmutableList.of(new Argument("value", new TypeSymbol(propertyType))), "Nothing", body);
+         ImmutableList.of(new Argument("value", propertyType)), "Nothing", body);
    }
 }

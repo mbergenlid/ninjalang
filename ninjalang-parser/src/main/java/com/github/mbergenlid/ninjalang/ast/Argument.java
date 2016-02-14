@@ -12,11 +12,13 @@ import lombok.EqualsAndHashCode;
 public class Argument extends TreeNode {
    private final SymbolReference<TermSymbol> symbol;
    private final String name;
-   private final TypeSymbol declaredType;
+   private final SymbolReference<TypeSymbol> declaredType;
+   private final String typeName;
 
-   public Argument(final String name, final TypeSymbol declaredType) {
+   public Argument(final String name, final String declaredType) {
       this.name = name;
-      this.declaredType = declaredType;
+      this.typeName = declaredType;
+      this.declaredType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);
       this.symbol = new SymbolReference<>(TermSymbol.NO_SYMBOL);
    }
 
@@ -35,5 +37,13 @@ public class Argument extends TreeNode {
 
    public void assignSymbol(final TermSymbol symbol) {
       this.symbol.set(symbol);
+   }
+
+   public TypeSymbol getDeclaredType() {
+      return declaredType.get();
+   }
+
+   public void assignTypeSymbol(final TypeSymbol symbol) {
+      this.declaredType.set(symbol);
    }
 }
