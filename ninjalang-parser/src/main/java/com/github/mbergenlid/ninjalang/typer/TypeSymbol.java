@@ -2,11 +2,11 @@ package com.github.mbergenlid.ninjalang.typer;
 
 public class TypeSymbol extends Symbol {
 
-   public TypeSymbol(String name) {
+   protected TypeSymbol(String name) {
       super(name);
    }
 
-   public TypeSymbol(String name, Type type) {
+   protected TypeSymbol(String name, Type type) {
       super(name, type);
    }
 
