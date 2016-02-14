@@ -3,9 +3,7 @@ package com.github.mbergenlid.ninjalang.parser;
 import com.github.mbergenlid.ninjalang.ClassBaseVisitor;
 import com.github.mbergenlid.ninjalang.ClassParser;
 import com.github.mbergenlid.ninjalang.ast.*;
-import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -63,7 +61,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
    @Override
    public Property visitPropertyDefinition(ClassParser.PropertyDefinitionContext ctx) {
       final Expression expression = (Expression) visit(ctx.expression());
-      final TypeSymbol declaredType = new TypeSymbol(ctx.type.getText());
+      final String declaredType = ctx.type.getText();
       final String accessModifier = ctx.accessModifier() != null ? ctx.accessModifier().getText() : "public";
       if(ctx.modifier.getText().equals("var")) {
          final String name = ctx.name.getText();
@@ -71,19 +69,19 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
             new Getter(
                AccessModifier.valueOf(accessModifier.toUpperCase()),
                String.format("get%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
-               new TypeSymbol(declaredType.getName()),
+               new TypeSymbol(declaredType),
                new AccessBackingField(name)
             ),
             new Setter(
                AccessModifier.valueOf(accessModifier.toUpperCase()),
                String.format("set%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
-               new TypeSymbol(declaredType.getName()),
+               new TypeSymbol(declaredType),
                new AssignBackingField(
                   name,
                   new Select("value")))
             );
       }
-      return new Property(ctx.name.getText(), declaredType.getName(), expression);
+      return new Property(ctx.name.getText(), declaredType, expression);
    }
 
    @Override

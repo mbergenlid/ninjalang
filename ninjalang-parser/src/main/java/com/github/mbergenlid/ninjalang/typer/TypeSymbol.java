@@ -24,4 +24,6 @@ public class TypeSymbol extends Symbol {
    public boolean isTypeSymbol() {
       return true;
    }
+
+   public static final TypeSymbol NO_SYMBOL = new TypeSymbol("<no-symbol>");
 }

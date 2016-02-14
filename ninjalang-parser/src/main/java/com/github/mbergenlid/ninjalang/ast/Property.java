@@ -1,8 +1,7 @@
 package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
-import com.github.mbergenlid.ninjalang.typer.Symbol;
-import com.github.mbergenlid.ninjalang.typer.TermSymbol;
+import com.github.mbergenlid.ninjalang.typer.SymbolReference;
 import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +12,8 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = false)
 public class Property extends TreeNode {
    private final String name;
-   private final TypeSymbol propertyType;
+   private final String typeName;
+   private final SymbolReference<TypeSymbol> propertyType;
    private final Expression initialValue;
    private final Getter getter;
    private final Optional<Setter> setter;
@@ -24,7 +24,8 @@ public class Property extends TreeNode {
 
    public Property(String name, String propertyType, Expression initialValue, Setter setter) {
       this.name = name;
-      this.propertyType = new TypeSymbol(propertyType);
+      this.typeName = propertyType;
+      this.propertyType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);
       this.initialValue = initialValue;
       final String getterName = setter != null ?
          String.format("get%s%s", name.substring(0,1).toUpperCase(), name.substring(1)) : name;
@@ -36,12 +37,13 @@ public class Property extends TreeNode {
       this.setter = Optional.ofNullable(setter);
    }
 
-   public Property(String name, TypeSymbol propertyType, Expression initialValue, Getter getter, Setter setter) {
+   public Property(String name, String propertyType, Expression initialValue, Getter getter, Setter setter) {
       this.name = name;
-      this.propertyType = propertyType;
+      this.typeName = propertyType;
+      this.propertyType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);
       this.initialValue = initialValue;
       this.getter = getter;
-      this.setter = Optional.ofNullable(setter);
+      this.setter = Optional.of(setter);
    }
 
    public Getter getter() {
@@ -61,5 +63,13 @@ public class Property extends TreeNode {
 
    public boolean needsBackingField() {
       return setter.isPresent();
+   }
+
+   public TypeSymbol getPropertyType() {
+      return propertyType.get();
+   }
+
+   public void assignSymbol(final TypeSymbol symbol) {
+      propertyType.set(symbol);
    }
 }

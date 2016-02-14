@@ -50,7 +50,7 @@ public class BasicParserTest {
       assertThat(classDefinition.getName()).isEqualTo("ClassWithPrivateProperty");
 
       assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
-         new Property("property", new TypeSymbol("Int"), new IntLiteral(1),
+         new Property("property", "Int", new IntLiteral(1),
             new Getter(
               AccessModifier.PRIVATE, "getProperty", new TypeSymbol("Int"), new AccessBackingField("property")
             ),

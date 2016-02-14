@@ -46,7 +46,7 @@ public class SymbolTable {
       return scopes.stream().filter(scope -> scope.termSymbols.containsKey(name)).findFirst().isPresent();
    }
 
-   public Symbol lookupType(final String name) {
+   public TypeSymbol lookupType(final String name) {
       return scopes.stream()
          .filter(scope -> scope.typeSymbols.containsKey(name))
          .findFirst()
@@ -75,12 +75,12 @@ public class SymbolTable {
    }
 
    private class Scope {
-      private final Map<String, Symbol> typeSymbols = new HashMap<>();
+      private final Map<String, TypeSymbol> typeSymbols = new HashMap<>();
       private final Map<String, TermSymbol> termSymbols = new HashMap<>();
 
       public void addSymbol(final Symbol symbol) {
          if(symbol instanceof TypeSymbol) {
-            typeSymbols.put(symbol.getName(), symbol);
+            typeSymbols.put(symbol.getName(), (TypeSymbol) symbol);
          } else {
             termSymbols.put(symbol.getName(), (TermSymbol) symbol);
          }
