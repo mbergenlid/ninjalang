@@ -16,8 +16,6 @@ public abstract class Symbol {
       this.name = name;
       this.type = type;
    }
-   
-   public abstract void resolveType(SymbolTable symbolTable);
 
    public void setType(Type type) {
       if(this.type != Type.NO_TYPE && !this.type.equals(type)) {

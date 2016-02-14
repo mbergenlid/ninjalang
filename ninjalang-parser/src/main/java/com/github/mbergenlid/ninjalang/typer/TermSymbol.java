@@ -34,13 +34,6 @@ public class TermSymbol extends Symbol {
    }
 
    @Override
-   public void resolveType(SymbolTable symbolTable) {
-      final TermSymbol symbol = symbolTable.lookupTerm(name);
-      setType(symbol.getType());
-      propertySymbol = symbol.propertySymbol;
-   }
-
-   @Override
    public boolean isTermSymbol() {
       return true;
    }

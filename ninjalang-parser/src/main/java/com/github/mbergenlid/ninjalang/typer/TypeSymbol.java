@@ -11,11 +11,6 @@ public class TypeSymbol extends Symbol {
    }
 
    @Override
-   public void resolveType(SymbolTable symbolTable) {
-      setType(symbolTable.lookupType(name).getType());
-   }
-
-   @Override
    public boolean isTermSymbol() {
       return false;
    }
