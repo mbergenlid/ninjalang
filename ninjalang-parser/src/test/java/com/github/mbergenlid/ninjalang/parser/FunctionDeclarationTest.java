@@ -8,17 +8,18 @@ import java.io.IOException;
 
 import static com.github.mbergenlid.ninjalang.ast.FunctionDefinitionAssert.assertThat;
 
-public class FunctionDeclarations {
+public class FunctionDeclarationTest {
 
    @Test
    public void simpleFunction() throws IOException {
-      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/Features.ninja"));
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/Functions.ninja"));
       final FunctionDefinition functionDefinition = classDefinition.getBody().get().getFunctions().get(0);
       assertThat(functionDefinition)
          .hasAccessModifier(AccessModifier.PUBLIC)
          .hasName("get")
          .hasNoArgumentList()
-         .hasReturnType(new TypeSymbol("Int"))
+         .hasReturnTypeName("Int")
+         .hasReturnType(TypeSymbol.NO_SYMBOL)
          .hasBody(new IntLiteral(5))
          ;
    }
