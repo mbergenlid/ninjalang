@@ -2,11 +2,9 @@ package com.github.mbergenlid.ninjalang.typer;
 
 import lombok.AccessLevel;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Setter;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class TermSymbol extends Symbol {
 
    public static final TermSymbol NO_SYMBOL = new TermSymbol("<no-symbol", Type.NO_TYPE);
@@ -47,5 +45,4 @@ public class TermSymbol extends Symbol {
    public String toString() {
       return "TermSymbol(" + name + ")";
    }
-
 }

@@ -3,11 +3,11 @@ package com.github.mbergenlid.ninjalang.jvm;
 import com.github.mbergenlid.ninjalang.ast.*;
 import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.visitor.AbstractVoidTreeVisitor;
+import com.github.mbergenlid.ninjalang.jvm.builtin.BuiltInFunctions;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.*;
-import org.apache.bcel.generic.Type;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,7 +62,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
          .map(t -> t.getSymbol().getName())
          .collect(Collectors.toList());
       final MethodGen methodGen = new MethodGen(
-         Constants.ACC_PUBLIC,
+         fromNinjaAccessModifier(function.getAccessModifier()),
          type,
          typeList.toArray(new Type[typeList.size()]),
          nameList.toArray(new String[nameList.size()]),
@@ -107,7 +107,12 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
 
    @Override
    public Void visit(Apply apply) {
-
+      if(apply.getFunction() instanceof Select) {
+         TermSymbol functionSymbol = ((Select) apply.getFunction()).getSymbol();
+         if(BuiltInFunctions.contains(functionSymbol)) {
+            BuiltInFunctions.getBuiltInType(functionSymbol, this).generate(apply, instructionList, factory);
+         }
+      }
       return null;
    }
 
@@ -132,5 +137,15 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
    public Void visit(VariableReference reference) {
       instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(reference.getType()), 1));
       return super.visit(reference);
+   }
+
+   private static short fromNinjaAccessModifier(AccessModifier modifier) {
+      switch (modifier) {
+         case PRIVATE:
+            return Constants.ACC_PRIVATE;
+         case PUBLIC:
+            return Constants.ACC_PUBLIC;
+      }
+      throw new IllegalArgumentException("Unknown enum type " + modifier);
    }
 }
