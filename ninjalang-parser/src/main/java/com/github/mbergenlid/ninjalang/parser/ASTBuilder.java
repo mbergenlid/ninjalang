@@ -117,7 +117,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitExpression(ClassParser.ExpressionContext ctx) {
-      if(ctx.expression() == null) {
+      if(ctx.expression().isEmpty()) {
          if(ctx.Identifier() != null) {
             return new Select(ctx.Identifier().getText());
          } else {
@@ -125,10 +125,15 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
          }
       } else if(ctx.Identifier() != null) {
          final TerminalNode identifier = ctx.Identifier();
-         final TreeNode qualifier = visitExpression(ctx.expression());
+         final TreeNode qualifier = visitExpression(ctx.expression(0));
          return new Select(qualifier, identifier.getText());
+      } else if(ctx.expression().size() == 2) {
+         final Expression instance = (Expression) visitExpression(ctx.expression(0));
+         final Expression argument = (Expression) visitExpression(ctx.expression(1));
+         final Apply function = new Apply(new Select(instance, "get"), ImmutableList.of(argument));
+         return function;
       } else {
-         final Expression function = (Expression) visitExpression(ctx.expression());
+         final Expression function = (Expression) visitExpression(ctx.expression(0));
          final List<Expression> arguments = ctx.expressionList() == null ?
             ImmutableList.of()
             :

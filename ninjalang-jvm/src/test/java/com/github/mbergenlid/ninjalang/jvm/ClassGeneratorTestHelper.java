@@ -1,15 +1,19 @@
 package com.github.mbergenlid.ninjalang.jvm;
 
-import com.github.mbergenlid.ninjalang.parser.Parser;
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
+import com.github.mbergenlid.ninjalang.parser.Parser;
 import com.github.mbergenlid.ninjalang.typer.Typer;
+import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
 import org.apache.bcel.classfile.JavaClass;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 
 public class ClassGeneratorTestHelper {
 
@@ -46,5 +50,57 @@ public class ClassGeneratorTestHelper {
          theClass = urlClassLoader.loadClass(ninjaClass);
       }
       return theClass;
+   }
+
+   public Proxy newInstance() {
+      Preconditions.checkState(theClass != null, "Must call loadClass before newInstance");
+      try {
+         return new Proxy(theClass);
+      } catch (InstantiationException | IllegalAccessException e) {
+         throw new RuntimeException(e);
+      }
+   }
+
+   public static Arg arg(final Class<?> type, final Object value) {
+      return new Arg(type, value);
+   }
+
+   public static class Proxy {
+      private final Class<?> clazz;
+      private final Object instance;
+
+      public Proxy(Class<?> clazz) throws IllegalAccessException, InstantiationException {
+         this.clazz = clazz;
+         this.instance = clazz.newInstance();
+      }
+
+      public Object invoke(final String methodName, Arg... args) {
+         final Class[] argumentTypes = Arrays.stream(args).map(Arg::getType).toArray(Class[]::new);
+         final Object[] argumentValues = Arrays.stream(args).map(Arg::getValue).toArray();
+         try {
+            final Method method = clazz.getMethod(methodName, argumentTypes);
+            return method.invoke(instance, argumentValues);
+         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+         }
+      }
+
+   }
+   public static class Arg {
+      public final Class<?> type;
+      public final Object value;
+
+      public Arg(Class<?> type, Object value) {
+         this.type = type;
+         this.value = value;
+      }
+
+      public Class<?> getType() {
+         return type;
+      }
+
+      public Object getValue() {
+         return value;
+      }
    }
 }

@@ -2,6 +2,8 @@ package com.github.mbergenlid.ninjalang.parser;
 
 import com.github.mbergenlid.ninjalang.ast.*;
 import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
+import com.google.common.collect.ImmutableList;
+import org.assertj.core.api.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -41,5 +43,19 @@ public class FunctionDeclarationTest {
          .hasName("accessProperty")
          .hasBody(new Select("prop"))
       ;
+   }
+
+   @Test
+   public void testArrayAccess() throws IOException {
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/examples/ArrayList.ninja"));
+      final FunctionDefinition functionDefinition = classDefinition.getBody().get().getFunctions().stream()
+         .filter(f -> f.getName().equals("get")).findAny().get();
+      final Expression body = functionDefinition.getBody();
+      Assertions.assertThat(body).isEqualTo(
+         new Apply(new Select(
+            new Select("array"),
+            "get"
+         ), ImmutableList.of(new Select("i")))
+      );
    }
 }

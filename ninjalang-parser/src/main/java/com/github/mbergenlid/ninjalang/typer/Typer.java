@@ -144,6 +144,7 @@ public class Typer implements TreeVisitor<Void> {
    @Override
    public Void visit(Apply apply) {
       apply.getFunction().visit(this);
+      apply.getArguments().stream().forEach(a -> a.visit(this));
       final Type type = apply.getFunction().getType();
       if(!type.isFunctionType()) {
          throw new TypeException(String.format("%s is not a function", type));

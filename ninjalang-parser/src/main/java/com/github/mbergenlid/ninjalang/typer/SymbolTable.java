@@ -7,6 +7,7 @@ import java.util.*;
 public class SymbolTable {
 
    private static final List<Symbol> PREDEFINED = ImmutableList.of(
+      new TypeSymbol("Any", Types.ANY),
       new TypeSymbol("Nothing", Types.NOTHING),
       new TypeSymbol("Int", Types.INT),
       new TypeSymbol("String", Types.STRING),

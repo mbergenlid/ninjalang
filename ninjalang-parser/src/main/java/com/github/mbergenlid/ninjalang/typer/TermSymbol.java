@@ -1,16 +1,9 @@
 package com.github.mbergenlid.ninjalang.typer;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Setter;
-
-@Data
 public class TermSymbol extends Symbol {
 
    public static final TermSymbol NO_SYMBOL = new TermSymbol("<no-symbol", Type.NO_TYPE);
 
-
-   @Setter(AccessLevel.PRIVATE)
    private boolean propertySymbol = false;
 
    protected TermSymbol(String name) {
@@ -44,5 +37,9 @@ public class TermSymbol extends Symbol {
    @Override
    public String toString() {
       return "TermSymbol(" + name + ")";
+   }
+
+   public boolean isPropertySymbol() {
+      return propertySymbol;
    }
 }

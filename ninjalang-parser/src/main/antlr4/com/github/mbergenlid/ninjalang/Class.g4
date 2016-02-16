@@ -31,6 +31,7 @@ expression
     :   literal
     |   expression '.' Identifier
     |   expression '(' expressionList? ')'
+    |   expression '[' expression ']'
     |   Identifier
     ;
 

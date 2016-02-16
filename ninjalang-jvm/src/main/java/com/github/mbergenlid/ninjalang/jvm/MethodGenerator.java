@@ -94,13 +94,17 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
 
    @Override
    public Void visit(Select select) {
-      TermSymbol symbol = select.getSymbol();
-      if(symbol.isPropertySymbol()) {
-         instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-         instructionList.append(factory.createGetField(classGen.getClassName(),
-            symbol.getName(), TypeConverter.fromNinjaType(symbol.getType())));
+      if(select.getQualifier().isPresent()) {
+         select.getQualifier().get().visit(this);
       } else {
-         instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(select.getType()), 1));
+         TermSymbol symbol = select.getSymbol();
+         if(symbol.isPropertySymbol()) {
+            instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+            instructionList.append(factory.createGetField(classGen.getClassName(),
+               symbol.getName(), TypeConverter.fromNinjaType(symbol.getType())));
+         } else {
+            instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(select.getType()), 1));
+         }
       }
       return null;
    }
