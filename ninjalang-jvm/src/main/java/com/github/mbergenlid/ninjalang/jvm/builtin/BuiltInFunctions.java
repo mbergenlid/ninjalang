@@ -1,6 +1,6 @@
 package com.github.mbergenlid.ninjalang.jvm.builtin;
 
-import com.github.mbergenlid.ninjalang.ast.TreeNode;
+import com.github.mbergenlid.ninjalang.ast.Apply;
 import com.github.mbergenlid.ninjalang.jvm.MethodGenerator;
 import com.github.mbergenlid.ninjalang.typer.Symbol;
 import com.github.mbergenlid.ninjalang.typer.Types;
@@ -31,6 +31,6 @@ public class BuiltInFunctions {
    }
 
    public interface BuiltInType {
-      void generate(TreeNode node, InstructionList list, InstructionFactory factory);
+      void generate(Apply node, InstructionList list, InstructionFactory factory);
    }
 }

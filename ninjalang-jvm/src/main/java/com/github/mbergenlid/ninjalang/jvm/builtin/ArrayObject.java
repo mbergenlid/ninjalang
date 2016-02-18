@@ -15,16 +15,10 @@ public class ArrayObject implements BuiltInFunctions.BuiltInType {
       this.methodGenerator = methodGenerator;
    }
 
-   private void generate(Apply application, InstructionList list, InstructionFactory factory) {
+   @Override
+   public void generate(Apply application, InstructionList list, InstructionFactory factory) {
       application.getArguments().stream().forEach(a -> a.visit(methodGenerator));
       //TODO: Change the type here when we implement generic types
       list.append(factory.createNewArray(Type.OBJECT, (short) 1));
-   }
-
-   @Override
-   public void generate(TreeNode node, InstructionList list, InstructionFactory factory) {
-      if(node instanceof Apply) {
-         generate((Apply)node, list, factory);
-      }
    }
 }
