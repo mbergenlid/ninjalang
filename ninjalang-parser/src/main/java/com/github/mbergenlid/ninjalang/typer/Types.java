@@ -11,7 +11,8 @@ public class Types {
    public static final Type STRING = new Type("ninjalang.String");
    public static final Type ARRAY = new Type("ninjalang.Array", ImmutableList.of(
       new TermSymbol("size", Types.INT),
-      new TermSymbol("get", new FunctionType(ImmutableList.of(Types.INT), () -> Types.ANY))
+      new TermSymbol("get", new FunctionType(ImmutableList.of(Types.INT), () -> Types.ANY)),
+      new TermSymbol("set", new FunctionType(ImmutableList.of(Types.INT, Types.ANY), () -> Types.NOTHING))
    ));
 
    public static final Type ARRAY_OBJECT = new Type("object(ninjalang.Array)", ImmutableList.of(

@@ -87,10 +87,12 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
    @Override
    public TreeNode visitFunctionDefinition(ClassParser.FunctionDefinitionContext ctx) {
       final Expression functionBody = (Expression) visit(ctx.body);
-      final List<Argument> argumentList = ctx.functionArgument().stream()
-         .map(this::visit)
-         .map(a -> (Argument) a)
-         .collect(Collectors.toList());
+      final List<Argument> argumentList = ctx.functionArgumentList() != null
+         ? ctx.functionArgumentList().functionArgument().stream()
+            .map(this::visit)
+            .map(a -> (Argument) a)
+            .collect(Collectors.toList())
+         : ImmutableList.of();
       return new FunctionDefinition(
          AccessModifier.PUBLIC, ctx.name.getText(), argumentList,
          ctx.returnType.getText(), functionBody
@@ -130,8 +132,12 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       } else if(ctx.expression().size() == 2) {
          final Expression instance = (Expression) visitExpression(ctx.expression(0));
          final Expression argument = (Expression) visitExpression(ctx.expression(1));
-         final Apply function = new Apply(new Select(instance, "get"), ImmutableList.of(argument));
-         return function;
+         return new Apply(new Select(instance, "get"), ImmutableList.of(argument));
+      } else if(ctx.expression().size() == 3) {
+         final Expression instance = (Expression) visitExpression(ctx.expression(0));
+         final Expression index = (Expression) visitExpression(ctx.expression(1));
+         final Expression value = (Expression) visitExpression(ctx.expression(2));
+         return new Apply(new Select(instance, "set"), ImmutableList.of(index, value));
       } else {
          final Expression function = (Expression) visitExpression(ctx.expression(0));
          final List<Expression> arguments = ctx.expressionList() == null ?

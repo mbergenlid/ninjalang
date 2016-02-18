@@ -19,7 +19,10 @@ propertyDefinition:
     accessModifier? modifier=('val' | 'var') name=Identifier ':' type=Identifier '=' getter=expression ';';
 
 functionDefinition:
-    'def' name=Identifier '(' functionArgument* ')' ':' returnType=Identifier '=' body=expression ';';
+    'def' name=Identifier '(' functionArgumentList? ')' ':' returnType=Identifier '=' body=expression ';';
+
+functionArgumentList:
+    functionArgument ( ',' functionArgument )*;
 
 functionArgument:
     name=Identifier ':' type=Identifier;
@@ -31,7 +34,7 @@ expression
     :   literal
     |   expression '.' Identifier
     |   expression '(' expressionList? ')'
-    |   expression '[' expression ']'
+    |   expression '[' expression ']' ('=' expression)?
     |   Identifier
     ;
 

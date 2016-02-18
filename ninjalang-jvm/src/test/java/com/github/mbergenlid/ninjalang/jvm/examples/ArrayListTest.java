@@ -20,4 +20,16 @@ public class ArrayListTest {
       Object index5 = proxy.invoke("get", arg(int.class, 5));
       assertThat(index5).isNull();
    }
+
+   @Test
+   public void testSetAndGet() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+      ClassGeneratorTestHelper arrayList = new ClassGeneratorTestHelper("/examples", "ArrayList");
+      arrayList.loadClass();
+      ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
+
+      proxy.invoke("set", arg(int.class, 5), arg(Object.class, "Hello"));
+
+      Object index5 = proxy.invoke("get", arg(int.class, 5));
+      assertThat(index5).isEqualTo("Hello");
+   }
 }

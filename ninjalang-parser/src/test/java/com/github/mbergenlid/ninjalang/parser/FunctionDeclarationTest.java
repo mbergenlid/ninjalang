@@ -58,4 +58,18 @@ public class FunctionDeclarationTest {
          ), ImmutableList.of(new Select("i")))
       );
    }
+
+   @Test
+   public void testArrayUpdates() throws IOException {
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/examples/ArrayList.ninja"));
+      final FunctionDefinition functionDefinition = classDefinition.getBody().get().getFunctions().stream()
+         .filter(f -> f.getName().equals("set")).findAny().get();
+      final Expression body = functionDefinition.getBody();
+      Assertions.assertThat(body).isEqualTo(
+         new Apply(new Select(
+            new Select("array"),
+            "set"
+         ), ImmutableList.of(new Select("i"), new Select("value")))
+      );
+   }
 }

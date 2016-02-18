@@ -80,8 +80,8 @@ public class Typer implements TreeVisitor<Void> {
 
    @Override
    public Void visit(FunctionDefinition functionDefinition) {
-      functionDefinition.getArgumentList().stream().forEach(a -> a.visit(this));
       symbolTable.newScope();
+      functionDefinition.getArgumentList().stream().forEach(a -> a.visit(this));
       functionDefinition.getArgumentList().stream().forEach(a -> {
          final Type type = symbolTable.lookupType(a.getDeclaredType().getName()).getType();
          a.getSymbol().setType(type);

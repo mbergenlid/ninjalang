@@ -9,7 +9,9 @@ import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MethodGenerator extends AbstractVoidTreeVisitor {
@@ -18,12 +20,14 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
    private final ConstantPoolGen constantPoolGen;
    private final InstructionList instructionList;
    private final InstructionFactory factory;
+   private final Map<TermSymbol, Integer> localVariables;
 
    public MethodGenerator(final ClassGen classGen) {
       this.classGen = classGen;
       this.constantPoolGen = classGen.getConstantPool();
       this.instructionList = new InstructionList();
       this.factory = new InstructionFactory(classGen);
+      this.localVariables = new HashMap<>();
    }
 
    public Method generateConstructor(List<Property> properties) {
@@ -54,6 +58,10 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
 
    public Method generateFromFunction(final FunctionDefinition function) {
       final Type type = TypeConverter.fromNinjaType(function.getReturnType().getType());
+      int index = 1;
+      for(Argument arg : function.getArgumentList()) {
+         localVariables.put(arg.getSymbol(), index++);
+      }
       final List<Type> typeList = function.getArgumentList().stream()
          .map(a -> a.getSymbol().getType())
          .map(TypeConverter::fromNinjaType)
@@ -103,7 +111,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
             instructionList.append(factory.createGetField(classGen.getClassName(),
                symbol.getName(), TypeConverter.fromNinjaType(symbol.getType())));
          } else {
-            instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(select.getType()), 1));
+            instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(select.getType()), localVariables.get(symbol)));
          }
       }
       return null;

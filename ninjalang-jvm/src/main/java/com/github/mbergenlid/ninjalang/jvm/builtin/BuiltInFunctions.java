@@ -16,7 +16,8 @@ public class BuiltInFunctions {
 
    private static final Map<Symbol, Function<MethodGenerator, BuiltInType>> BUILT_IN = ImmutableMap.of(
       Types.ARRAY_OBJECT.member("ofSize").get(), ArrayObject::new,
-      Types.ARRAY.member("get").get(), ArrayAccess::new
+      Types.ARRAY.member("get").get(), ArrayAccess::new,
+      Types.ARRAY.member("set").get(), ArrayUpdate::new
    );
 
    public static boolean contains(Symbol symbol) {
@@ -31,6 +32,7 @@ public class BuiltInFunctions {
    }
 
    public interface BuiltInType {
+
       void generate(Apply node, InstructionList list, InstructionFactory factory);
    }
 }
