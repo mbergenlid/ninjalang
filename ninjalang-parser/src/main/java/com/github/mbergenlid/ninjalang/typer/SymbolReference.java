@@ -1,5 +1,8 @@
 package com.github.mbergenlid.ninjalang.typer;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode(callSuper = false)
 public class SymbolReference<T extends Symbol> {
 
    private final T originalSymbol;

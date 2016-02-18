@@ -6,7 +6,9 @@ import com.github.mbergenlid.ninjalang.typer.SymbolReference;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+@ToString
 @EqualsAndHashCode(callSuper = false)
 public class AssignBackingField extends Expression {
 
@@ -15,7 +17,7 @@ public class AssignBackingField extends Expression {
    private final Expression value;
 
    public AssignBackingField(final String fieldName, final Expression expression) {
-      this.backingField = new SymbolReference<>(TermSymbol.withName(fieldName));
+      this.backingField = new SymbolReference<>(TermSymbol.NO_SYMBOL);
       this.fieldName = fieldName;
       this.value = expression;
    }

@@ -7,7 +7,10 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class BasicParserTest {
@@ -49,18 +52,28 @@ public class BasicParserTest {
       final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/ClassWithPrivateProperty.ninja"));
       assertThat(classDefinition.getName()).isEqualTo("ClassWithPrivateProperty");
 
-      assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
-         new Property("property", "Int", new IntLiteral(1),
-            new Getter(
-              AccessModifier.PRIVATE, "getProperty", "Int", new AccessBackingField("property")
-            ),
-            new Setter(
-               AccessModifier.PRIVATE,
-               "setProperty", "Int",
-               new AssignBackingField("property", new Select("value"))
-            )
+      final List<Property> properties = classDefinition.getBody().get().getProperties();
+      assertThat(properties).hasSize(1);
+      final Property property = properties.get(0);
+      PropertyAssert.assertThat(property)
+         .hasName("property")
+         .hasTypeName("Int")
+         .hasInitialValue(new IntLiteral(1))
+         .hasGetter(
+            new Getter(AccessModifier.PRIVATE, "getProperty", "Int", new AccessBackingField("property"))
          )
-      );
+         ;
+      final Setter setter = property.getSetter().get();
+      SetterAssert.assertThat(setter)
+         .hasAccessModifier(AccessModifier.PRIVATE)
+         .hasArgumentList(new Argument("value", "Int"))
+         .hasName("setProperty")
+         .hasReturnTypeName("Nothing")
+         ;
+      AssignBackingFieldAssert.assertThat((AssignBackingField) setter.getBody())
+         .hasFieldName("property")
+         .hasValue(new Select("value"))
+         ;
    }
 
    @Test
