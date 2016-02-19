@@ -1,0 +1,6 @@
+
+class PropertyModifier {
+
+    var size: Int = 5
+        private set;
+}

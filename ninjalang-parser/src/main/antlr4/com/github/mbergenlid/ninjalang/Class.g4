@@ -21,10 +21,14 @@ functionDefinition:
 propertyDefinition:
     accessModifier? modifier=('val' | 'var') name=Identifier ':' type=Identifier
         ('=' init=expression)?
-        (Identifier '=' getter=expression)?
-        ('set[ \n\t\r]*=' setter=expression)?
+        accessor?
+        accessor?
         ';'
      ;
+
+accessor:
+    (accessorModifier1=accessModifier)? accessorName1=Identifier ('=' accessorBody1=expression)?
+    ;
 
 functionArgumentList:
     functionArgument ( ',' functionArgument )*;

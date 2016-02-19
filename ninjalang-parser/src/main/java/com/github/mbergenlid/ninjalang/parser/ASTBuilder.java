@@ -20,8 +20,10 @@ import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.Setter;
 import com.github.mbergenlid.ninjalang.ast.StringLiteral;
 import com.github.mbergenlid.ninjalang.ast.TreeNode;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -82,28 +84,93 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       final String accessModifier = ctx.accessModifier() != null ? ctx.accessModifier().getText() : "public";
       final String name = ctx.name.getText();
       final boolean isVar = ctx.modifier.getText().equals("var");
-      final Expression getterBody = ctx.getter == null
-         ? (isVar ? new AccessBackingField(name) : initialValue)
-         : (Expression) visit(ctx.getter)
-         ;
-      final Expression setterBody = ctx.setter != null
-         ? (Expression) visit(ctx.setter)
-         : ((isVar && hasInitialValue) ? new AssignBackingField(name, new Select("value")) : new EmptyExpression())
+
+      final FunctionDefinition accessor1 = ctx.accessor().size() >= 1
+         ? createAccessor(name, declaredType, accessModifier, ctx.modifier.getText(), initialValue, ctx.accessor(0))
+         : (isVar && hasInitialValue)
+            ? createDefaultGetter(declaredType, accessModifier, name)
+            : new Getter(
+               AccessModifier.valueOf(accessModifier.toUpperCase()),
+               String.format("get%s%s", name.substring(0, 1).toUpperCase(), name.substring(1)),
+               declaredType, initialValue
+            )
          ;
 
+      Optional<FunctionDefinition> accessor2 = Optional.empty();
+      if(ctx.accessor().size() >= 2) {
+         accessor2 = Optional.of(createAccessor(name, declaredType, accessModifier, ctx.modifier.getText(), initialValue, ctx.accessor(0)));
+      } else if(accessor1 instanceof Setter) {
+         accessor2 = Optional.of(createDefaultGetter(declaredType, accessModifier, name));
+      } else if(isVar && hasInitialValue) {
+         accessor2 = Optional.of(createDefaultSetter(declaredType, accessModifier, name));
+      }
+
       return new Property(name, declaredType, initialValue,
-         new Getter(
-            AccessModifier.valueOf(accessModifier.toUpperCase()),
-            String.format("get%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
-            declaredType, getterBody
-         ),
-         setterBody.equals(new EmptyExpression()) ? Optional.empty() : Optional.of(
-            new Setter(
-               AccessModifier.valueOf(accessModifier.toUpperCase()),
-               String.format("set%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
-               declaredType, setterBody
-            )
-         )
+         accessor1 instanceof Getter ? (Getter) accessor1 : (Getter) accessor2.get(),
+         accessor1 instanceof Setter
+            ? Optional.of((Setter)accessor1)
+            : accessor2.map(s -> (Setter)s)
+      );
+   }
+
+   @NotNull
+   private Getter createDefaultGetter(String declaredType, String accessModifier, String name) {
+      return new Getter(
+         AccessModifier.valueOf(accessModifier.toUpperCase()),
+         String.format("get%s%s", name.substring(0, 1).toUpperCase(), name.substring(1)),
+         declaredType, new AccessBackingField(name)
+      );
+   }
+   @NotNull
+   private Setter createDefaultSetter(String declaredType, String accessModifier, String name) {
+      return new Setter(
+         AccessModifier.valueOf(accessModifier.toUpperCase()),
+         String.format("set%s%s", name.substring(0, 1).toUpperCase(), name.substring(1)),
+         declaredType, new AssignBackingField(name, new Select("value"))
+      );
+   }
+
+   private FunctionDefinition createAccessor(final String propertyName, final String propertyType,
+                                             final String propertyAccessModifier, final String modifier,
+                                             final Expression initialValue, ClassParser.AccessorContext ctx) {
+      if(ctx.accessorName1.getText().equals("get")) {
+         return createGetter(propertyName, propertyType, modifier, propertyAccessModifier, initialValue, ctx);
+      } else if(ctx.accessorName1.getText().equals("set")) {
+         return createSetter(propertyName, propertyType, modifier, propertyAccessModifier, initialValue, ctx);
+      }
+      throw new IllegalArgumentException(String.format("Unkown token '%s', Expceted get or set", ctx.accessorName1.getText()));
+   }
+
+
+   private Getter createGetter(final String propertyName, final String propertyType, final String propertyModifier,
+                               final String propertyAccessModifier, final Expression initialValue,
+                               final ClassParser.AccessorContext ctx) {
+      final String accessModifier = ctx.accessModifier() != null ? ctx.accessModifier().getText() : propertyAccessModifier;
+      final boolean isVar = propertyModifier.equals("var");
+      final Expression body = ctx.expression() != null
+         ? (Expression) visit(ctx.expression())
+         : (isVar ? new AccessBackingField(propertyName) : initialValue);
+
+      return new Getter(
+         AccessModifier.valueOf(accessModifier.toUpperCase()),
+         String.format("get%s%s", propertyName.substring(0,1).toUpperCase(), propertyName.substring(1)),
+         propertyType, body
+      );
+   }
+
+   private Setter createSetter(final String propertyName, final String propertyType, final String propertyModifier,
+                               final String propertyAccessModifier, final Expression initialValue,
+                               final ClassParser.AccessorContext ctx) {
+      final String accessModifier = ctx.accessModifier() != null ? ctx.accessModifier().getText() : propertyAccessModifier;
+      final boolean isVar = propertyModifier.equals("var");
+      final boolean hasInitialValue = !initialValue.equals(new EmptyExpression());
+      final Expression body = ctx.expression() != null
+         ? (Expression) visit(ctx.expression())
+         : ((isVar && hasInitialValue) ? new AssignBackingField(propertyName, new Select("value")) : new EmptyExpression());
+      return new Setter(
+         AccessModifier.valueOf(accessModifier.toUpperCase()),
+         String.format("set%s%s", propertyName.substring(0,1).toUpperCase(), propertyName.substring(1)),
+         propertyType, body
       );
    }
 

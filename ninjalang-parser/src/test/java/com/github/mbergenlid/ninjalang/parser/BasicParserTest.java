@@ -1,8 +1,6 @@
 package com.github.mbergenlid.ninjalang.parser;
 
 import com.github.mbergenlid.ninjalang.ast.*;
-import com.github.mbergenlid.ninjalang.typer.TermSymbol;
-import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
@@ -10,7 +8,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class BasicParserTest {
@@ -63,6 +60,7 @@ public class BasicParserTest {
             new Getter(AccessModifier.PRIVATE, "getProperty", "Int", new AccessBackingField("property"))
          )
          ;
+      assertThat(property.getSetter()).isPresent();
       final Setter setter = property.getSetter().get();
       SetterAssert.assertThat(setter)
          .hasAccessModifier(AccessModifier.PRIVATE)
@@ -100,5 +98,20 @@ public class BasicParserTest {
          new Getter("getSize", "Int", new Select(new Select("array"), "size"))
       );
       assertThat(property2.getSetter()).isEqualTo(Optional.empty());
+   }
+
+   @Test
+   public void testPropertyWithPrivateSetter() throws IOException {
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/PropertyModifiers.ninja"));
+      assertThat(classDefinition.getBody().get().getProperties()).isNotEmpty();
+      final Property property1 = classDefinition.getBody().get().getProperties().get(0);
+      assertThat(property1.getInitialValue()).isEqualTo(new IntLiteral(5));
+      assertThat(property1.getGetter()).isEqualTo(
+         new Getter("getSize", "Int", new AccessBackingField("size"))
+      );
+      assertThat(property1.getSetter()).isPresent();
+      assertThat(property1.getSetter().get()).isEqualTo(
+         new Setter(AccessModifier.PRIVATE, "setSize", "Int", new AssignBackingField("size", new Select("value")))
+      );
    }
 }
