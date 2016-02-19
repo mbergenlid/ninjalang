@@ -2,8 +2,24 @@ package com.github.mbergenlid.ninjalang.parser;
 
 import com.github.mbergenlid.ninjalang.ClassBaseVisitor;
 import com.github.mbergenlid.ninjalang.ClassParser;
-import com.github.mbergenlid.ninjalang.ast.*;
-import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
+import com.github.mbergenlid.ninjalang.ast.AccessBackingField;
+import com.github.mbergenlid.ninjalang.ast.AccessModifier;
+import com.github.mbergenlid.ninjalang.ast.Apply;
+import com.github.mbergenlid.ninjalang.ast.Argument;
+import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
+import com.github.mbergenlid.ninjalang.ast.ClassBody;
+import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
+import com.github.mbergenlid.ninjalang.ast.EmptyExpression;
+import com.github.mbergenlid.ninjalang.ast.Expression;
+import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
+import com.github.mbergenlid.ninjalang.ast.Getter;
+import com.github.mbergenlid.ninjalang.ast.IntLiteral;
+import com.github.mbergenlid.ninjalang.ast.PrimaryConstructor;
+import com.github.mbergenlid.ninjalang.ast.Property;
+import com.github.mbergenlid.ninjalang.ast.Select;
+import com.github.mbergenlid.ninjalang.ast.Setter;
+import com.github.mbergenlid.ninjalang.ast.StringLiteral;
+import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -60,28 +76,35 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public Property visitPropertyDefinition(ClassParser.PropertyDefinitionContext ctx) {
-      final Expression expression = (Expression) visit(ctx.expression());
+      final boolean hasInitialValue = ctx.init != null;
+      final Expression initialValue = hasInitialValue ? (Expression) visit(ctx.init) : new EmptyExpression();
       final String declaredType = ctx.type.getText();
       final String accessModifier = ctx.accessModifier() != null ? ctx.accessModifier().getText() : "public";
-      if(ctx.modifier.getText().equals("var")) {
-         final String name = ctx.name.getText();
-         return new Property(ctx.name.getText(), declaredType, expression,
-            new Getter(
-               AccessModifier.valueOf(accessModifier.toUpperCase()),
-               String.format("get%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
-               declaredType,
-               new AccessBackingField(name)
-            ),
+      final String name = ctx.name.getText();
+      final boolean isVar = ctx.modifier.getText().equals("var");
+      final Expression getterBody = ctx.getter == null
+         ? (isVar ? new AccessBackingField(name) : initialValue)
+         : (Expression) visit(ctx.getter)
+         ;
+      final Expression setterBody = ctx.setter != null
+         ? (Expression) visit(ctx.setter)
+         : ((isVar && hasInitialValue) ? new AssignBackingField(name, new Select("value")) : new EmptyExpression())
+         ;
+
+      return new Property(name, declaredType, initialValue,
+         new Getter(
+            AccessModifier.valueOf(accessModifier.toUpperCase()),
+            String.format("get%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
+            declaredType, getterBody
+         ),
+         setterBody.equals(new EmptyExpression()) ? Optional.empty() : Optional.of(
             new Setter(
                AccessModifier.valueOf(accessModifier.toUpperCase()),
                String.format("set%s%s", name.substring(0,1).toUpperCase(), name.substring(1)),
-               declaredType,
-               new AssignBackingField(
-                  name,
-                  new Select("value")))
-            );
-      }
-      return new Property(ctx.name.getText(), declaredType, expression);
+               declaredType, setterBody
+            )
+         )
+      );
    }
 
    @Override

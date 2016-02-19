@@ -36,8 +36,8 @@ public class BasicParserTest {
       assertThat(classDefinition.getPrimaryConstructor()).isEmpty();
       assertThat(classDefinition.getBody()).isPresent();
       assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
-         new Property("name", "String", new StringLiteral("hello")),
-         new Property("prop", "Int", new IntLiteral(42)),
+         new Property("name", "String", new StringLiteral("hello"), new Getter("getName", "String", new StringLiteral("hello")), Optional.empty()),
+         new Property("prop", "Int", new IntLiteral(42), new Getter("getProp", "Int", new IntLiteral(42)), Optional.empty()),
          new Property("mutableProperty", "Int", new IntLiteral(1),
             new Setter(
                "setMutableProperty",
@@ -88,5 +88,17 @@ public class BasicParserTest {
       assertThat(property2.getInitialValue()).isEqualTo(
          new Apply(new Select(new Select("Array"), "empty"), ImmutableList.of())
       );
+   }
+
+   @Test
+   public void testPropertyWithGetter() throws IOException {
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/PropertyWithoutBackingField.ninja"));
+      assertThat(classDefinition.getBody().get().getProperties()).isNotEmpty();
+      final Property property2 = classDefinition.getBody().get().getProperties().get(1);
+      assertThat(property2.getInitialValue()).isEqualTo(new EmptyExpression());
+      assertThat(property2.getGetter()).isEqualTo(
+         new Getter("getSize", "Int", new Select(new Select("array"), "size"))
+      );
+      assertThat(property2.getSetter()).isEqualTo(Optional.empty());
    }
 }

@@ -15,11 +15,16 @@ classArgument:
 classBody:
     '{' (propertyDefinition | functionDefinition)* '}';
 
-propertyDefinition:
-    accessModifier? modifier=('val' | 'var') name=Identifier ':' type=Identifier '=' getter=expression ';';
-
 functionDefinition:
     'def' name=Identifier '(' functionArgumentList? ')' ':' returnType=Identifier '=' body=expression ';';
+
+propertyDefinition:
+    accessModifier? modifier=('val' | 'var') name=Identifier ':' type=Identifier
+        ('=' init=expression)?
+        (Identifier '=' getter=expression)?
+        ('set[ \n\t\r]*=' setter=expression)?
+        ';'
+     ;
 
 functionArgumentList:
     functionArgument ( ',' functionArgument )*;
@@ -44,7 +49,6 @@ expressionList:
 literal:
     Integer
     | StringLiteral;
-
 
 Identifier
     :   NinjaLetter NinjaLetterOrDigit*
@@ -71,6 +75,7 @@ NinjaLetterOrDigit
         [\uD800-\uDBFF] [\uDC00-\uDFFF]
         {Character.isJavaIdentifierPart(Character.toCodePoint((char)_input.LA(-2), (char)_input.LA(-1)))}?
     ;
+
 
 Integer: ('0'..'9')+;
 StringLiteral: '"' .*? '"';

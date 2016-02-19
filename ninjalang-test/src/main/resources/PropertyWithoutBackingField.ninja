@@ -1,0 +1,7 @@
+
+class PropertyWithoutBackingField {
+    private var array: Array = Array.ofSize(10);
+
+    var size: Int
+        get = array.size;
+}

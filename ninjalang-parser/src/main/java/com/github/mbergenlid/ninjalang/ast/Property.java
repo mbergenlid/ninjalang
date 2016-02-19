@@ -46,6 +46,15 @@ public class Property extends TreeNode {
       this.setter = Optional.of(setter);
    }
 
+   public Property(String name, String propertyType, Expression initialValue, Getter getter, Optional<Setter> setter) {
+      this.name = name;
+      this.typeName = propertyType;
+      this.propertyType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);
+      this.initialValue = initialValue;
+      this.getter = getter;
+      this.setter = setter;
+   }
+
    public Getter getter() {
       return getter;
    }
