@@ -13,7 +13,7 @@ public class IntLiteral extends Expression {
 
    public IntLiteral(int value) {
       this.value = value;
-      super.setType(new Type("ninjalang.Int"));
+      super.setType(Type.fromIdentifier("ninjalang.Int"));
    }
 
    public <T> T visit(final TreeVisitor<T> visitor) {

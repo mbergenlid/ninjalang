@@ -1,6 +1,7 @@
 package com.github.mbergenlid.ninjalang.types;
 
 import com.github.mbergenlid.ninjalang.typer.Type;
+import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -12,7 +13,7 @@ public class FunctionType extends Type {
    private final Supplier<Type> output;
 
    public FunctionType(List<Type> input, Supplier<Type> outputType) {
-      super("");
+      super(ImmutableList.of());
       assert outputType != null;
       this.input = input;
       this.output = outputType;

@@ -13,7 +13,7 @@ public class StringLiteral extends Expression {
 
    public StringLiteral(String value) {
       this.value = value;
-      super.setType(new Type("ninjalang.String"));
+      super.setType(Type.fromIdentifier("ninjalang.String"));
    }
 
    @Override

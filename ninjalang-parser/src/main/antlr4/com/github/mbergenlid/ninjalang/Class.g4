@@ -40,7 +40,7 @@ accessModifier:
     'private' | 'public';
 
 expression
-    :   expression '+' term
+    :   plus=expression '+' term
     |   term
     ;
 

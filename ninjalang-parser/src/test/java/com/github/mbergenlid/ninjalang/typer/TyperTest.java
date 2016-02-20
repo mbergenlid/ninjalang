@@ -19,11 +19,11 @@ public class TyperTest {
       final Typer typer = new Typer();
       typer.typeTree(intProperty);
 
-      assertThat(intProperty.getType()).isEqualTo(new Type("ninjalang.Int"));
+      assertThat(intProperty.getType()).isEqualTo(Type.fromIdentifier("ninjalang.Int"));
 
       final Property stringProperty = new Property("stringProperty", "String", new StringLiteral("Blaha"));
       typer.typeTree(stringProperty);
-      assertThat(stringProperty.getType()).isEqualTo(new Type("ninjalang.String"));
+      assertThat(stringProperty.getType()).isEqualTo(Type.fromIdentifier("ninjalang.String"));
    }
 
    @Test(expected = TypeException.class)

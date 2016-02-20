@@ -208,6 +208,11 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitExpression(ClassParser.ExpressionContext ctx) {
+      if(ctx.plus != null) {
+         final Expression instance = (Expression) visitExpression(ctx.expression());
+         final Expression argument = (Expression) visitTerm(ctx.term());
+         return new Apply(new Select(instance, "plus"), ImmutableList.of(argument));
+      }
       return super.visitExpression(ctx);
    }
 

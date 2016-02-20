@@ -17,7 +17,8 @@ public class BuiltInFunctions {
    private static final Map<Symbol, Function<MethodGenerator, BuiltInType>> BUILT_IN = ImmutableMap.of(
       Types.ARRAY_OBJECT.member("ofSize").get(), ArrayObject::new,
       Types.ARRAY.member("get").get(), ArrayAccess::new,
-      Types.ARRAY.member("set").get(), ArrayUpdate::new
+      Types.ARRAY.member("set").get(), ArrayUpdate::new,
+      Types.INT.member("plus").get(), IntPlus::new
    );
 
    public static boolean contains(Symbol symbol) {

@@ -5,4 +5,6 @@ class Functions {
     val prop: Int = 42;
 
     def accessProperty(): Int = prop;
+
+    def addOne(x: Int): Int = x + 1;
 }

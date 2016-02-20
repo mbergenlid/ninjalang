@@ -115,11 +115,17 @@ public class BasicParserTest {
       );
    }
 
-//   @Test
+   @Test
    public void plusOperator() throws IOException {
       final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/Functions.ninja"));
       final FunctionDefinition f1 =
          classDefinition.getBody().get().getFunctions().stream().filter(f -> f.getName().equals("addOne")).findAny().get();
       final Expression body = f1.getBody();
+      assertThat(body).isEqualTo(
+         new Apply(
+            new Select(new Select("x"), "plus"),
+            ImmutableList.of(new IntLiteral(1))
+         )
+      );
    }
 }
