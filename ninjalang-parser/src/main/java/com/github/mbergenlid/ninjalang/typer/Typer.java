@@ -130,7 +130,7 @@ public class Typer implements TreeVisitor<Void> {
       if(select.getQualifier().isPresent()) {
          select.getQualifier()
             .map(TreeNode::getType)
-            .flatMap(type -> type.termMemmber(select.getName()))
+            .flatMap(type -> type.termMember(select.getName()))
             .ifPresent(select::setSymbol);
       } else {
          select.setSymbol(symbolTable.lookupTerm(select.getName()));

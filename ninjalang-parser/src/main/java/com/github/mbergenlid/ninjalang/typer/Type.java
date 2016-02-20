@@ -28,7 +28,7 @@ public abstract class Type {
       return symbols.stream().filter(s -> s.getName().equals(name)).findFirst();
    }
 
-   public Optional<TermSymbol> termMemmber(final String name) {
+   public Optional<TermSymbol> termMember(final String name) {
       return symbols.stream().filter(Symbol::isTermSymbol).filter(s -> s.getName().equals(name)).map(Symbol::asTermSymbol).findAny();
    }
 
