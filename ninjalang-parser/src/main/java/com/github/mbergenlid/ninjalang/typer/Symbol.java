@@ -1,19 +1,16 @@
 package com.github.mbergenlid.ninjalang.typer;
 
-import lombok.Data;
+import java.util.Optional;
 
-@Data
 public abstract class Symbol {
 
-   protected final String name;
-   private Type type = Type.NO_TYPE;
+   private Type type;
 
-   public Symbol(String name) {
-      this.name = name;
+   public Symbol() {
+      this(Type.NO_TYPE);
    }
 
-   public Symbol(String name, Type type) {
-      this.name = name;
+   public Symbol(Type type) {
       this.type = type;
    }
 
@@ -30,6 +27,9 @@ public abstract class Symbol {
 
    public abstract boolean isTermSymbol();
    public abstract boolean isTypeSymbol();
+
+   public abstract String getName();
+   public abstract Optional<Symbol> owner();
 
    public TermSymbol asTermSymbol() {
       return (TermSymbol) this;

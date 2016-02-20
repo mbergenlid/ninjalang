@@ -8,10 +8,10 @@ import org.apache.bcel.generic.InstructionFactory;
 import org.apache.bcel.generic.InstructionList;
 import org.apache.bcel.generic.Type;
 
-public class IntPlus implements BuiltInFunctions.BuiltInType {
+public class Int implements BuiltInFunctions.BuiltInType {
    private final MethodGenerator methodGenerator;
 
-   public IntPlus(MethodGenerator methodGenerator) {
+   public Int(MethodGenerator methodGenerator) {
       this.methodGenerator = methodGenerator;
    }
 

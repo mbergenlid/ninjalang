@@ -57,10 +57,9 @@ public class Typer implements TreeVisitor<Void> {
    public Void visit(Property property) {
       property.assignSymbol(symbolTable.lookupType(property.getTypeName()));
       final Type declaredType = property.getPropertyType().getType();
-      final Symbol typeSymbol = new TermSymbol(property.getName(), declaredType);
+      symbolTable.newTermSymbol(property.getName(), declaredType);
 
       symbolTable.newScope();
-      symbolTable.addSymbol(typeSymbol);
       final Getter getter = property.getGetter();
       getter.visit(this);
 

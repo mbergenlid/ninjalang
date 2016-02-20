@@ -9,7 +9,7 @@ public class SymbolTable {
    private static final List<Symbol> PREDEFINED = ImmutableList.of(
       new TypeSymbol("Any", Types.ANY),
       new TypeSymbol("Nothing", Types.NOTHING),
-      new TypeSymbol("Int", Types.INT),
+      Types.INT_SYMBOL,
       new TypeSymbol("String", Types.STRING),
       new TypeSymbol("Array", Types.ARRAY),
       new TermSymbol("Array", Types.ARRAY_OBJECT)
@@ -34,7 +34,7 @@ public class SymbolTable {
       if(scopes.peek().hasTermSymbol(name)) {
          throw new TypeException(String.format("%s has already been defined in this scope", name));
       }
-      TermSymbol termSymbol = new TermSymbol(name, type);
+      final TermSymbol termSymbol = new TermSymbol(name, type);
       this.addSymbol(termSymbol);
       return termSymbol;
    }

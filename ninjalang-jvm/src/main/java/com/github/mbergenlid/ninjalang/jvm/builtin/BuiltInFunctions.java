@@ -16,24 +16,33 @@ public class BuiltInFunctions {
 
    private static final Map<Symbol, Function<MethodGenerator, BuiltInType>> BUILT_IN = ImmutableMap.of(
       Types.ARRAY_OBJECT.member("ofSize").get(), ArrayObject::new,
-      Types.ARRAY.member("get").get(), ArrayAccess::new,
-      Types.ARRAY.member("set").get(), ArrayUpdate::new,
-      Types.INT.member("plus").get(), IntPlus::new
+      Types.ARRAY_SYMBOL, Array::new,
+      Types.INT_SYMBOL, Int::new
    );
 
    public static boolean contains(Symbol symbol) {
-      return BUILT_IN.containsKey(symbol);
+      while (symbol != null) {
+         if(BUILT_IN.containsKey(symbol)) {
+            return true;
+         }
+         symbol = symbol.owner().orElse(null);
+      }
+      return false;
    }
 
    public static BuiltInType getBuiltInType(Symbol symbol, MethodGenerator caller) {
       if(!contains(symbol)) {
          throw new NoSuchElementException(String.format("%s is not a built in function", symbol));
       }
-      return BUILT_IN.get(symbol).apply(caller);
+      Function<MethodGenerator, BuiltInType> result = null;
+      while (result == null) {
+         result = BUILT_IN.get(symbol);
+         symbol = symbol.owner().orElse(null);
+      }
+      return result.apply(caller);
    }
 
    public interface BuiltInType {
-
       void generate(Apply node, InstructionList list, InstructionFactory factory);
    }
 }
