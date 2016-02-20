@@ -40,10 +40,15 @@ accessModifier:
     'private' | 'public';
 
 expression
+    :   expression '+' term
+    |   term
+    ;
+
+term
     :   literal
-    |   expression '.' Identifier
-    |   expression '(' expressionList? ')'
-    |   expression '[' expression ']' ('=' expression)?
+    |   select=term '.' Identifier
+    |   apply=term '(' expressionList? ')'
+    |   arrayAccess=term '[' expression ']' ('=' expression)?
     |   Identifier
     ;
 

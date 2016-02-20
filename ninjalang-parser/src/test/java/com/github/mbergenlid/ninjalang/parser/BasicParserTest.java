@@ -114,4 +114,12 @@ public class BasicParserTest {
          new Setter(AccessModifier.PRIVATE, "setSize", "Int", new AssignBackingField("size", new Select("value")))
       );
    }
+
+//   @Test
+   public void plusOperator() throws IOException {
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/Functions.ninja"));
+      final FunctionDefinition f1 =
+         classDefinition.getBody().get().getFunctions().stream().filter(f -> f.getName().equals("addOne")).findAny().get();
+      final Expression body = f1.getBody();
+   }
 }

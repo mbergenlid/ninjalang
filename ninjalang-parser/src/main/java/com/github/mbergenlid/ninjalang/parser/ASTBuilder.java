@@ -20,7 +20,6 @@ import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.Setter;
 import com.github.mbergenlid.ninjalang.ast.StringLiteral;
 import com.github.mbergenlid.ninjalang.ast.TreeNode;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.jetbrains.annotations.NotNull;
@@ -209,27 +208,32 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitExpression(ClassParser.ExpressionContext ctx) {
-      if(ctx.expression().isEmpty()) {
+      return super.visitExpression(ctx);
+   }
+
+   @Override
+   public TreeNode visitTerm(ClassParser.TermContext ctx) {
+      if(ctx.term() == null) {
          if(ctx.Identifier() != null) {
             return new Select(ctx.Identifier().getText());
          } else {
-            return super.visitExpression(ctx);
+            return super.visitTerm(ctx);
          }
-      } else if(ctx.Identifier() != null) {
+      } else if(ctx.select != null) {
          final TerminalNode identifier = ctx.Identifier();
-         final TreeNode qualifier = visitExpression(ctx.expression(0));
+         final TreeNode qualifier = visitTerm(ctx.term());
          return new Select(qualifier, identifier.getText());
-      } else if(ctx.expression().size() == 2) {
-         final Expression instance = (Expression) visitExpression(ctx.expression(0));
-         final Expression argument = (Expression) visitExpression(ctx.expression(1));
-         return new Apply(new Select(instance, "get"), ImmutableList.of(argument));
-      } else if(ctx.expression().size() == 3) {
-         final Expression instance = (Expression) visitExpression(ctx.expression(0));
-         final Expression index = (Expression) visitExpression(ctx.expression(1));
-         final Expression value = (Expression) visitExpression(ctx.expression(2));
-         return new Apply(new Select(instance, "set"), ImmutableList.of(index, value));
+      } else if(ctx.arrayAccess != null) {
+         final Expression instance = (Expression) visitTerm(ctx.term());
+         final Expression index = (Expression) visitExpression(ctx.expression(0));
+         if(ctx.expression().size() == 2) {
+            final Expression value = (Expression) visitExpression(ctx.expression(1));
+            return new Apply(new Select(instance, "set"), ImmutableList.of(index, value));
+         } else {
+            return new Apply(new Select(instance, "get"), ImmutableList.of(index));
+         }
       } else {
-         final Expression function = (Expression) visitExpression(ctx.expression(0));
+         final Expression function = (Expression) visitTerm(ctx.term());
          final List<Expression> arguments = ctx.expressionList() == null ?
             ImmutableList.of()
             :
