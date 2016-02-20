@@ -1,7 +1,5 @@
 package com.github.mbergenlid.ninjalang.jvm.builtin;
 
-import com.github.mbergenlid.ninjalang.ast.Apply;
-import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.jvm.MethodGenerator;
 import com.google.common.base.Preconditions;
 import org.apache.bcel.generic.InstructionFactory;
@@ -16,11 +14,10 @@ public class Int implements BuiltInFunctions.BuiltInType {
    }
 
    @Override
-   public void generate(Apply node, InstructionList list, InstructionFactory factory) {
-      Preconditions.checkArgument(node.getArguments().size() == 1);
-      final Select select = (Select) node.getFunction();
-      select.visit(methodGenerator);
-      node.getArguments().stream().forEach(a -> a.visit(methodGenerator));
+   public void generate(BuiltInFunctions.FunctionApplication function, InstructionList list, InstructionFactory factory) {
+      Preconditions.checkArgument(function.arguments.size() == 1);
+      function.instance.visit(methodGenerator);
+      function.arguments.stream().forEach(a -> a.visit(methodGenerator));
 
       list.append(InstructionFactory.createBinaryOperation("+", Type.INT));
    }

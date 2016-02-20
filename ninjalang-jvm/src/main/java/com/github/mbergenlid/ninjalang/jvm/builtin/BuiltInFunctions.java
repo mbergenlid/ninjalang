@@ -1,13 +1,17 @@
 package com.github.mbergenlid.ninjalang.jvm.builtin;
 
 import com.github.mbergenlid.ninjalang.ast.Apply;
+import com.github.mbergenlid.ninjalang.ast.Expression;
+import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.github.mbergenlid.ninjalang.jvm.MethodGenerator;
 import com.github.mbergenlid.ninjalang.typer.Symbol;
+import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.github.mbergenlid.ninjalang.typer.Types;
 import com.google.common.collect.ImmutableMap;
 import org.apache.bcel.generic.InstructionFactory;
 import org.apache.bcel.generic.InstructionList;
 
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
@@ -43,6 +47,18 @@ public class BuiltInFunctions {
    }
 
    public interface BuiltInType {
-      void generate(Apply node, InstructionList list, InstructionFactory factory);
+      void generate(BuiltInFunctions.FunctionApplication function, InstructionList list, InstructionFactory factory);
+   }
+
+   public static class FunctionApplication {
+      public final TermSymbol functionSymbol;
+      public final TreeNode instance;
+      public final List<Expression> arguments;
+
+      public FunctionApplication(TermSymbol functionSymbol, TreeNode instance, List<Expression> arguments) {
+         this.functionSymbol = functionSymbol;
+         this.instance = instance;
+         this.arguments = arguments;
+      }
    }
 }

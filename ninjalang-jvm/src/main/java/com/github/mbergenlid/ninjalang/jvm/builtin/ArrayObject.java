@@ -1,7 +1,5 @@
 package com.github.mbergenlid.ninjalang.jvm.builtin;
 
-import com.github.mbergenlid.ninjalang.ast.Apply;
-import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.github.mbergenlid.ninjalang.jvm.MethodGenerator;
 import org.apache.bcel.generic.InstructionFactory;
 import org.apache.bcel.generic.InstructionList;
@@ -16,8 +14,8 @@ public class ArrayObject implements BuiltInFunctions.BuiltInType {
    }
 
    @Override
-   public void generate(Apply application, InstructionList list, InstructionFactory factory) {
-      application.getArguments().stream().forEach(a -> a.visit(methodGenerator));
+   public void generate(BuiltInFunctions.FunctionApplication function, InstructionList list, InstructionFactory factory) {
+      function.arguments.stream().forEach(a -> a.visit(methodGenerator));
       //TODO: Change the type here when we implement generic types
       list.append(factory.createNewArray(Type.OBJECT, (short) 1));
    }

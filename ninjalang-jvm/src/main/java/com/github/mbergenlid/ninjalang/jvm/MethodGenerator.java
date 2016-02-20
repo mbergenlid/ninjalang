@@ -120,9 +120,11 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
    @Override
    public Void visit(Apply apply) {
       if(apply.getFunction() instanceof Select) {
-         TermSymbol functionSymbol = ((Select) apply.getFunction()).getSymbol();
+         final Select instance = (Select) apply.getFunction();
+         final TermSymbol functionSymbol = instance.getSymbol();
          if(BuiltInFunctions.contains(functionSymbol)) {
-            BuiltInFunctions.getBuiltInType(functionSymbol, this).generate(apply, instructionList, factory);
+            BuiltInFunctions.getBuiltInType(functionSymbol, this).generate(
+               new BuiltInFunctions.FunctionApplication(functionSymbol, instance.getQualifier().orElse(new EmptyExpression()), apply.getArguments()), instructionList, factory);
          }
       }
       return null;
