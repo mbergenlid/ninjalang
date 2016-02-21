@@ -2,6 +2,14 @@
 class ArrayList {
     private var array: Array = Array.ofSize(10);
 
+    var size: Int = array.size
+        private set;
+
     def get(i: Int): Any = array[i];
     def set(i: Int, value: Any): Nothing = array[i] = value;
+
+    def add(x: Any): Nothing = {
+        array[size] = x;
+        size = size + 1;
+    };
 }

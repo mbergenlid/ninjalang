@@ -6,7 +6,9 @@ import com.github.mbergenlid.ninjalang.ast.AccessBackingField;
 import com.github.mbergenlid.ninjalang.ast.AccessModifier;
 import com.github.mbergenlid.ninjalang.ast.Apply;
 import com.github.mbergenlid.ninjalang.ast.Argument;
+import com.github.mbergenlid.ninjalang.ast.Assign;
 import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
+import com.github.mbergenlid.ninjalang.ast.Block;
 import com.github.mbergenlid.ninjalang.ast.ClassBody;
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.ast.EmptyExpression;
@@ -18,6 +20,7 @@ import com.github.mbergenlid.ninjalang.ast.PrimaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Property;
 import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.Setter;
+import com.github.mbergenlid.ninjalang.ast.Statement;
 import com.github.mbergenlid.ninjalang.ast.StringLiteral;
 import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.google.common.collect.ImmutableList;
@@ -204,7 +207,16 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       throw new IllegalArgumentException("Unknown literal: " + ctx);
    }
 
+   @Override
+   public TreeNode visitBlock(ClassParser.BlockContext ctx) {
+      final List<Expression> expressions = ctx.expression().stream()
+         .map(this::visitExpression).map(n -> (Expression) n).collect(Collectors.toList());
 
+      return new Block(
+         expressions.stream().limit(expressions.size()-1).map(e -> (Statement) e).collect(Collectors.toList()),
+         expressions.get(expressions.size()-1)
+      );
+   }
 
    @Override
    public TreeNode visitExpression(ClassParser.ExpressionContext ctx) {
@@ -218,13 +230,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitTerm(ClassParser.TermContext ctx) {
-      if(ctx.term() == null) {
-         if(ctx.Identifier() != null) {
-            return new Select(ctx.Identifier().getText());
-         } else {
-            return super.visitTerm(ctx);
-         }
-      } else if(ctx.select != null) {
+      if(ctx.select != null) {
          final TerminalNode identifier = ctx.Identifier();
          final TreeNode qualifier = visitTerm(ctx.term());
          return new Select(qualifier, identifier.getText());
@@ -237,7 +243,9 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
          } else {
             return new Apply(new Select(instance, "get"), ImmutableList.of(index));
          }
-      } else {
+      } else if(ctx.block() != null) {
+         return visitBlock(ctx.block());
+      } else if(ctx.apply != null) {
          final Expression function = (Expression) visitTerm(ctx.term());
          final List<Expression> arguments = ctx.expressionList() == null ?
             ImmutableList.of()
@@ -247,6 +255,16 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
                .map(t -> (Expression)t)
                .collect(Collectors.toList());
          return new Apply(function, arguments);
+      } else if(ctx.assign != null) {
+         final Expression assignee = (Expression) visitTerm(ctx.term());
+         final Expression value = (Expression) visitExpression(ctx.expression(0));
+         return new Assign(assignee, value);
+      } else {
+         if(ctx.Identifier() != null) {
+            return new Select(ctx.Identifier().getText());
+         } else {
+            return super.visitTerm(ctx);
+         }
       }
    }
 

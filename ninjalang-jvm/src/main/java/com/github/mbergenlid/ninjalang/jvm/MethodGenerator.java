@@ -5,6 +5,7 @@ import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.visitor.AbstractVoidTreeVisitor;
 import com.github.mbergenlid.ninjalang.jvm.builtin.BuiltInFunctions;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
+import com.google.common.collect.ImmutableList;
 import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.*;
@@ -101,11 +102,25 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
    }
 
    @Override
+   public Void visit(Block expression) {
+      return null;
+   }
+
+   @Override
+   public Void visit(Assign assign) {
+      return null;
+   }
+
+   @Override
    public Void visit(Select select) {
+      TermSymbol symbol = select.getSymbol();
       if(select.getQualifier().isPresent()) {
          select.getQualifier().get().visit(this);
+      }
+      if(BuiltInFunctions.contains(symbol)) {
+         BuiltInFunctions.getBuiltInType(symbol, this).generate(
+            new BuiltInFunctions.FunctionApplication(symbol, new EmptyExpression(), ImmutableList.of()), instructionList, factory);
       } else {
-         TermSymbol symbol = select.getSymbol();
          if(symbol.isPropertySymbol()) {
             instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
             instructionList.append(factory.createGetField(classGen.getClassName(),

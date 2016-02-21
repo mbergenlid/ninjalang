@@ -30,6 +30,12 @@ public class TermSymbol extends Symbol {
       return termSymbol;
    }
 
+   public static TermSymbol propertyTermSymbol(String name, Type type, Symbol owner) {
+      TermSymbol termSymbol = new TermSymbol(name, type, owner);
+      termSymbol.propertySymbol = true;
+      return termSymbol;
+   }
+
    @Override
    public boolean isTermSymbol() {
       return true;

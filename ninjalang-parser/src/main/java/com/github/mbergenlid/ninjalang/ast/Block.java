@@ -8,10 +8,15 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class Apply extends Statement {
+public class Block extends Statement {
 
-   private final Expression function;
-   private final List<Expression> arguments;
+   private final List<Statement> statements;
+   private final Expression returnExpression;
+
+   public Block(List<Statement> statements, Expression returnExpression) {
+      this.statements = statements;
+      this.returnExpression = returnExpression;
+   }
 
    @Override
    public <T> T visit(TreeVisitor<T> visitor) {
@@ -20,8 +25,7 @@ public class Apply extends Statement {
 
    @Override
    public void foreachPostfix(TreeVisitor<Void> visitor) {
-      function.foreachPostfix(visitor);
-      arguments.stream().forEach(a -> a.foreachPostfix(visitor));
       visit(visitor);
    }
+
 }

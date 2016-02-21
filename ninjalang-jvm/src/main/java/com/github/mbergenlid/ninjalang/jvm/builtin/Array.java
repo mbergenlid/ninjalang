@@ -2,6 +2,7 @@ package com.github.mbergenlid.ninjalang.jvm.builtin;
 
 import com.github.mbergenlid.ninjalang.jvm.MethodGenerator;
 import com.github.mbergenlid.ninjalang.typer.Types;
+import org.apache.bcel.generic.ARRAYLENGTH;
 import org.apache.bcel.generic.InstructionFactory;
 import org.apache.bcel.generic.InstructionList;
 import org.apache.bcel.generic.Type;
@@ -24,6 +25,8 @@ public class Array implements BuiltInFunctions.BuiltInType {
          list.append(InstructionFactory.createArrayLoad(Type.OBJECT));
       } else if(function.functionSymbol== Types.ARRAY.member("set").get()) {
          list.append(InstructionFactory.createArrayStore(Type.OBJECT));
+      } else if(function.functionSymbol == Types.ARRAY.member("size").get()) {
+         list.append(new ARRAYLENGTH());
       }
    }
 }

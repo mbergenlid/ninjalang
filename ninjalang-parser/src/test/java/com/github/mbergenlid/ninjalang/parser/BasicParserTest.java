@@ -128,4 +128,20 @@ public class BasicParserTest {
          )
       );
    }
+
+   @Test
+   public void block() throws IOException {
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/examples/ArrayList.ninja"));
+      final FunctionDefinition f1 =
+         classDefinition.getBody().get().getFunctions().stream().filter(f -> f.getName().equals("add")).findAny().get();
+      final Expression body = f1.getBody();
+      assertThat(body).isEqualTo(
+         new Block(
+            ImmutableList.of(
+               new Apply(new Select(new Select("array"), "set"), ImmutableList.of(new Select("size"), new Select("x")))
+            ),
+            new Assign(new Select("size"), new Apply(new Select(new Select("size"), "plus"), ImmutableList.of(new IntLiteral(1))))
+         )
+      );
+   }
 }

@@ -105,6 +105,27 @@ public class Typer implements TreeVisitor<Void> {
    }
 
    @Override
+   public Void visit(Block block) {
+      symbolTable.newScope();
+      block.getStatements().stream().forEach(s -> s.visit(this));
+      block.getReturnExpression().visit(this);
+
+      final Type type = block.getReturnExpression().getType();
+      block.setType(type);
+      symbolTable.exitScope();
+      return null;
+   }
+
+   @Override
+   public Void visit(Assign assign) {
+      assign.getAssignee().visit(this);
+      assign.getValue().visit(this);
+
+      assign.setType(Types.NOTHING);
+      return null;
+   }
+
+   @Override
    public Void visit(AssignBackingField assign) {
       assign.getValue().visit(this);
       assign.assignSymbol(symbolTable.lookupTerm(assign.getFieldName()));

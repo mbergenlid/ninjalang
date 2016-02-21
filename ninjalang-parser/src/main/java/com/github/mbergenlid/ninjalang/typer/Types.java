@@ -12,7 +12,7 @@ public class Types {
    ));
    public static final Type STRING = Type.fromIdentifier("ninjalang.String");
    public static final Type ARRAY = Type.fromIdentifier("ninjalang.Array", ImmutableList.of(
-      new TermSymbol("size", Types.INT, new SymbolSupplier(() -> Types.ARRAY_SYMBOL)),
+      TermSymbol.propertyTermSymbol("size", Types.INT, new SymbolSupplier(() -> Types.ARRAY_SYMBOL)),
       new TermSymbol("get", new FunctionType(ImmutableList.of(Types.INT), () -> Types.ANY), new SymbolSupplier(() -> Types.ARRAY_SYMBOL)),
       new TermSymbol("set", new FunctionType(ImmutableList.of(Types.INT, Types.ANY), () -> Types.NOTHING), new SymbolSupplier(() -> Types.ARRAY_SYMBOL))
    ));

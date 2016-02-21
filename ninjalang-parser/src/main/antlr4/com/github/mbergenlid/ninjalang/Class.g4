@@ -50,10 +50,16 @@ term
     |   apply=term '(' expressionList? ')'
     |   arrayAccess=term '[' expression ']' ('=' expression)?
     |   Identifier
+    |   '{' block '}'
+    |   assign=term '=' expression
     ;
 
 expressionList:
     expression (',' expression)*;
+
+block
+    :   (expression ';')*
+    ;
 
 literal:
     Integer
