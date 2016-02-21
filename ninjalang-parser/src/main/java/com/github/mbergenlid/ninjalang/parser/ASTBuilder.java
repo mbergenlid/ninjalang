@@ -256,7 +256,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
                .collect(Collectors.toList());
          return new Apply(function, arguments);
       } else if(ctx.assign != null) {
-         final Expression assignee = (Expression) visitTerm(ctx.term());
+         final Select assignee = (Select) visitTerm(ctx.term());
          final Expression value = (Expression) visitExpression(ctx.expression(0));
          return new Assign(assignee, value);
       } else {

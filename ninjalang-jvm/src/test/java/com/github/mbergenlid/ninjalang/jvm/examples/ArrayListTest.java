@@ -32,4 +32,18 @@ public class ArrayListTest {
       Object index5 = proxy.invoke("get", arg(int.class, 5));
       assertThat(index5).isEqualTo("Hello");
    }
+
+   @Test
+   public void testAdd() throws IOException, ClassNotFoundException {
+      ClassGeneratorTestHelper arrayList = new ClassGeneratorTestHelper("/examples", "ArrayList");
+      arrayList.loadClass();
+      ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
+
+      int initialSize = (int) proxy.invoke("getSize");
+      assertThat(initialSize).isEqualTo(0);
+
+      proxy.invoke("add", arg(Object.class, "Hello"));
+      int newSize = (int) proxy.invoke("getSize");
+      assertThat(newSize).isEqualTo(1);
+   }
 }

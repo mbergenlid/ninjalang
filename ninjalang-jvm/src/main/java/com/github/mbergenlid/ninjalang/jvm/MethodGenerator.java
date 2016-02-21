@@ -102,12 +102,24 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
    }
 
    @Override
-   public Void visit(Block expression) {
+   public Void visit(Block block) {
+      block.getStatements().stream().forEach(s -> s.visit(this));
+      block.getReturnExpression().visit(this);
       return null;
    }
 
    @Override
    public Void visit(Assign assign) {
+      final Select assignee = assign.getAssignee();
+      final TermSymbol symbol = assignee.getSymbol();
+      if(symbol.isPropertySymbol()) {
+         //Invoke setter
+         //assignee.getQualifier().ifPresent(t -> t.visit(this));
+         instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+         assign.getValue().visit(this);
+         instructionList.append(factory.createPutField(classGen.getClassName(),
+            symbol.getName(), TypeConverter.fromNinjaType(symbol.getType())));
+      }
       return null;
    }
 

@@ -8,10 +8,10 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 public class Assign extends Statement {
 
-   private final Expression assignee;
+   private final Select assignee;
    private final Expression value;
 
-   public Assign(Expression assignee, Expression value) {
+   public Assign(Select assignee, Expression value) {
       this.assignee = assignee;
       this.value = value;
    }
@@ -26,7 +26,7 @@ public class Assign extends Statement {
       visit(visitor);
    }
 
-   public Expression getAssignee() {
+   public Select getAssignee() {
       return assignee;
    }
 

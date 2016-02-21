@@ -2,6 +2,7 @@ package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 import com.github.mbergenlid.ninjalang.typer.Type;
+import com.github.mbergenlid.ninjalang.typer.Types;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,7 +14,7 @@ public class IntLiteral extends Expression {
 
    public IntLiteral(int value) {
       this.value = value;
-      super.setType(Type.fromIdentifier("ninjalang.Int"));
+      super.setType(Types.INT);
    }
 
    public <T> T visit(final TreeVisitor<T> visitor) {
