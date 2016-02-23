@@ -1,0 +1,4 @@
+class Test2 {
+
+    var prop: Array = Array.new(); //error: can not resolve member 'new'
+}

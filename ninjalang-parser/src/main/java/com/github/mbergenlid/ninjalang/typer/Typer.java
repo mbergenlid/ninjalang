@@ -70,11 +70,13 @@ public class Typer implements TreeVisitor<Void> {
 
       property.getSetter().ifPresent(s -> s.visit(this));
       property.getInitialValue().visit(this);
-      final Type inferredType = property.getInitialValue().getType();
-
-      if(!declaredType.equals(inferredType)) {
-         errors.add(TypeError.incompatibleTypes(property.getInitialValue().getSourcePosition(), declaredType, inferredType));
+      if(property.getInitialValue().hasType()) {
+         final Type inferredType = property.getInitialValue().getType();
+         if(!declaredType.equals(inferredType)) {
+            errors.add(TypeError.incompatibleTypes(property.getInitialValue().getSourcePosition(), declaredType, inferredType));
+         }
       }
+
       property.setType(declaredType);
       symbolTable.exitScope();
 
@@ -157,11 +159,11 @@ public class Typer implements TreeVisitor<Void> {
             .map(TreeNode::getType)
             .flatMap(type -> type.termMember(select.getName()))
             .ifPresent(select::setSymbol);
+         if(!select.hasType()) {
+            errors.add(TypeError.noSuchMember(select.getSourcePosition(), select.getName()));
+         }
       } else {
          select.setSymbol(symbolTable.lookupTerm(select.getName()));
-      }
-      if(!select.hasType()) {
-         throw new TypeException("Fucked up error");
       }
       return null;
    }
@@ -171,10 +173,11 @@ public class Typer implements TreeVisitor<Void> {
       apply.getFunction().visit(this);
       apply.getArguments().stream().forEach(a -> a.visit(this));
       final Type type = apply.getFunction().getType();
-      if(!type.isFunctionType()) {
+      if(type.isFunctionType()) {
+         apply.setType(type.asFunctionType().getReturnType());
+      } else if(type != Type.NO_TYPE) {
          throw new TypeException(String.format("%s is not a function", type));
       }
-      apply.setType(type.asFunctionType().getReturnType());
       return null;
    }
 

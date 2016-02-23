@@ -16,6 +16,10 @@ public class TypeError {
       return new TypeError(String.format("incompatible types: %s can not be converted to %s", actualType, expectedType), sourcePosition);
    }
 
+   public static TypeError noSuchMember(final SourcePosition sourcePosition, final String member) {
+      return new TypeError(String.format("can not resolve member '%s'", member), sourcePosition);
+   }
+
    public String getMessage() {
       return message;
    }
