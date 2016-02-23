@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import static com.github.mbergenlid.ninjalang.jvm.ClassGeneratorTestHelper.arg;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,5 +46,9 @@ public class ArrayListTest {
       proxy.invoke("add", arg(Object.class, "Hello"));
       int newSize = (int) proxy.invoke("getSize");
       assertThat(newSize).isEqualTo(1);
+
+      proxy.invoke("add", arg(Object.class, "World"));
+      newSize = (int) proxy.invoke("getSize");
+      assertThat(newSize).isEqualTo(2);
    }
 }
