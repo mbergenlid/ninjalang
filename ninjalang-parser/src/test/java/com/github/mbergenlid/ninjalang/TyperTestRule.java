@@ -32,10 +32,13 @@ public class TyperTestRule  {
       }
       final List<TypeError> errors = parseAndTypeCheck(ninjaFile);
       assertThat(errors.size()).isEqualTo(expectedErrors.size());
-      assertThat(errors.get(0).getSourcePosition().getLine())
-         .isEqualTo(expectedErrors.get(0).getSourcePosition().getLine());
-      assertThat(errors.get(0).getMessage())
-         .isEqualTo(expectedErrors.get(0).getMessage());
+
+      for(int i = 0; i < expectedErrors.size(); i++) {
+         assertThat(errors.get(i).getSourcePosition().getLine())
+            .isEqualTo(expectedErrors.get(i).getSourcePosition().getLine());
+         assertThat(errors.get(i).getMessage())
+            .isEqualTo(expectedErrors.get(i).getMessage());
+      }
    }
 
    private List<TypeError> parseAndTypeCheck(final String name) throws IOException {
