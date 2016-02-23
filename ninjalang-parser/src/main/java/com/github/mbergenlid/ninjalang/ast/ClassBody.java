@@ -12,7 +12,8 @@ public class ClassBody extends TreeNode {
    private final List<Property> properties;
    private final List<FunctionDefinition> functions;
 
-   public ClassBody(List<Property> properties, List<FunctionDefinition> functions) {
+   public ClassBody(final SourcePosition sourcePosition, List<Property> properties, List<FunctionDefinition> functions) {
+      super(sourcePosition);
       this.properties = properties;
       this.functions = functions;
    }

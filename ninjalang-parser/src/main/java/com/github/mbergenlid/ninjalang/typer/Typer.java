@@ -3,9 +3,13 @@ package com.github.mbergenlid.ninjalang.typer;
 import com.github.mbergenlid.ninjalang.ast.*;
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Typer implements TreeVisitor<Void> {
 
    private final SymbolTable symbolTable;
+   private final List<TypeError> errors = new ArrayList<>();
 
    public Typer() {
       this(new SymbolTable());
@@ -15,8 +19,9 @@ public class Typer implements TreeVisitor<Void> {
       this.symbolTable = symbolTable;
    }
 
-   public void typeTree(final TreeNode tree) {
+   public List<TypeError> typeTree(final TreeNode tree) {
       tree.visit(this);
+      return errors;
    }
 
    @Override
@@ -68,9 +73,9 @@ public class Typer implements TreeVisitor<Void> {
       final Type inferredType = property.getInitialValue().getType();
 
       if(!declaredType.equals(inferredType)) {
-         throw TypeException.incompatibleTypes(declaredType, inferredType);
+         errors.add(TypeError.incompatibleTypes(property.getInitialValue().getSourcePosition(), declaredType, inferredType));
       }
-      property.setType(inferredType);
+      property.setType(declaredType);
       symbolTable.exitScope();
 
       symbolTable.addSymbol(TermSymbol.propertyTermSymbol(property.getName(), property.getType()));
@@ -170,16 +175,6 @@ public class Typer implements TreeVisitor<Void> {
          throw new TypeException(String.format("%s is not a function", type));
       }
       apply.setType(type.asFunctionType().getReturnType());
-      return null;
-   }
-
-   @Override
-   public Void visit(VariableReference reference) {
-      if(!symbolTable.hasTerm(reference.getVariable()))
-         throw new TypeException("WTF!");
-
-      final Symbol symbol = symbolTable.lookupTerm(reference.getVariable());
-      reference.setType(symbol.getType());
       return null;
    }
 

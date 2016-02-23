@@ -128,7 +128,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
       TermSymbol symbol = select.getSymbol();
       if(BuiltInFunctions.contains(symbol)) {
          BuiltInFunctions.getBuiltInType(symbol, this).generate(
-            new BuiltInFunctions.FunctionApplication(symbol, select.getQualifier().orElse(new EmptyExpression()), ImmutableList.of()), instructionList, factory);
+            new BuiltInFunctions.FunctionApplication(symbol, select.getQualifier().orElse(new EmptyExpression(SourcePosition.NO_SOURCE)), ImmutableList.of()), instructionList, factory);
       } else {
          if(select.getQualifier().isPresent()) {
             select.getQualifier().get().visit(this);
@@ -151,7 +151,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
          final TermSymbol functionSymbol = instance.getSymbol();
          if(BuiltInFunctions.contains(functionSymbol)) {
             BuiltInFunctions.getBuiltInType(functionSymbol, this).generate(
-               new BuiltInFunctions.FunctionApplication(functionSymbol, instance.getQualifier().orElse(new EmptyExpression()), apply.getArguments()), instructionList, factory);
+               new BuiltInFunctions.FunctionApplication(functionSymbol, instance.getQualifier().orElse(new EmptyExpression(SourcePosition.NO_SOURCE)), apply.getArguments()), instructionList, factory);
          }
       }
       return null;
@@ -172,12 +172,6 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
       instructionList.append(factory.createGetField(classGen.getClassName(), field.getBackingField().getName(),
          TypeConverter.fromNinjaType(field.getBackingField().getType())));
       return null;
-   }
-
-   @Override
-   public Void visit(VariableReference reference) {
-      instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(reference.getType()), 1));
-      return super.visit(reference);
    }
 
    private static short fromNinjaAccessModifier(AccessModifier modifier) {

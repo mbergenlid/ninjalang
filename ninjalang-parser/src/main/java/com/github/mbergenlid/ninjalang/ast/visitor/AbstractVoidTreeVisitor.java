@@ -15,11 +15,6 @@ public abstract class AbstractVoidTreeVisitor implements TreeVisitor<Void> {
    }
 
    @Override
-   public Void visit(VariableReference reference) {
-      return null;
-   }
-
-   @Override
    public Void visit(TreeNode treeNode) {
       return null;
    }

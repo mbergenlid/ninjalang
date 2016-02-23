@@ -13,7 +13,8 @@ public class Block extends Statement {
    private final List<Statement> statements;
    private final Expression returnExpression;
 
-   public Block(List<Statement> statements, Expression returnExpression) {
+   public Block(final SourcePosition sourcePosition, List<Statement> statements, Expression returnExpression) {
+      super(sourcePosition);
       this.statements = statements;
       this.returnExpression = returnExpression;
    }

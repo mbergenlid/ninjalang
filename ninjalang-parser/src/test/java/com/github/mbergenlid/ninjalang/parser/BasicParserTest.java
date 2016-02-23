@@ -10,6 +10,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
+import static com.github.mbergenlid.ninjalang.ast.SourcePosition.NO_SOURCE;
+
 public class BasicParserTest {
 
    @Test
@@ -33,13 +35,14 @@ public class BasicParserTest {
       assertThat(classDefinition.getPrimaryConstructor()).isEmpty();
       assertThat(classDefinition.getBody()).isPresent();
       assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
-         new Property("name", "String", new StringLiteral("hello"), new Getter("getName", "String", new StringLiteral("hello")), Optional.empty()),
-         new Property("prop", "Int", new IntLiteral(42), new Getter("getProp", "Int", new IntLiteral(42)), Optional.empty()),
-         new Property("mutableProperty", "Int", new IntLiteral(1),
+         new Property(NO_SOURCE, "name", "String", new StringLiteral(NO_SOURCE, "hello"), new Getter(NO_SOURCE, "getName", "String", new StringLiteral(NO_SOURCE, "hello")), Optional.empty()),
+         new Property(NO_SOURCE, "prop", "Int", new IntLiteral(NO_SOURCE, 42), new Getter(NO_SOURCE, "getProp", "Int", new IntLiteral(NO_SOURCE, 42)), Optional.empty()),
+         new Property(NO_SOURCE, "mutableProperty", "Int", new IntLiteral(NO_SOURCE, 1),
             new Setter(
+               NO_SOURCE,
                "setMutableProperty",
                "Int",
-               new AssignBackingField("mutableProperty", new Select("value")))
+               new AssignBackingField(NO_SOURCE, "mutableProperty", new Select(NO_SOURCE, "value")))
             )
       );
    }
@@ -55,22 +58,22 @@ public class BasicParserTest {
       PropertyAssert.assertThat(property)
          .hasName("property")
          .hasTypeName("Int")
-         .hasInitialValue(new IntLiteral(1))
+         .hasInitialValue(new IntLiteral(NO_SOURCE, 1))
          .hasGetter(
-            new Getter(AccessModifier.PRIVATE, "getProperty", "Int", new AccessBackingField("property"))
+            new Getter(NO_SOURCE, AccessModifier.PRIVATE, "getProperty", "Int", new AccessBackingField(NO_SOURCE, "property"))
          )
          ;
       assertThat(property.getSetter()).isPresent();
       final Setter setter = property.getSetter().get();
       SetterAssert.assertThat(setter)
          .hasAccessModifier(AccessModifier.PRIVATE)
-         .hasArgumentList(new Argument("value", "Int"))
+         .hasArgumentList(new Argument(NO_SOURCE, "value", "Int"))
          .hasName("setProperty")
          .hasReturnTypeName("Nothing")
          ;
       AssignBackingFieldAssert.assertThat((AssignBackingField) setter.getBody())
          .hasFieldName("property")
-         .hasValue(new Select("value"))
+         .hasValue(new Select(NO_SOURCE, "value"))
          ;
    }
 
@@ -80,11 +83,11 @@ public class BasicParserTest {
       assertThat(classDefinition.getBody().get().getProperties()).isNotEmpty();
       final Property property1 = classDefinition.getBody().get().getProperties().get(0);
       assertThat(property1.getInitialValue()).isEqualTo(
-         new Apply(new Select(new Select("Array"), "ofSize"), ImmutableList.of(new IntLiteral(10)))
+         new Apply(NO_SOURCE, new Select(NO_SOURCE, new Select(NO_SOURCE, "Array"), "ofSize"), ImmutableList.of(new IntLiteral(NO_SOURCE, 10)))
       );
       final Property property2 = classDefinition.getBody().get().getProperties().get(1);
       assertThat(property2.getInitialValue()).isEqualTo(
-         new Apply(new Select(new Select("Array"), "empty"), ImmutableList.of())
+         new Apply(NO_SOURCE, new Select(NO_SOURCE, new Select(NO_SOURCE, "Array"), "empty"), ImmutableList.of())
       );
    }
 
@@ -93,9 +96,9 @@ public class BasicParserTest {
       final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/PropertyWithoutBackingField.ninja"));
       assertThat(classDefinition.getBody().get().getProperties()).isNotEmpty();
       final Property property2 = classDefinition.getBody().get().getProperties().get(1);
-      assertThat(property2.getInitialValue()).isEqualTo(new EmptyExpression());
+      assertThat(property2.getInitialValue()).isEqualTo(new EmptyExpression(NO_SOURCE));
       assertThat(property2.getGetter()).isEqualTo(
-         new Getter("getSize", "Int", new Select(new Select("array"), "size"))
+         new Getter(NO_SOURCE, "getSize", "Int", new Select(NO_SOURCE, new Select(NO_SOURCE, "array"), "size"))
       );
       assertThat(property2.getSetter()).isEqualTo(Optional.empty());
    }
@@ -105,13 +108,13 @@ public class BasicParserTest {
       final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/PropertyModifiers.ninja"));
       assertThat(classDefinition.getBody().get().getProperties()).isNotEmpty();
       final Property property1 = classDefinition.getBody().get().getProperties().get(0);
-      assertThat(property1.getInitialValue()).isEqualTo(new IntLiteral(5));
+      assertThat(property1.getInitialValue()).isEqualTo(new IntLiteral(NO_SOURCE, 5));
       assertThat(property1.getGetter()).isEqualTo(
-         new Getter("getSize", "Int", new AccessBackingField("size"))
+         new Getter(NO_SOURCE, "getSize", "Int", new AccessBackingField(NO_SOURCE, "size"))
       );
       assertThat(property1.getSetter()).isPresent();
       assertThat(property1.getSetter().get()).isEqualTo(
-         new Setter(AccessModifier.PRIVATE, "setSize", "Int", new AssignBackingField("size", new Select("value")))
+         new Setter(NO_SOURCE, AccessModifier.PRIVATE, "setSize", "Int", new AssignBackingField(NO_SOURCE, "size", new Select(NO_SOURCE, "value")))
       );
    }
 
@@ -123,8 +126,9 @@ public class BasicParserTest {
       final Expression body = f1.getBody();
       assertThat(body).isEqualTo(
          new Apply(
-            new Select(new Select("x"), "plus"),
-            ImmutableList.of(new IntLiteral(1))
+            NO_SOURCE,
+            new Select(NO_SOURCE, new Select(NO_SOURCE, "x"), "plus"),
+            ImmutableList.of(new IntLiteral(NO_SOURCE, 1))
          )
       );
    }
@@ -137,10 +141,11 @@ public class BasicParserTest {
       final Expression body = f1.getBody();
       assertThat(body).isEqualTo(
          new Block(
+            NO_SOURCE,
             ImmutableList.of(
-               new Apply(new Select(new Select("array"), "set"), ImmutableList.of(new Select("size"), new Select("x")))
+               new Apply(NO_SOURCE, new Select(NO_SOURCE, new Select(NO_SOURCE, "array"), "set"), ImmutableList.of(new Select(NO_SOURCE, "size"), new Select(NO_SOURCE, "x")))
             ),
-            new Assign(new Select("size"), new Apply(new Select(new Select("size"), "plus"), ImmutableList.of(new IntLiteral(1))))
+            new Assign(NO_SOURCE, new Select(NO_SOURCE, "size"), new Apply(NO_SOURCE, new Select(NO_SOURCE, new Select(NO_SOURCE, "size"), "plus"), ImmutableList.of(new IntLiteral(NO_SOURCE, 1))))
          )
       );
    }

@@ -1,14 +1,22 @@
 package com.github.mbergenlid.ninjalang.parser;
 
-import com.github.mbergenlid.ninjalang.ast.*;
+import com.github.mbergenlid.ninjalang.ast.AccessModifier;
+import com.github.mbergenlid.ninjalang.ast.Apply;
+import com.github.mbergenlid.ninjalang.ast.Argument;
+import com.github.mbergenlid.ninjalang.ast.Assertions;
+import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
+import com.github.mbergenlid.ninjalang.ast.Expression;
+import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
+import com.github.mbergenlid.ninjalang.ast.IntLiteral;
+import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
 import com.google.common.collect.ImmutableList;
-import org.assertj.core.api.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.github.mbergenlid.ninjalang.ast.FunctionDefinitionAssert.assertThat;
+import static com.github.mbergenlid.ninjalang.ast.SourcePosition.NO_SOURCE;
 
 public class FunctionDeclarationTest {
 
@@ -22,7 +30,7 @@ public class FunctionDeclarationTest {
          .hasNoArgumentList()
          .hasReturnTypeName("Int")
          .hasReturnType(TypeSymbol.NO_SYMBOL)
-         .hasBody(new IntLiteral(5))
+         .hasBody(new IntLiteral(NO_SOURCE, 5))
          ;
    }
 
@@ -31,7 +39,7 @@ public class FunctionDeclarationTest {
       final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/Functions.ninja"));
       final FunctionDefinition functionDefinition = classDefinition.getBody().get().getFunctions().get(1);
       assertThat(functionDefinition)
-         .hasArgumentList(new Argument("x", "Int"))
+         .hasArgumentList(new Argument(NO_SOURCE, "x", "Int"))
          ;
    }
 
@@ -41,7 +49,7 @@ public class FunctionDeclarationTest {
       final FunctionDefinition functionDefinition = classDefinition.getBody().get().getFunctions().get(2);
       assertThat(functionDefinition)
          .hasName("accessProperty")
-         .hasBody(new Select("prop"))
+         .hasBody(new Select(NO_SOURCE, "prop"))
       ;
    }
 
@@ -52,10 +60,11 @@ public class FunctionDeclarationTest {
          .filter(f -> f.getName().equals("get")).findAny().get();
       final Expression body = functionDefinition.getBody();
       Assertions.assertThat(body).isEqualTo(
-         new Apply(new Select(
-            new Select("array"),
+         new Apply(NO_SOURCE, new Select(
+            NO_SOURCE,
+            new Select(NO_SOURCE, "array"),
             "get"
-         ), ImmutableList.of(new Select("i")))
+         ), ImmutableList.of(new Select(NO_SOURCE, "i")))
       );
    }
 
@@ -66,10 +75,11 @@ public class FunctionDeclarationTest {
          .filter(f -> f.getName().equals("set")).findAny().get();
       final Expression body = functionDefinition.getBody();
       Assertions.assertThat(body).isEqualTo(
-         new Apply(new Select(
-            new Select("array"),
+         new Apply(NO_SOURCE, new Select(
+            NO_SOURCE,
+            new Select(NO_SOURCE, "array"),
             "set"
-         ), ImmutableList.of(new Select("i"), new Select("value")))
+         ), ImmutableList.of(new Select(NO_SOURCE, "i"), new Select(NO_SOURCE, "value")))
       );
    }
 }

@@ -4,7 +4,12 @@ import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 import com.github.mbergenlid.ninjalang.typer.Type;
 
 public abstract class TreeNode {
+   private final SourcePosition sourcePosition;
    private Type type = null;
+
+   protected TreeNode(SourcePosition sourcePosition) {
+      this.sourcePosition = sourcePosition;
+   }
 
    public void setType(Type type) {
       if(this.type != null && !this.type.equals(type)) {
@@ -29,4 +34,8 @@ public abstract class TreeNode {
    }
 
    public abstract void foreachPostfix(TreeVisitor<Void> visitor);
+
+   public SourcePosition getSourcePosition() {
+      return sourcePosition;
+   }
 }

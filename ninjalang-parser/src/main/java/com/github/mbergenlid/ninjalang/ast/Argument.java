@@ -15,7 +15,8 @@ public class Argument extends TreeNode {
    private final SymbolReference<TypeSymbol> declaredType;
    private final String typeName;
 
-   public Argument(final String name, final String declaredType) {
+   public Argument(final SourcePosition sourcePosition, final String name, final String declaredType) {
+      super(sourcePosition);
       this.name = name;
       this.typeName = declaredType;
       this.declaredType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);

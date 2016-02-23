@@ -18,11 +18,12 @@ public class Property extends TreeNode {
    private final Getter getter;
    private final Optional<Setter> setter;
 
-   public Property(String name, String propertyType, Expression value) {
-      this(name, propertyType, value, null);
+   public Property(final SourcePosition sourcePosition, String name, String propertyType, Expression value) {
+      this(sourcePosition, name, propertyType, value, null);
    }
 
-   public Property(String name, String propertyType, Expression initialValue, Setter setter) {
+   public Property(final SourcePosition sourcePosition, String name, String propertyType, Expression initialValue, Setter setter) {
+      super(sourcePosition);
       this.name = name;
       this.typeName = propertyType;
       this.propertyType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);
@@ -30,14 +31,15 @@ public class Property extends TreeNode {
       final String getterName = setter != null ?
          String.format("get%s%s", name.substring(0,1).toUpperCase(), name.substring(1)) : name;
       if(setter == null) {
-         this.getter = new Getter(getterName, propertyType, initialValue);
+         this.getter = new Getter(sourcePosition, getterName, propertyType, initialValue);
       } else {
-         this.getter = new Getter(getterName, propertyType, new AccessBackingField(name));
+         this.getter = new Getter(sourcePosition, getterName, propertyType, new AccessBackingField(sourcePosition, name));
       }
       this.setter = Optional.ofNullable(setter);
    }
 
-   public Property(String name, String propertyType, Expression initialValue, Getter getter, Setter setter) {
+   public Property(final SourcePosition sourcePosition, String name, String propertyType, Expression initialValue, Getter getter, Setter setter) {
+      super(sourcePosition);
       this.name = name;
       this.typeName = propertyType;
       this.propertyType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);
@@ -46,7 +48,8 @@ public class Property extends TreeNode {
       this.setter = Optional.of(setter);
    }
 
-   public Property(String name, String propertyType, Expression initialValue, Getter getter, Optional<Setter> setter) {
+   public Property(final SourcePosition sourcePosition, String name, String propertyType, Expression initialValue, Getter getter, Optional<Setter> setter) {
+      super(sourcePosition);
       this.name = name;
       this.typeName = propertyType;
       this.propertyType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);

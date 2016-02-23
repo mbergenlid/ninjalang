@@ -12,7 +12,8 @@ public class IntLiteral extends Expression {
 
    private final int value;
 
-   public IntLiteral(int value) {
+   public IntLiteral(final SourcePosition sourcePosition, int value) {
+      super(sourcePosition);
       this.value = value;
       super.setType(Types.INT);
    }

@@ -14,7 +14,8 @@ public class AccessBackingField extends Expression {
    private final String fieldName;
    private final SymbolReference<TermSymbol> backingField;
 
-   public AccessBackingField(String fieldName) {
+   public AccessBackingField(final SourcePosition sourcePosition, String fieldName) {
+      super(sourcePosition);
       this.fieldName = fieldName;
       this.backingField = new SymbolReference<>(TermSymbol.NO_SYMBOL);
    }

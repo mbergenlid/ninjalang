@@ -16,7 +16,8 @@ public class AssignBackingField extends Expression {
    private final SymbolReference<TermSymbol> backingField;
    private final Expression value;
 
-   public AssignBackingField(final String fieldName, final Expression expression) {
+   public AssignBackingField(final SourcePosition sourcePosition, final String fieldName, final Expression expression) {
+      super(sourcePosition);
       this.backingField = new SymbolReference<>(TermSymbol.NO_SYMBOL);
       this.fieldName = fieldName;
       this.value = expression;

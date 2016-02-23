@@ -99,3 +99,12 @@ LPAREN: '(';
 RPAREN: ')';
 
 WS: [ \n\t\r]+ -> skip;
+
+
+COMMENT
+    :   '/*' .*? '*/' -> skip
+    ;
+
+LINE_COMMENT
+    :   '//' ~[\r\n]* -> skip
+    ;

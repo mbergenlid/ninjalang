@@ -57,11 +57,6 @@ public abstract class AbstractTreeVisitor<T> implements TreeVisitor<Optional<T>>
    }
 
    @Override
-   public Optional<T> visit(VariableReference reference) {
-      return Optional.empty();
-   }
-
-   @Override
    public Optional<T> visit(IntLiteral intLiteral) {
       return Optional.empty();
    }

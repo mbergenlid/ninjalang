@@ -17,15 +17,16 @@ public class Select extends Expression {
    private final String name;
    private final SymbolReference<TermSymbol> symbol;
 
-   public Select(String name) {
-      this(Optional.empty(), name);
+   public Select(final SourcePosition sourcePosition, String name) {
+      this(sourcePosition, Optional.empty(), name);
    }
 
-   public Select(TreeNode qualifier, String name) {
-      this(Optional.of(qualifier), name);
+   public Select(final SourcePosition sourcePosition, TreeNode qualifier, String name) {
+      this(sourcePosition, Optional.of(qualifier), name);
    }
 
-   public Select(Optional<TreeNode> qualifier, String name) {
+   public Select(final SourcePosition sourcePosition, Optional<TreeNode> qualifier, String name) {
+      super(sourcePosition);
       this.qualifier = qualifier;
       this.name = name;
       this.symbol = new SymbolReference<>(TermSymbol.NO_SYMBOL);

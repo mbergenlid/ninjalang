@@ -21,7 +21,6 @@ public interface TreeVisitor<T> {
    T visit(final Apply apply);
    T visit(final AssignBackingField assign);
    T visit(final AccessBackingField access);
-   T visit(final VariableReference reference);
    T visit(final IntLiteral intLiteral);
    T visit(final StringLiteral stringLiteral);
 }

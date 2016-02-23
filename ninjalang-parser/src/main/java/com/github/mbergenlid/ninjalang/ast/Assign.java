@@ -11,7 +11,8 @@ public class Assign extends Statement {
    private final Select assignee;
    private final Expression value;
 
-   public Assign(Select assignee, Expression value) {
+   public Assign(final SourcePosition sourcePosition, Select assignee, Expression value) {
+      super(sourcePosition);
       this.assignee = assignee;
       this.value = value;
    }

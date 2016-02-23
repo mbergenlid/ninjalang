@@ -19,11 +19,12 @@ public class FunctionDefinition extends TreeNode {
    private final SymbolReference<TypeSymbol> returnType;
    private final Expression body;
 
-   public FunctionDefinition(String name, List<Argument> argumentList, String returnType, Expression body) {
-      this(AccessModifier.PUBLIC, name, argumentList, returnType, body);
+   public FunctionDefinition(final SourcePosition sourcePosition, String name, List<Argument> argumentList, String returnType, Expression body) {
+      this(sourcePosition, AccessModifier.PUBLIC, name, argumentList, returnType, body);
    }
 
-   public FunctionDefinition(AccessModifier accessModifier, String name, List<Argument> argumentList, String returnType, Expression body) {
+   public FunctionDefinition(final SourcePosition sourcePosition, AccessModifier accessModifier, String name, List<Argument> argumentList, String returnType, Expression body) {
+      super(sourcePosition);
       this.accessModifier = accessModifier;
       this.name = name;
       this.argumentList = argumentList;

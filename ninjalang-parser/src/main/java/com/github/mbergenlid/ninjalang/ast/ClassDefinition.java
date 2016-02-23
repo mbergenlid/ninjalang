@@ -18,7 +18,8 @@ public class ClassDefinition extends TreeNode {
 
 
    @Builder
-   public ClassDefinition(String name, Optional<PrimaryConstructor> primaryConstructor, Optional<ClassBody> body) {
+   public ClassDefinition(final SourcePosition sourcePosition, String name, Optional<PrimaryConstructor> primaryConstructor, Optional<ClassBody> body) {
+      super(sourcePosition);
       this.name = name != null ? name : "";
       this.primaryConstructor = primaryConstructor != null ? primaryConstructor : Optional.empty();
       this.body = body != null ? body : Optional.empty();

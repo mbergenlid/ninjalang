@@ -20,6 +20,7 @@ import com.github.mbergenlid.ninjalang.ast.PrimaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Property;
 import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.Setter;
+import com.github.mbergenlid.ninjalang.ast.SourcePosition;
 import com.github.mbergenlid.ninjalang.ast.Statement;
 import com.github.mbergenlid.ninjalang.ast.StringLiteral;
 import com.github.mbergenlid.ninjalang.ast.TreeNode;
@@ -47,16 +48,15 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
    @Override
    public TreeNode visitPrimaryConstructor(ClassParser.PrimaryConstructorContext ctx) {
       TreeNode arg = visit(ctx.classArgumentList().head);
-      return PrimaryConstructor.builder()
-         .arguments(
-            ImmutableList.of((Argument)arg)
-         )
-         .build();
+      return new PrimaryConstructor(
+         SourcePosition.fromParserContext(ctx),
+         ImmutableList.of((Argument)arg)
+      );
    }
 
    @Override
    public TreeNode visitClassArgument(ClassParser.ClassArgumentContext ctx) {
-      return new Argument(ctx.name.getText(), ctx.type.getText());
+      return new Argument(SourcePosition.fromParserContext(ctx), ctx.name.getText(), ctx.type.getText());
    }
 
    @Override
@@ -75,23 +75,24 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
          .filter(node -> node instanceof FunctionDefinition)
          .map(node -> (FunctionDefinition) node)
          .collect(Collectors.toList());
-      return new ClassBody(properties, functions);
+      return new ClassBody(SourcePosition.fromParserContext(ctx), properties, functions);
    }
 
    @Override
    public Property visitPropertyDefinition(ClassParser.PropertyDefinitionContext ctx) {
       final boolean hasInitialValue = ctx.init != null;
-      final Expression initialValue = hasInitialValue ? (Expression) visit(ctx.init) : new EmptyExpression();
+      final Expression initialValue = hasInitialValue ? (Expression) visit(ctx.init) : new EmptyExpression(SourcePosition.fromParserContext(ctx));
       final String declaredType = ctx.type.getText();
       final String accessModifier = ctx.accessModifier() != null ? ctx.accessModifier().getText() : "public";
       final String name = ctx.name.getText();
       final boolean isVar = ctx.modifier.getText().equals("var");
 
       final FunctionDefinition accessor1 = ctx.accessor().size() >= 1
-         ? createAccessor(name, declaredType, accessModifier, ctx.modifier.getText(), initialValue, ctx.accessor(0))
+         ? createAccessor(name, declaredType, accessModifier, ctx.modifier.getText(), initialValue, ctx.accessor(0), SourcePosition.fromParserContext(ctx))
          : (isVar && hasInitialValue)
-            ? createDefaultGetter(declaredType, accessModifier, name)
+            ? createDefaultGetter(SourcePosition.fromParserContext(ctx), declaredType, accessModifier, name)
             : new Getter(
+               SourcePosition.fromParserContext(ctx),
                AccessModifier.valueOf(accessModifier.toUpperCase()),
                String.format("get%s%s", name.substring(0, 1).toUpperCase(), name.substring(1)),
                declaredType, initialValue
@@ -100,14 +101,14 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
       Optional<FunctionDefinition> accessor2 = Optional.empty();
       if(ctx.accessor().size() >= 2) {
-         accessor2 = Optional.of(createAccessor(name, declaredType, accessModifier, ctx.modifier.getText(), initialValue, ctx.accessor(0)));
+         accessor2 = Optional.of(createAccessor(name, declaredType, accessModifier, ctx.modifier.getText(), initialValue, ctx.accessor(0), SourcePosition.fromParserContext(ctx)));
       } else if(accessor1 instanceof Setter) {
-         accessor2 = Optional.of(createDefaultGetter(declaredType, accessModifier, name));
+         accessor2 = Optional.of(createDefaultGetter(SourcePosition.fromParserContext(ctx), declaredType, accessModifier, name));
       } else if(isVar && hasInitialValue) {
-         accessor2 = Optional.of(createDefaultSetter(declaredType, accessModifier, name));
+         accessor2 = Optional.of(createDefaultSetter(SourcePosition.fromParserContext(ctx), declaredType, accessModifier, name));
       }
 
-      return new Property(name, declaredType, initialValue,
+      return new Property(SourcePosition.fromParserContext(ctx), name, declaredType, initialValue,
          accessor1 instanceof Getter ? (Getter) accessor1 : (Getter) accessor2.get(),
          accessor1 instanceof Setter
             ? Optional.of((Setter)accessor1)
@@ -116,29 +117,31 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
    }
 
    @NotNull
-   private Getter createDefaultGetter(String declaredType, String accessModifier, String name) {
+   private Getter createDefaultGetter(SourcePosition sourcePosition, String declaredType, String accessModifier, String name) {
       return new Getter(
+         sourcePosition,
          AccessModifier.valueOf(accessModifier.toUpperCase()),
          String.format("get%s%s", name.substring(0, 1).toUpperCase(), name.substring(1)),
-         declaredType, new AccessBackingField(name)
+         declaredType, new AccessBackingField(sourcePosition, name)
       );
    }
    @NotNull
-   private Setter createDefaultSetter(String declaredType, String accessModifier, String name) {
+   private Setter createDefaultSetter(SourcePosition sourcePosition, String declaredType, String accessModifier, String name) {
       return new Setter(
+         sourcePosition,
          AccessModifier.valueOf(accessModifier.toUpperCase()),
          String.format("set%s%s", name.substring(0, 1).toUpperCase(), name.substring(1)),
-         declaredType, new AssignBackingField(name, new Select("value"))
+         declaredType, new AssignBackingField(sourcePosition, name, new Select(sourcePosition, "value"))
       );
    }
 
    private FunctionDefinition createAccessor(final String propertyName, final String propertyType,
                                              final String propertyAccessModifier, final String modifier,
-                                             final Expression initialValue, ClassParser.AccessorContext ctx) {
+                                             final Expression initialValue, ClassParser.AccessorContext ctx, SourcePosition sourcePosition) {
       if(ctx.accessorName1.getText().equals("get")) {
-         return createGetter(propertyName, propertyType, modifier, propertyAccessModifier, initialValue, ctx);
+         return createGetter(propertyName, propertyType, modifier, propertyAccessModifier, initialValue, ctx, sourcePosition);
       } else if(ctx.accessorName1.getText().equals("set")) {
-         return createSetter(propertyName, propertyType, modifier, propertyAccessModifier, initialValue, ctx);
+         return createSetter(propertyName, propertyType, modifier, propertyAccessModifier, initialValue, ctx, sourcePosition);
       }
       throw new IllegalArgumentException(String.format("Unkown token '%s', Expceted get or set", ctx.accessorName1.getText()));
    }
@@ -146,14 +149,15 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    private Getter createGetter(final String propertyName, final String propertyType, final String propertyModifier,
                                final String propertyAccessModifier, final Expression initialValue,
-                               final ClassParser.AccessorContext ctx) {
+                               final ClassParser.AccessorContext ctx, SourcePosition sourcePosition) {
       final String accessModifier = ctx.accessModifier() != null ? ctx.accessModifier().getText() : propertyAccessModifier;
       final boolean isVar = propertyModifier.equals("var");
       final Expression body = ctx.expression() != null
          ? (Expression) visit(ctx.expression())
-         : (isVar ? new AccessBackingField(propertyName) : initialValue);
+         : (isVar ? new AccessBackingField(SourcePosition.fromParserContext(ctx), propertyName) : initialValue);
 
       return new Getter(
+         sourcePosition,
          AccessModifier.valueOf(accessModifier.toUpperCase()),
          String.format("get%s%s", propertyName.substring(0,1).toUpperCase(), propertyName.substring(1)),
          propertyType, body
@@ -162,14 +166,15 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    private Setter createSetter(final String propertyName, final String propertyType, final String propertyModifier,
                                final String propertyAccessModifier, final Expression initialValue,
-                               final ClassParser.AccessorContext ctx) {
+                               final ClassParser.AccessorContext ctx, SourcePosition sourcePosition) {
       final String accessModifier = ctx.accessModifier() != null ? ctx.accessModifier().getText() : propertyAccessModifier;
       final boolean isVar = propertyModifier.equals("var");
-      final boolean hasInitialValue = !initialValue.equals(new EmptyExpression());
+      final boolean hasInitialValue = !initialValue.equals(new EmptyExpression(SourcePosition.fromParserContext(ctx)));
       final Expression body = ctx.expression() != null
          ? (Expression) visit(ctx.expression())
-         : ((isVar && hasInitialValue) ? new AssignBackingField(propertyName, new Select("value")) : new EmptyExpression());
+         : ((isVar && hasInitialValue) ? new AssignBackingField(SourcePosition.fromParserContext(ctx), propertyName, new Select(SourcePosition.fromParserContext(ctx), "value")) : new EmptyExpression(SourcePosition.fromParserContext(ctx)));
       return new Setter(
+         sourcePosition,
          AccessModifier.valueOf(accessModifier.toUpperCase()),
          String.format("set%s%s", propertyName.substring(0,1).toUpperCase(), propertyName.substring(1)),
          propertyType, body
@@ -186,6 +191,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
             .collect(Collectors.toList())
          : ImmutableList.of();
       return new FunctionDefinition(
+         SourcePosition.fromParserContext(ctx),
          AccessModifier.PUBLIC, ctx.name.getText(), argumentList,
          ctx.returnType.getText(), functionBody
       );
@@ -193,16 +199,16 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitFunctionArgument(ClassParser.FunctionArgumentContext ctx) {
-      return new Argument(ctx.name.getText(), ctx.type.getText());
+      return new Argument(SourcePosition.fromParserContext(ctx), ctx.name.getText(), ctx.type.getText());
    }
 
    @Override
    public TreeNode visitLiteral(ClassParser.LiteralContext ctx) {
       if(ctx.Integer() != null) {
-         return new IntLiteral(Integer.parseInt(ctx.Integer().getText()));
+         return new IntLiteral(SourcePosition.fromParserContext(ctx), Integer.parseInt(ctx.Integer().getText()));
       } else if(ctx.StringLiteral() != null) {
          final String value = ctx.StringLiteral().getText();
-         return new StringLiteral(value.substring(1, value.length()-1));
+         return new StringLiteral(SourcePosition.fromParserContext(ctx), value.substring(1, value.length()-1));
       }
       throw new IllegalArgumentException("Unknown literal: " + ctx);
    }
@@ -213,6 +219,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
          .map(this::visitExpression).map(n -> (Expression) n).collect(Collectors.toList());
 
       return new Block(
+         SourcePosition.fromParserContext(ctx),
          expressions.stream().limit(expressions.size()-1).map(e -> (Statement) e).collect(Collectors.toList()),
          expressions.get(expressions.size()-1)
       );
@@ -223,7 +230,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       if(ctx.plus != null) {
          final Expression instance = (Expression) visitExpression(ctx.expression());
          final Expression argument = (Expression) visitTerm(ctx.term());
-         return new Apply(new Select(instance, "plus"), ImmutableList.of(argument));
+         return new Apply(SourcePosition.fromParserContext(ctx.plus), new Select(SourcePosition.fromParserContext(ctx), instance, "plus"), ImmutableList.of(argument));
       }
       return super.visitExpression(ctx);
    }
@@ -233,15 +240,15 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       if(ctx.select != null) {
          final TerminalNode identifier = ctx.Identifier();
          final TreeNode qualifier = visitTerm(ctx.term());
-         return new Select(qualifier, identifier.getText());
+         return new Select(SourcePosition.fromParserContext(ctx), qualifier, identifier.getText());
       } else if(ctx.arrayAccess != null) {
          final Expression instance = (Expression) visitTerm(ctx.term());
          final Expression index = (Expression) visitExpression(ctx.expression(0));
          if(ctx.expression().size() == 2) {
             final Expression value = (Expression) visitExpression(ctx.expression(1));
-            return new Apply(new Select(instance, "set"), ImmutableList.of(index, value));
+            return new Apply(SourcePosition.fromParserContext(ctx), new Select(SourcePosition.fromParserContext(ctx), instance, "set"), ImmutableList.of(index, value));
          } else {
-            return new Apply(new Select(instance, "get"), ImmutableList.of(index));
+            return new Apply(SourcePosition.fromParserContext(ctx), new Select(SourcePosition.fromParserContext(ctx), instance, "get"), ImmutableList.of(index));
          }
       } else if(ctx.block() != null) {
          return visitBlock(ctx.block());
@@ -254,14 +261,14 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
                .map(this::visitExpression)
                .map(t -> (Expression)t)
                .collect(Collectors.toList());
-         return new Apply(function, arguments);
+         return new Apply(SourcePosition.fromParserContext(ctx), function, arguments);
       } else if(ctx.assign != null) {
          final Select assignee = (Select) visitTerm(ctx.term());
          final Expression value = (Expression) visitExpression(ctx.expression(0));
-         return new Assign(assignee, value);
+         return new Assign(SourcePosition.fromParserContext(ctx), assignee, value);
       } else {
          if(ctx.Identifier() != null) {
-            return new Select(ctx.Identifier().getText());
+            return new Select(SourcePosition.fromParserContext(ctx), ctx.Identifier().getText());
          } else {
             return super.visitTerm(ctx);
          }

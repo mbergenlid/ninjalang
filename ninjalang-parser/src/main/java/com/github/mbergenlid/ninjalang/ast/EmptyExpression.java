@@ -4,6 +4,10 @@ import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 
 public class EmptyExpression extends Expression {
 
+      public EmptyExpression(SourcePosition sourcePosition) {
+      super(sourcePosition);
+   }
+
    @Override
    public <T> T visit(TreeVisitor<T> visitor) {
       return visitor.visit(this);

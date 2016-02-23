@@ -11,7 +11,8 @@ public class StringLiteral extends Expression {
 
    private final String value;
 
-   public StringLiteral(String value) {
+   public StringLiteral(final SourcePosition sourcePosition, String value) {
+      super(sourcePosition);
       this.value = value;
       super.setType(Type.fromIdentifier("ninjalang.String"));
    }
