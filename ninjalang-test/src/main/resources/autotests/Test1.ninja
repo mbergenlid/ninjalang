@@ -1,5 +1,7 @@
 
 class Test1 {
 
-    var prop: Int = "Hello"; //error
+    var prop: Int = "Hello"; //error: incompatible types: ninjalang.String can not be converted to ninjalang.Int
+
+    var prop1: String = 1; //error: incompatible types: ninjalang.Int can not be converted to ninjalang.String
 }
