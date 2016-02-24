@@ -124,6 +124,14 @@ public class Typer implements TreeVisitor<Void> {
    }
 
    @Override
+   public Void visit(IfExpression ifExpression) {
+      ifExpression.getCondition().visit(this);
+      ifExpression.getThenClause().visit(this);
+      ifExpression.setType(ifExpression.getThenClause().getType());
+      return null;
+   }
+
+   @Override
    public Void visit(Assign assign) {
       assign.getAssignee().visit(this);
       assign.getValue().visit(this);
@@ -190,4 +198,12 @@ public class Typer implements TreeVisitor<Void> {
    public Void visit(StringLiteral stringLiteral) {
       return null;
    }
+
+   @Override
+   public Void visit(EmptyExpression emptyExpression) {
+      emptyExpression.setType(Types.NOTHING);
+      return null;
+   }
+
+
 }

@@ -16,7 +16,7 @@ classBody:
     '{' (propertyDefinition | functionDefinition)* '}';
 
 functionDefinition:
-    'def' name=Identifier '(' functionArgumentList? ')' ':' returnType=Identifier '=' body=expression ';';
+    accessModifier? 'def' name=Identifier '(' functionArgumentList? ')' ':' returnType=Identifier '=' body=statement;
 
 propertyDefinition:
     accessModifier? modifier=('val' | 'var') name=Identifier ':' type=Identifier
@@ -39,8 +39,24 @@ functionArgument:
 accessModifier:
     'private' | 'public';
 
+statement
+    :   ifExpression='if' '(' expression ')' then=statement
+    |   statementExpression=expression ';'
+    |   block
+    ;
+
+block
+    :   '{' statement* '}'
+    ;
+
 expression
-    :   plus=expression '+' term
+    :   lessThan=expression '<' addExpression
+    |   greaterThan=expression '>' addExpression
+    |   addExpression
+    ;
+
+addExpression
+    :   plus=addExpression '+' term
     |   term
     ;
 
@@ -50,16 +66,12 @@ term
     |   apply=term '(' expressionList? ')'
     |   arrayAccess=term '[' expression ']' ('=' expression)?
     |   Identifier
-    |   '{' block '}'
     |   assign=term '=' expression
     ;
 
 expressionList:
     expression (',' expression)*;
 
-block
-    :   (expression ';')*
-    ;
 
 literal:
     Integer

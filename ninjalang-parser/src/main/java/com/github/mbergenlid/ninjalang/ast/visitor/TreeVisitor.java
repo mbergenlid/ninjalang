@@ -16,6 +16,7 @@ public interface TreeVisitor<T> {
    //Expression
    T visit(final Expression expression);
    T visit(final Block expression);
+   T visit(final IfExpression ifExpression);
    T visit(final Assign assign);
    T visit(final Select select);
    T visit(final Apply apply);
@@ -23,4 +24,5 @@ public interface TreeVisitor<T> {
    T visit(final AccessBackingField access);
    T visit(final IntLiteral intLiteral);
    T visit(final StringLiteral stringLiteral);
+   T visit(final EmptyExpression emptyExpression);
 }

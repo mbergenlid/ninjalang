@@ -2,9 +2,11 @@ package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.List;
 
+@ToString
 @EqualsAndHashCode(callSuper = false)
 public class Apply extends Statement {
 

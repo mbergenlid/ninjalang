@@ -15,6 +15,7 @@ import com.github.mbergenlid.ninjalang.ast.EmptyExpression;
 import com.github.mbergenlid.ninjalang.ast.Expression;
 import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
 import com.github.mbergenlid.ninjalang.ast.Getter;
+import com.github.mbergenlid.ninjalang.ast.IfExpression;
 import com.github.mbergenlid.ninjalang.ast.IntLiteral;
 import com.github.mbergenlid.ninjalang.ast.PrimaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Property;
@@ -214,25 +215,48 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
    }
 
    @Override
-   public TreeNode visitBlock(ClassParser.BlockContext ctx) {
-      final List<Expression> expressions = ctx.expression().stream()
-         .map(this::visitExpression).map(n -> (Expression) n).collect(Collectors.toList());
+   public TreeNode visitStatement(ClassParser.StatementContext ctx) {
+      if(ctx.statementExpression != null) {
+         return visitExpression(ctx.expression());
+      } else if(ctx.block() != null) {
+         return visitBlock(ctx.block());
+      } else if(ctx.ifExpression != null) {
+         return new IfExpression(
+            SourcePosition.fromParserContext(ctx),
+            (Expression) visitExpression(ctx.expression()),
+            (Statement) visitStatement(ctx.then),
+            new Block(SourcePosition.NO_SOURCE, ImmutableList.of(), new EmptyExpression(SourcePosition.NO_SOURCE))
+         );
+      }
+      return super.visitStatement(ctx);
+   }
 
+   @Override
+   public TreeNode visitBlock(ClassParser.BlockContext ctx) {
+      final List<Expression> expressions = ctx.statement().stream()
+         .map(this::visitStatement).map(n -> (Expression) n).collect(Collectors.toList());
+
+      final Expression returnValue = expressions.isEmpty() ? new EmptyExpression(SourcePosition.fromParserContext(ctx)) : expressions.get(expressions.size() - 1);
       return new Block(
          SourcePosition.fromParserContext(ctx),
-         expressions.stream().limit(expressions.size()-1).map(e -> (Statement) e).collect(Collectors.toList()),
-         expressions.get(expressions.size()-1)
+         expressions.stream().limit(Math.max(0, expressions.size()-1)).map(e -> (Statement) e).collect(Collectors.toList()),
+         returnValue
       );
    }
 
    @Override
    public TreeNode visitExpression(ClassParser.ExpressionContext ctx) {
+      return visitAddExpression(ctx.addExpression());
+   }
+
+   @Override
+   public TreeNode visitAddExpression(ClassParser.AddExpressionContext ctx) {
       if(ctx.plus != null) {
-         final Expression instance = (Expression) visitExpression(ctx.expression());
+         final Expression instance = (Expression) visitAddExpression(ctx.addExpression());
          final Expression argument = (Expression) visitTerm(ctx.term());
          return new Apply(SourcePosition.fromParserContext(ctx.plus), new Select(SourcePosition.fromParserContext(ctx), instance, "plus"), ImmutableList.of(argument));
       }
-      return super.visitExpression(ctx);
+      return visitTerm(ctx.term());
    }
 
    @Override
@@ -250,8 +274,6 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
          } else {
             return new Apply(SourcePosition.fromParserContext(ctx), new Select(SourcePosition.fromParserContext(ctx), instance, "get"), ImmutableList.of(index));
          }
-      } else if(ctx.block() != null) {
-         return visitBlock(ctx.block());
       } else if(ctx.apply != null) {
          final Expression function = (Expression) visitTerm(ctx.term());
          final List<Expression> arguments = ctx.expressionList() == null ?
@@ -274,6 +296,8 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
          }
       }
    }
+
+
 
    private static boolean isNotNull(final TreeNode node) {
       return node != null;

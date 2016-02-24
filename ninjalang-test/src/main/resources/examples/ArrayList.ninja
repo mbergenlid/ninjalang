@@ -4,6 +4,8 @@ class ArrayList {
 
     var size: Int = 0
         private set;
+    var capacity: Int
+        get = array.size;
 
     def get(i: Int): Any = array[i];
     def set(i: Int, value: Any): Nothing = array[i] = value;
@@ -11,5 +13,12 @@ class ArrayList {
     def add(x: Any): Nothing = {
         array[size] = x;
         size = size + 1;
-    };
+    }
+
+
+    private def ensureCapacity(newCapacity: Int): Nothing = {
+        if(newCapacity > capacity) {
+        }
+    }
+
 }

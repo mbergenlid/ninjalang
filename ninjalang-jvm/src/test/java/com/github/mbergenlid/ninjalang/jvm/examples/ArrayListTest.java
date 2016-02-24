@@ -1,6 +1,7 @@
 package com.github.mbergenlid.ninjalang.jvm.examples;
 
 import com.github.mbergenlid.ninjalang.jvm.ClassGeneratorTestHelper;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -50,5 +51,31 @@ public class ArrayListTest {
       proxy.invoke("add", arg(Object.class, "World"));
       newSize = (int) proxy.invoke("getSize");
       assertThat(newSize).isEqualTo(2);
+   }
+
+   @Ignore
+   public void testIncreaseCapacity() throws IOException, ClassNotFoundException {
+      ClassGeneratorTestHelper arrayList = new ClassGeneratorTestHelper("/examples", "ArrayList");
+      arrayList.loadClass();
+      ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
+
+      int initialSize = (int) proxy.invoke("getSize");
+      assertThat(initialSize).isEqualTo(0);
+
+      for(int i = 0; i < 11; i++) {
+         proxy.invoke("add", arg(Object.class, "Hello"));
+      }
+      int newSize = (int) proxy.invoke("getSize");
+      assertThat(newSize).isEqualTo(11);
+   }
+
+   @Test
+   public void testCapacity() throws IOException, ClassNotFoundException {
+      ClassGeneratorTestHelper arrayList = new ClassGeneratorTestHelper("/examples", "ArrayList");
+      arrayList.loadClass();
+      ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
+
+      final int initialCapacity = (int) proxy.invoke("getCapacity");
+      assertThat(initialCapacity).isEqualTo(10);
    }
 }

@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FunctionTest {
@@ -35,13 +37,15 @@ public class FunctionTest {
          new Select(SourcePosition.NO_SOURCE, new Select(SourcePosition.NO_SOURCE, "array"), "size"), ImmutableList.of());
 
       typer.typeTree(apply);
+
    }
 
-   @Test(expected = TypeException.class)
+   @Test
    public void shouldNotBeAbleToAccessInstanceMemberFromStaticContext() {
       final Select apply = new Select(SourcePosition.NO_SOURCE, new Select(SourcePosition.NO_SOURCE, "Array"), "size");
 
-      typer.typeTree(apply);
+      List<TypeError> typeErrors = typer.typeTree(apply);
+      assertThat(typeErrors).hasSize(1);
    }
 
 
