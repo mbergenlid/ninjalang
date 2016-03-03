@@ -5,10 +5,10 @@ import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 public class IfExpression extends Statement {
 
    private final Expression condition;
-   private final Statement thenClause;
-   private final Statement elseClause;
+   private final Expression thenClause;
+   private final Expression elseClause;
 
-   public IfExpression(SourcePosition sourcePosition, Expression condition, Statement thenClause, Statement elseClause) {
+   public IfExpression(SourcePosition sourcePosition, Expression condition, Expression thenClause, Expression elseClause) {
       super(sourcePosition);
       this.condition = condition;
       this.thenClause = thenClause;
@@ -29,11 +29,11 @@ public class IfExpression extends Statement {
       return condition;
    }
 
-   public Statement getThenClause() {
+   public Expression getThenClause() {
       return thenClause;
    }
 
-   public Statement getElseClause() {
+   public Expression getElseClause() {
       return elseClause;
    }
 }

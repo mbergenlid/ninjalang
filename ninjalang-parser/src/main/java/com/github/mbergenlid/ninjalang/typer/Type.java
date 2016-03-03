@@ -65,6 +65,10 @@ public abstract class Type {
       return getIdentifier();
    }
 
+   public boolean isSubTypeOf(Type declaredType) {
+      return this.equals(declaredType);
+   }
+
    public static class ConcreteType extends Type {
 
       private final String identifier;

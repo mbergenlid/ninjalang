@@ -72,7 +72,7 @@ public class Typer implements TreeVisitor<Void> {
       property.getInitialValue().visit(this);
       if(property.getInitialValue().hasType()) {
          final Type inferredType = property.getInitialValue().getType();
-         if(!declaredType.equals(inferredType)) {
+         if(!inferredType.isSubTypeOf(declaredType)) {
             errors.add(TypeError.incompatibleTypes(property.getInitialValue().getSourcePosition(), declaredType, inferredType));
          }
       }
@@ -127,7 +127,9 @@ public class Typer implements TreeVisitor<Void> {
    public Void visit(IfExpression ifExpression) {
       ifExpression.getCondition().visit(this);
       ifExpression.getThenClause().visit(this);
+      ifExpression.getElseClause().visit(this);
       ifExpression.setType(ifExpression.getThenClause().getType());
+
       return null;
    }
 

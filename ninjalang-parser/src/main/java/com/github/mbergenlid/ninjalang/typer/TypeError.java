@@ -27,4 +27,12 @@ public class TypeError {
    public SourcePosition getSourcePosition() {
       return sourcePosition;
    }
+
+   @Override
+   public String toString() {
+      return "TypeError{" +
+         "message='" + message + '\'' +
+         ", sourcePosition=" + sourcePosition +
+         '}';
+   }
 }

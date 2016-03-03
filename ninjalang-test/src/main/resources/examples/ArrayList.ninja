@@ -16,9 +16,5 @@ class ArrayList {
     }
 
 
-    private def ensureCapacity(newCapacity: Int): Nothing = {
-        if(newCapacity > capacity) {
-        }
-    }
 
 }

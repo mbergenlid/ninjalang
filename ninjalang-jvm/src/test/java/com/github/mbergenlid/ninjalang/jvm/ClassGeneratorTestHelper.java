@@ -2,6 +2,7 @@ package com.github.mbergenlid.ninjalang.jvm;
 
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.parser.Parser;
+import com.github.mbergenlid.ninjalang.typer.TypeError;
 import com.github.mbergenlid.ninjalang.typer.Typer;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
@@ -14,6 +15,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.List;
 
 public class ClassGeneratorTestHelper {
 
@@ -35,7 +37,11 @@ public class ClassGeneratorTestHelper {
          ClassDefinition classDefinition = Parser.classDefinition(
             ClassGeneratorTestHelper.class.getResourceAsStream(String.format("%s/%s.ninja", path, ninjaClass))
          );
-         new Typer().typeTree(classDefinition);
+         List<TypeError> typeErrors = new Typer().typeTree(classDefinition);
+         if(!typeErrors.isEmpty()) {
+            typeErrors.stream().forEach(System.err::println);
+            throw new RuntimeException("Type error");
+         }
          JavaClass javaClass = ClassGenerator.generateClass(classDefinition);
 
          final File classDirectory = Files.createTempDir();

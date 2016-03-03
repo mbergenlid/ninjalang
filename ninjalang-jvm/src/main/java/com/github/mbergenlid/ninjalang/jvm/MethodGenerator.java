@@ -115,8 +115,15 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
 
    @Override
    public Void visit(IfExpression ifExpression) {
+      ifExpression.getCondition().visit(this);
+      new ConditionalBranchGenerator(instructionList, factory)
+         .branch(Constants.IFEQ,
+            list -> {ifExpression.getThenClause().visit(this); return list.getEnd();},
+            list -> {ifExpression.getElseClause().visit(this); return list.getEnd();});
       return null;
    }
+
+
 
    @Override
    public Void visit(Assign assign) {

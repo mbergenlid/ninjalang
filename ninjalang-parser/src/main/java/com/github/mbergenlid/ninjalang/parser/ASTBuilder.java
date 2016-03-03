@@ -221,11 +221,14 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       } else if(ctx.block() != null) {
          return visitBlock(ctx.block());
       } else if(ctx.ifExpression != null) {
+         final Expression elseClause = ctx.elseClause != null
+            ? (Expression) visitStatement(ctx.elseClause)
+            : new Block(SourcePosition.NO_SOURCE, ImmutableList.of(), new EmptyExpression(SourcePosition.NO_SOURCE));
          return new IfExpression(
             SourcePosition.fromParserContext(ctx),
             (Expression) visitExpression(ctx.expression()),
-            (Statement) visitStatement(ctx.then),
-            new Block(SourcePosition.NO_SOURCE, ImmutableList.of(), new EmptyExpression(SourcePosition.NO_SOURCE))
+            (Expression) visitStatement(ctx.then),
+            elseClause
          );
       }
       return super.visitStatement(ctx);
@@ -246,6 +249,29 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitExpression(ClassParser.ExpressionContext ctx) {
+      if(ctx.lessThan != null) {
+         final Select select = new Select(
+            SourcePosition.fromParserContext(ctx),
+            visitExpression(ctx.expression()),
+            "lessThan"
+         );
+         return new Apply(
+            SourcePosition.fromParserContext(ctx),
+            select,
+            ImmutableList.of((Expression)visitAddExpression(ctx.addExpression()))
+         );
+      } else if(ctx.greaterThan != null) {
+         final Select select = new Select(
+            SourcePosition.fromParserContext(ctx),
+            visitExpression(ctx.expression()),
+            "greaterThan"
+         );
+         return new Apply(
+            SourcePosition.fromParserContext(ctx),
+            select,
+            ImmutableList.of((Expression)visitAddExpression(ctx.addExpression()))
+         );
+      }
       return visitAddExpression(ctx.addExpression());
    }
 
