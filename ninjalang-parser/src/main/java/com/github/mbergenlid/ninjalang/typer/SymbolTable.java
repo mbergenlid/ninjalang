@@ -9,6 +9,7 @@ public class SymbolTable {
    private static final List<Symbol> PREDEFINED = ImmutableList.of(
       new TypeSymbol("Any", Types.ANY),
       new TypeSymbol("Nothing", Types.NOTHING),
+      new TypeSymbol("Unit", Types.UNIT),
       Types.INT_SYMBOL,
       new TypeSymbol("String", Types.STRING),
       new TypeSymbol("Array", Types.ARRAY),

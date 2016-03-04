@@ -69,7 +69,7 @@ public class BasicParserTest {
          .hasAccessModifier(AccessModifier.PRIVATE)
          .hasArgumentList(new Argument(NO_SOURCE, "value", "Int"))
          .hasName("setProperty")
-         .hasReturnTypeName("Nothing")
+         .hasReturnTypeName("Unit")
          ;
       AssignBackingFieldAssert.assertThat((AssignBackingField) setter.getBody())
          .hasFieldName("property")

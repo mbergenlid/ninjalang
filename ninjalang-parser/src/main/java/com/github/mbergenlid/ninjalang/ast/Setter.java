@@ -10,6 +10,6 @@ public class Setter extends FunctionDefinition {
 
    public Setter(final SourcePosition sourcePosition, AccessModifier accessModifier, String name, String propertyType, Expression body) {
       super(sourcePosition, accessModifier, name,
-         ImmutableList.of(new Argument(sourcePosition, "value", propertyType)), "Nothing", body);
+         ImmutableList.of(new Argument(sourcePosition, "value", propertyType)), "Unit", body);
    }
 }

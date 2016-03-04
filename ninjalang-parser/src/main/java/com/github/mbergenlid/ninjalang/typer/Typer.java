@@ -65,18 +65,21 @@ public class Typer implements TreeVisitor<Void> {
       symbolTable.newTermSymbol(property.getName(), declaredType);
 
       symbolTable.newScope();
-      final Getter getter = property.getGetter();
-      getter.visit(this);
-
-      property.getSetter().ifPresent(s -> s.visit(this));
       property.getInitialValue().visit(this);
       if(property.getInitialValue().hasType()) {
          final Type inferredType = property.getInitialValue().getType();
          if(!inferredType.isSubTypeOf(declaredType)) {
             errors.add(TypeError.incompatibleTypes(property.getInitialValue().getSourcePosition(), declaredType, inferredType));
+         } else {
+            final Getter getter = property.getGetter();
+            getter.visit(this);
+            property.getSetter().ifPresent(s -> s.visit(this));
          }
+      } else {
+         final Getter getter = property.getGetter();
+         getter.visit(this);
+         property.getSetter().ifPresent(s -> s.visit(this));
       }
-
       property.setType(declaredType);
       symbolTable.exitScope();
 
@@ -99,7 +102,7 @@ public class Typer implements TreeVisitor<Void> {
       final Type inferredType = functionDefinition.getBody().getType();
       final Type declaredType = functionDefinition.getReturnType().getType();
       if(!declaredType.equals(inferredType)) {
-         throw TypeException.incompatibleTypes(declaredType, inferredType);
+         errors.add(TypeError.incompatibleTypes(functionDefinition.getSourcePosition(), declaredType, inferredType));
       }
 
       symbolTable.exitScope();
@@ -138,7 +141,7 @@ public class Typer implements TreeVisitor<Void> {
       assign.getAssignee().visit(this);
       assign.getValue().visit(this);
 
-      assign.setType(Types.NOTHING);
+      assign.setType(Types.UNIT);
       return null;
    }
 
@@ -151,7 +154,7 @@ public class Typer implements TreeVisitor<Void> {
       if(!declaredType.equals(inferredType)) {
          throw TypeException.incompatibleTypes(declaredType, inferredType);
       }
-      assign.setType(Types.NOTHING);
+      assign.setType(Types.UNIT);
       return null;
    }
 

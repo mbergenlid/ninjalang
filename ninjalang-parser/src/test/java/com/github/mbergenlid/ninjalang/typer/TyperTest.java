@@ -12,6 +12,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TyperTest {
@@ -32,11 +34,12 @@ public class TyperTest {
       assertThat(stringProperty.getType()).isEqualTo(Type.fromIdentifier("ninjalang.String"));
    }
 
-   @Test(expected = TypeException.class)
+   @Test
    public void shouldFailIfDeclaredTypeDoesntMatchRealType() {
       final Property prop = new Property(SourcePosition.NO_SOURCE, "prop", "String", new IntLiteral(SourcePosition.NO_SOURCE, 5));
       final Typer typer = new Typer();
-      typer.typeTree(prop);
+      final List<TypeError> typeErrors = typer.typeTree(prop);
+      assertThat(typeErrors).hasSize(1);
    }
 
    @Test
@@ -49,7 +52,7 @@ public class TyperTest {
       final Typer typer = new Typer();
 
       typer.typeTree(property);
-      assertThat(property.getSetter().get().getReturnType().getType()).isEqualTo(Types.NOTHING);
+      assertThat(property.getSetter().get().getReturnType().getType()).isEqualTo(Types.UNIT);
    }
 
    @Test

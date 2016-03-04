@@ -18,6 +18,8 @@ public class TypeConverter {
             return Type.OBJECT;
          case "ninjalang.Boolean":
             return Type.BOOLEAN;
+         case "ninjalang.Unit":
+            return Type.VOID;
          default:
             //Should have been caught in typer.
             throw new IllegalArgumentException("Unknown type " + type);

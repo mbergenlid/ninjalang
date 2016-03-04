@@ -8,9 +8,9 @@ class ArrayList {
         get = array.size;
 
     def get(i: Int): Any = array[i];
-    def set(i: Int, value: Any): Nothing = array[i] = value;
+    def set(i: Int, value: Any): Unit = array[i] = value;
 
-    def add(x: Any): Nothing = {
+    def add(x: Any): Unit = {
         array[size] = x;
         size = size + 1;
     }
