@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
+import static com.github.mbergenlid.ninjalang.jvm.ClassGeneratorTestHelper.arg;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ClassGeneratorTest {
@@ -48,6 +49,22 @@ public class ClassGeneratorTest {
       setMutableProperty.invoke(instance, 5);
       final int updatedValue = (int) getMutableProperty.invoke(instance);
       assertThat(updatedValue).isEqualTo(5);
+   }
+
+   @Test
+   public void testTrySetProperty() throws IOException, ClassNotFoundException {
+      ClassGeneratorTestHelper arrayList = new ClassGeneratorTestHelper("", "ClassWithProperties");
+      arrayList.loadClass();
+      ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
+
+      final int originalValue = (int) proxy.invoke("getMutableProperty");
+      assertThat(originalValue).isEqualTo(1);
+
+      proxy.invoke("trySetMutableProperty", arg(int.class, 9));
+      assertThat(proxy.invoke("getMutableProperty")).isEqualTo(1);
+
+      proxy.invoke("trySetMutableProperty", arg(int.class, 11));
+      assertThat(proxy.invoke("getMutableProperty")).isEqualTo(11);
    }
 
    @Test

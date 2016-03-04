@@ -103,6 +103,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
 
    @Override
    public Void visit(EmptyExpression emptyExpression) {
+      instructionList.append(new NOP());
       return null;
    }
 
