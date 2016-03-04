@@ -40,7 +40,7 @@ accessModifier:
     'private' | 'public';
 
 statement
-    :   ifExpression='if' '(' expression ')' then=statement 'else' elseClause=statement
+    :   ifExpression='if' '(' expression ')' then=statement ('else' elseClause=statement)?
     |   statementExpression=expression ';'
     |   block
     ;

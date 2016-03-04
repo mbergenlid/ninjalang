@@ -1,0 +1,11 @@
+
+class Test3 {
+
+    def method1(x: Int): Unit = {
+        if(x > 10) x = 10;
+    }
+
+    def method2(x: Int): Int = {
+        if(x > 10) x = 10; //error: incompatible types: ninjalang.Unit can not be converted to ninjalang.Int
+    }
+}

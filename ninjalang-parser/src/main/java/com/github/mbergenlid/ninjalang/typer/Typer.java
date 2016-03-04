@@ -102,7 +102,10 @@ public class Typer implements TreeVisitor<Void> {
       final Type inferredType = functionDefinition.getBody().getType();
       final Type declaredType = functionDefinition.getReturnType().getType();
       if(!declaredType.equals(inferredType)) {
-         errors.add(TypeError.incompatibleTypes(functionDefinition.getSourcePosition(), declaredType, inferredType));
+         final SourcePosition sourcePosition = functionDefinition.getBody() instanceof Block
+            ? ((Block) functionDefinition.getBody()).getReturnExpression().getSourcePosition()
+            : functionDefinition.getBody().getSourcePosition();
+         errors.add(TypeError.incompatibleTypes(sourcePosition, declaredType, inferredType));
       }
 
       symbolTable.exitScope();
