@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static com.github.mbergenlid.ninjalang.ast.FunctionDefinitionAssert.assertThat;
 import static com.github.mbergenlid.ninjalang.ast.SourcePosition.NO_SOURCE;
@@ -30,7 +31,7 @@ public class FunctionDeclarationTest {
          .hasNoArgumentList()
          .hasReturnTypeName("Int")
          .hasReturnType(TypeSymbol.NO_SYMBOL)
-         .hasBody(new IntLiteral(NO_SOURCE, 5))
+         .hasBody(Optional.of(new IntLiteral(NO_SOURCE, 5)))
          ;
    }
 
@@ -49,7 +50,7 @@ public class FunctionDeclarationTest {
       final FunctionDefinition functionDefinition = classDefinition.getBody().get().getFunctions().get(2);
       assertThat(functionDefinition)
          .hasName("accessProperty")
-         .hasBody(new Select(NO_SOURCE, "prop"))
+         .hasBody(Optional.of(new Select(NO_SOURCE, "prop")))
       ;
    }
 
@@ -58,7 +59,7 @@ public class FunctionDeclarationTest {
       final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/examples/ArrayList.ninja"));
       final FunctionDefinition functionDefinition = classDefinition.getBody().get().getFunctions().stream()
          .filter(f -> f.getName().equals("get")).findAny().get();
-      final Expression body = functionDefinition.getBody();
+      final Expression body = functionDefinition.getBody().get();
       Assertions.assertThat(body).isEqualTo(
          new Apply(NO_SOURCE, new Select(
             NO_SOURCE,
@@ -73,7 +74,7 @@ public class FunctionDeclarationTest {
       final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/examples/ArrayList.ninja"));
       final FunctionDefinition functionDefinition = classDefinition.getBody().get().getFunctions().stream()
          .filter(f -> f.getName().equals("set")).findAny().get();
-      final Expression body = functionDefinition.getBody();
+      final Expression body = functionDefinition.getBody().get();
       Assertions.assertThat(body).isEqualTo(
          new Apply(NO_SOURCE, new Select(
             NO_SOURCE,

@@ -61,7 +61,7 @@ public class TyperTest {
       final Typer typer = new Typer(SymbolTable.of(new TermSymbol("property", Types.INT)));
       typer.typeTree(getter);
 
-      assertThat(getter.getBody().getType()).isEqualTo(Types.INT);
+      assertThat(getter.getBody().get().getType()).isEqualTo(Types.INT);
    }
 
 }

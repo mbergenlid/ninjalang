@@ -40,6 +40,11 @@ public class TyperTestRule  {
       test("/autotests/Test4.ninja");
    }
 
+   @Test
+   public void test5() throws IOException {
+      test("/autotests/Int.ninja");
+   }
+
    public void test(final String ninjaFile) throws IOException {
       List<TypeError> expectedErrors;
       try(InputStream inputStream = getClass().getResourceAsStream(ninjaFile)) {

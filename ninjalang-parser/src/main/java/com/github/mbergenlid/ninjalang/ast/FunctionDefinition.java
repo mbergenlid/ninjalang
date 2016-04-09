@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -17,13 +18,26 @@ public class FunctionDefinition extends TreeNode {
    private final List<Argument> argumentList;
    private final String returnTypeName;
    private final SymbolReference<TypeSymbol> returnType;
-   private final Expression body;
+   private final Optional<Expression> body;
 
-   public FunctionDefinition(final SourcePosition sourcePosition, String name, List<Argument> argumentList, String returnType, Expression body) {
+   public FunctionDefinition(
+      final SourcePosition sourcePosition,
+      String name,
+      List<Argument> argumentList,
+      String returnType,
+      Optional<Expression> body
+   ) {
       this(sourcePosition, AccessModifier.PUBLIC, name, argumentList, returnType, body);
    }
 
-   public FunctionDefinition(final SourcePosition sourcePosition, AccessModifier accessModifier, String name, List<Argument> argumentList, String returnType, Expression body) {
+   public FunctionDefinition(
+      final SourcePosition sourcePosition,
+      AccessModifier accessModifier,
+      String name,
+      List<Argument> argumentList,
+      String returnType,
+      Optional<Expression> body
+   ) {
       super(sourcePosition);
       this.accessModifier = accessModifier;
       this.name = name;
@@ -41,7 +55,7 @@ public class FunctionDefinition extends TreeNode {
    @Override
    public void foreachPostfix(TreeVisitor<Void> visitor) {
       argumentList.stream().forEach(a -> a.foreachPostfix(visitor));
-      body.foreachPostfix(visitor);
+      body.ifPresent(b -> b.foreachPostfix(visitor));
       visit(visitor);
    }
 

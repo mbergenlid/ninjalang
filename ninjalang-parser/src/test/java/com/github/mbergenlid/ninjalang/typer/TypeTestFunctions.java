@@ -16,7 +16,7 @@ public class TypeTestFunctions {
       final ClassDefinition classDefinition = parseAndTypeCheck("/Functions.ninja");
       FunctionDefinition accessProperty = classDefinition.getBody().get().getFunctions().stream()
          .filter(f -> f.getName().equals("accessProperty")).findAny().get();
-      Expression body = accessProperty.getBody();
+      Expression body = accessProperty.getBody().get();
       assertThat(body).isInstanceOf(Select.class);
       Select select = (Select) body;
 

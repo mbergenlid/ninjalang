@@ -96,18 +96,21 @@ public class Typer implements TreeVisitor<Void> {
          a.getSymbol().setType(type);
          symbolTable.addSymbol(a.getSymbol());
       });
-      functionDefinition.getBody().visit(this);
+
       functionDefinition.assignTypeSymbol(symbolTable.lookupType(functionDefinition.getReturnTypeName()));
-
-      final Type inferredType = functionDefinition.getBody().getType();
       final Type declaredType = functionDefinition.getReturnType().getType();
-      if(!declaredType.equals(inferredType)) {
-         final SourcePosition sourcePosition = functionDefinition.getBody() instanceof Block
-            ? ((Block) functionDefinition.getBody()).getReturnExpression().getSourcePosition()
-            : functionDefinition.getBody().getSourcePosition();
-         errors.add(TypeError.incompatibleTypes(sourcePosition, declaredType, inferredType));
+      final boolean isConcrete = functionDefinition.getBody().isPresent();
+      if(isConcrete) {
+         final Expression body = functionDefinition.getBody().get();
+         body.visit(this);
+         final Type inferredType = body.getType();
+         if(!declaredType.equals(inferredType)) {
+            final SourcePosition sourcePosition = body instanceof Block
+               ? ((Block) body).getReturnExpression().getSourcePosition()
+               : body.getSourcePosition();
+            errors.add(TypeError.incompatibleTypes(sourcePosition, declaredType, inferredType));
+         }
       }
-
       symbolTable.exitScope();
       return null;
    }

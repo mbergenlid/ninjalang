@@ -71,7 +71,7 @@ public class BasicParserTest {
          .hasName("setProperty")
          .hasReturnTypeName("Unit")
          ;
-      AssignBackingFieldAssert.assertThat((AssignBackingField) setter.getBody())
+      AssignBackingFieldAssert.assertThat((AssignBackingField) setter.getBody().get())
          .hasFieldName("property")
          .hasValue(new Select(NO_SOURCE, "value"))
          ;
@@ -123,7 +123,7 @@ public class BasicParserTest {
       final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/Functions.ninja"));
       final FunctionDefinition f1 =
          classDefinition.getBody().get().getFunctions().stream().filter(f -> f.getName().equals("addOne")).findAny().get();
-      final Expression body = f1.getBody();
+      final Expression body = f1.getBody().get();
       assertThat(body).isEqualTo(
          new Apply(
             NO_SOURCE,
@@ -138,7 +138,7 @@ public class BasicParserTest {
       final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/examples/ArrayList.ninja"));
       final FunctionDefinition f1 =
          classDefinition.getBody().get().getFunctions().stream().filter(f -> f.getName().equals("add")).findAny().get();
-      final Expression body = f1.getBody();
+      final Expression body = f1.getBody().get();
       assertThat(body).isEqualTo(
          new Block(
             NO_SOURCE,

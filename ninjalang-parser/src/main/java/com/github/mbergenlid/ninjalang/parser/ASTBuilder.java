@@ -185,7 +185,11 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitFunctionDefinition(ClassParser.FunctionDefinitionContext ctx) {
-      final Expression functionBody = (Expression) visit(ctx.body);
+      final Optional<Expression> functionBody = ctx.body != null
+         ? Optional.of((Expression) visit(ctx.body))
+         : Optional.empty()
+         ;
+
       final List<Argument> argumentList = ctx.functionArgumentList() != null
          ? ctx.functionArgumentList().functionArgument().stream()
             .map(this::visit)

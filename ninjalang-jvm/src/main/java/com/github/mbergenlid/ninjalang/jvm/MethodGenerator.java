@@ -70,8 +70,12 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
       final List<String> nameList = function.getArgumentList().stream()
          .map(t -> t.getSymbol().getName())
          .collect(Collectors.toList());
+      final int accessFlags = function.getBody().isPresent()
+         ? fromNinjaAccessModifier(function.getAccessModifier())
+         : fromNinjaAccessModifier(function.getAccessModifier()) | Constants.ACC_ABSTRACT
+         ;
       final MethodGen methodGen = new MethodGen(
-         fromNinjaAccessModifier(function.getAccessModifier()),
+         accessFlags,
          type,
          typeList.toArray(new Type[typeList.size()]),
          nameList.toArray(new String[nameList.size()]),
@@ -80,7 +84,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
          instructionList,
          constantPoolGen);
 
-      function.getBody().visit(this);
+      function.getBody().map(b -> b.visit(this));
       instructionList.append(InstructionFactory.createReturn(type));
 
       methodGen.setMaxStack();

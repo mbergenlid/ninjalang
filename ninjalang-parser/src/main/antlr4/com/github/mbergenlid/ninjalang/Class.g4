@@ -16,7 +16,7 @@ classBody:
     '{' (propertyDefinition | functionDefinition)* '}';
 
 functionDefinition:
-    accessModifier? 'def' name=Identifier '(' functionArgumentList? ')' ':' returnType=Identifier '=' body=statement;
+    accessModifier? 'native'? 'def' name=Identifier '(' functionArgumentList? ')' ':' returnType=Identifier ('=' body=statement)?;
 
 propertyDefinition:
     accessModifier? modifier=('val' | 'var') name=Identifier ':' type=Identifier
