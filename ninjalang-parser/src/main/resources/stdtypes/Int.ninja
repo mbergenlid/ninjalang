@@ -1,0 +1,6 @@
+
+class Int {
+    native def plus(x: Int): Int
+    native def lessThan(x: Int): Boolean
+    native def greaterThan(x: Int): Boolean
+}

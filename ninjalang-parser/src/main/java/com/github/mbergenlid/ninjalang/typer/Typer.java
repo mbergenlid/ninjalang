@@ -2,9 +2,11 @@ package com.github.mbergenlid.ninjalang.typer;
 
 import com.github.mbergenlid.ninjalang.ast.*;
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
+import com.github.mbergenlid.ninjalang.types.FunctionType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Typer implements TreeVisitor<Void> {
 
@@ -35,6 +37,7 @@ public class Typer implements TreeVisitor<Void> {
       final TermSymbol termSymbol = symbolTable.newTermSymbol(argument.getName(), typeSymbol.getType());
       argument.assignTypeSymbol(typeSymbol);
       argument.assignSymbol(termSymbol);
+      argument.setType(typeSymbol.getType());
       return null;
    }
 
@@ -49,6 +52,10 @@ public class Typer implements TreeVisitor<Void> {
    public Void visit(ClassDefinition classDefinition) {
       classDefinition.getPrimaryConstructor().ifPresent(pc -> pc.visit(this));
       classDefinition.getBody().ifPresent(b -> b.visit(this));
+      final List<Symbol> termSymbols = classDefinition.getBody().get().getFunctions().stream()
+         .map(f -> new TermSymbol(f.getName(), f.getType()))
+         .collect(Collectors.toList());
+      classDefinition.setType(Type.fromIdentifier(classDefinition.getName(), termSymbols));
       return null;
    }
 
@@ -112,6 +119,15 @@ public class Typer implements TreeVisitor<Void> {
          }
       }
       symbolTable.exitScope();
+
+      functionDefinition.setType(new FunctionType(
+         functionDefinition.getArgumentList().stream().map(Argument::getType).collect(Collectors.toList()),
+         () -> functionDefinition.getReturnType().getType()
+      ));
+      symbolTable.addSymbol(new TermSymbol(
+         functionDefinition.getName(),
+         functionDefinition.getType()
+         ));
       return null;
    }
 
