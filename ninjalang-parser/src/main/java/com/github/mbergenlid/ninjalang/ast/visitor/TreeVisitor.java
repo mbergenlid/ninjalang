@@ -25,4 +25,5 @@ public interface TreeVisitor<T> {
    T visit(final IntLiteral intLiteral);
    T visit(final StringLiteral stringLiteral);
    T visit(final EmptyExpression emptyExpression);
+   T visit(final ValDef valDef);
 }

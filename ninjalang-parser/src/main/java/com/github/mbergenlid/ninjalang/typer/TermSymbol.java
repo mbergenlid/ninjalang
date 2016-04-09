@@ -7,6 +7,7 @@ public class TermSymbol extends Symbol {
    public static final TermSymbol NO_SYMBOL = new TermSymbol("<no-symbol", Type.NO_TYPE);
 
    private boolean propertySymbol = false;
+   private boolean valSymbol = false;
    private final Optional<Symbol> owner;
    private final String name;
 
@@ -33,6 +34,12 @@ public class TermSymbol extends Symbol {
    public static TermSymbol propertyTermSymbol(String name, Type type, Symbol owner) {
       TermSymbol termSymbol = new TermSymbol(name, type, owner);
       termSymbol.propertySymbol = true;
+      return termSymbol;
+   }
+
+   public static TermSymbol localValTermSymbol(String name, Type type) {
+      final TermSymbol termSymbol = new TermSymbol(name, type);
+      termSymbol.valSymbol = true;
       return termSymbol;
    }
 
@@ -63,5 +70,9 @@ public class TermSymbol extends Symbol {
 
    public boolean isPropertySymbol() {
       return propertySymbol;
+   }
+
+   public boolean isValSymbol() {
+      return valSymbol;
    }
 }

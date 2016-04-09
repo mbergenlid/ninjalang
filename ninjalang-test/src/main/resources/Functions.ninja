@@ -9,5 +9,5 @@ class Functions {
     def addOne(x: Int): Int = x + 1;
 
     def maxTen(x: Int): Int =
-        if(x > 10) 10; else x;
+        if(x > 10) 10 else x
 }

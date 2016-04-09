@@ -108,6 +108,11 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
    }
 
    @Override
+   public Void visit(ValDef valDef) {
+      return null;
+   }
+
+   @Override
    public Void visit(Block block) {
       block.getStatements().stream().forEach(s -> s.visit(this));
       block.getReturnExpression().visit(this);

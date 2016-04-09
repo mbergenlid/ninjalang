@@ -213,5 +213,13 @@ public class Typer implements TreeVisitor<Void> {
       return null;
    }
 
+   @Override
+   public Void visit(ValDef valDef) {
+      visit(valDef.getValue());
+      final Type inferredType = valDef.getValue().getType();
+      symbolTable.addSymbol(TermSymbol.localValTermSymbol(valDef.getName(), inferredType));
+      return null;
+   }
+
 
 }

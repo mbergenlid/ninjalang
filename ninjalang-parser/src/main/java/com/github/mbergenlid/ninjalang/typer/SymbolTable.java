@@ -13,7 +13,8 @@ public class SymbolTable {
       Types.INT_SYMBOL,
       new TypeSymbol("String", Types.STRING),
       new TypeSymbol("Array", Types.ARRAY),
-      new TermSymbol("Array", Types.ARRAY_OBJECT)
+      new TermSymbol("Array", Types.ARRAY_OBJECT),
+      new TypeSymbol("Boolean", Types.BOOLEAN)
    );
 
    private final Stack<Scope> scopes;

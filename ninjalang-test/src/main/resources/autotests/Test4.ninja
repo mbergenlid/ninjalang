@@ -1,0 +1,8 @@
+
+class Test4 {
+
+    def method(): Boolean = {
+        val x = 5;
+        (if(x > 5) 0 else 1) < 1
+    }
+}

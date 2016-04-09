@@ -40,8 +40,8 @@ accessModifier:
     'private' | 'public';
 
 statement
-    :   ifExpression='if' '(' expression ')' then=statement ('else' elseClause=statement)?
-    |   statementExpression=expression ';'
+    :   declaration='val' Identifier ('=' expression)? ';'
+    |   statementExpression=expression ';'?
     |   block
     ;
 
@@ -50,8 +50,10 @@ block
     ;
 
 expression
-    :   lessThan=expression '<' addExpression
-    |   greaterThan=expression '>' addExpression
+    :   ifExpression='if' '(' condition=expression ')' then=expression ('else' elseClause=expression)?
+    |   '(' parenExpression=expression ')'
+    |   lessThan=expression '<' expression
+    |   greaterThan=expression '>' expression
     |   addExpression
     ;
 

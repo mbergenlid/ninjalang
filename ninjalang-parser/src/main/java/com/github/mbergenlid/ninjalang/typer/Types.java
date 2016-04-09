@@ -11,7 +11,8 @@ public class Types {
    public static final Type BOOLEAN = Type.fromIdentifier("ninjalang.Boolean");
    public static final Type INT = Type.fromIdentifier("ninjalang.Int", ImmutableList.of(
       new TermSymbol("plus", new FunctionType(ImmutableList.of(new TypeSupplier(() -> Types.INT)), () -> Types.INT), new SymbolSupplier(() -> Types.INT_SYMBOL)),
-      new TermSymbol("greaterThan", new FunctionType(ImmutableList.of(new TypeSupplier(() -> Types.INT)), () -> Types.BOOLEAN), new SymbolSupplier(() -> Types.INT_SYMBOL))
+      new TermSymbol("greaterThan", new FunctionType(ImmutableList.of(new TypeSupplier(() -> Types.INT)), () -> Types.BOOLEAN), new SymbolSupplier(() -> Types.INT_SYMBOL)),
+      new TermSymbol("lessThan", new FunctionType(ImmutableList.of(new TypeSupplier(() -> Types.INT)), () -> Types.BOOLEAN), new SymbolSupplier(() -> Types.INT_SYMBOL))
    ));
    public static final Type STRING = Type.fromIdentifier("ninjalang.String");
    public static final Type ARRAY = Type.fromIdentifier("ninjalang.Array", ImmutableList.of(

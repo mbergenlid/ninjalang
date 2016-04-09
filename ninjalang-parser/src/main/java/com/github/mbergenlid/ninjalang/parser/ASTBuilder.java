@@ -25,6 +25,7 @@ import com.github.mbergenlid.ninjalang.ast.SourcePosition;
 import com.github.mbergenlid.ninjalang.ast.Statement;
 import com.github.mbergenlid.ninjalang.ast.StringLiteral;
 import com.github.mbergenlid.ninjalang.ast.TreeNode;
+import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.jetbrains.annotations.NotNull;
@@ -216,20 +217,16 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitStatement(ClassParser.StatementContext ctx) {
-      if(ctx.statementExpression != null) {
+      if(ctx.declaration != null) {
+         return new ValDef(
+            SourcePosition.fromParserContext(ctx),
+            ctx.Identifier().getText(),
+            (Expression) visitExpression(ctx.expression())
+         );
+      } else if(ctx.statementExpression != null) {
          return visitExpression(ctx.expression());
       } else if(ctx.block() != null) {
          return visitBlock(ctx.block());
-      } else if(ctx.ifExpression != null) {
-         final Expression elseClause = ctx.elseClause != null
-            ? (Expression) visitStatement(ctx.elseClause)
-            : new Block(SourcePosition.NO_SOURCE, ImmutableList.of(), new EmptyExpression(SourcePosition.NO_SOURCE));
-         return new IfExpression(
-            SourcePosition.fromParserContext(ctx),
-            (Expression) visitExpression(ctx.expression()),
-            (Expression) visitStatement(ctx.then),
-            elseClause
-         );
       }
       return super.visitStatement(ctx);
    }
@@ -239,7 +236,9 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       final List<Expression> expressions = ctx.statement().stream()
          .map(this::visitStatement).map(n -> (Expression) n).collect(Collectors.toList());
 
-      final Expression returnValue = expressions.isEmpty() ? new EmptyExpression(SourcePosition.fromParserContext(ctx)) : expressions.get(expressions.size() - 1);
+      final Expression returnValue = expressions.isEmpty()
+         ? new EmptyExpression(SourcePosition.fromParserContext(ctx))
+         : expressions.get(expressions.size() - 1);
       return new Block(
          SourcePosition.fromParserContext(ctx),
          expressions.stream().limit(Math.max(0, expressions.size()-1)).map(e -> (Statement) e).collect(Collectors.toList()),
@@ -249,27 +248,39 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitExpression(ClassParser.ExpressionContext ctx) {
-      if(ctx.lessThan != null) {
+      if(ctx.ifExpression != null) {
+         final Expression elseClause = ctx.elseClause != null
+            ? (Expression) visitExpression(ctx.elseClause)
+            : new Block(SourcePosition.NO_SOURCE, ImmutableList.of(), new EmptyExpression(SourcePosition.NO_SOURCE));
+         return new IfExpression(
+            SourcePosition.fromParserContext(ctx),
+            (Expression) visitExpression(ctx.condition),
+            (Expression) visitExpression(ctx.then),
+            elseClause
+         );
+      } else if(ctx.parenExpression != null) {
+         return visitExpression(ctx.parenExpression);
+      } else if(ctx.lessThan != null) {
          final Select select = new Select(
             SourcePosition.fromParserContext(ctx),
-            visitExpression(ctx.expression()),
+            visitExpression(ctx.expression(0)),
             "lessThan"
          );
          return new Apply(
             SourcePosition.fromParserContext(ctx),
             select,
-            ImmutableList.of((Expression)visitAddExpression(ctx.addExpression()))
+            ImmutableList.of((Expression)visitExpression(ctx.expression(1)))
          );
       } else if(ctx.greaterThan != null) {
          final Select select = new Select(
             SourcePosition.fromParserContext(ctx),
-            visitExpression(ctx.expression()),
+            visitExpression(ctx.expression(0)),
             "greaterThan"
          );
          return new Apply(
             SourcePosition.fromParserContext(ctx),
             select,
-            ImmutableList.of((Expression)visitAddExpression(ctx.addExpression()))
+            ImmutableList.of((Expression)visitExpression(ctx.expression(1)))
          );
       }
       return visitAddExpression(ctx.addExpression());
