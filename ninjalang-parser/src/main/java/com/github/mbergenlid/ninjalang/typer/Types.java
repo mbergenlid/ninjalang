@@ -5,8 +5,14 @@ import com.github.mbergenlid.ninjalang.parser.Parser;
 import com.github.mbergenlid.ninjalang.types.FunctionType;
 import com.google.common.collect.ImmutableList;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Types {
 
@@ -34,13 +40,26 @@ public class Types {
    public static final TypeSymbol INT_SYMBOL = new TypeSymbol("Int", Types.INT);
    public static final TypeSymbol ARRAY_SYMBOL = new TypeSymbol("Array", Types.ARRAY);
 
-   public static Type load(String file) {
-      try(InputStream inputStream = Types.class.getResourceAsStream(file)) {
-         final ClassDefinition classDefinition = Parser.classDefinition(inputStream);
-         new Typer().typeTree(classDefinition);
-         return classDefinition.getType();
-      } catch (IOException e) {
-         throw new RuntimeException(e);
+   public static SymbolTable load(String folder) {
+      final TypeInterface typeInterface = new TypeInterface();
+      try {
+         final File sourceFolder =  new File(Types.class.getResource(folder).toURI());
+         if(!sourceFolder.isDirectory()) {
+            throw new IllegalArgumentException(String.format("%s is not a folder", folder));
+         }
+         final File[] sourceFiles = sourceFolder.listFiles();
+         assert sourceFiles != null;
+         final List<ClassDefinition> classes = Arrays.stream(sourceFiles).map(f -> {
+            try (InputStream inputStream = new FileInputStream(f)) {
+               return Parser.classDefinition(inputStream);
+            } catch (IOException e) {
+               throw new RuntimeException(e);
+            }
+         }).collect(Collectors.toList());
+         return typeInterface.loadSymbols(classes);
+      } catch (URISyntaxException e) {
+         e.printStackTrace();
       }
+      return typeInterface.getSymbolTable();
    }
 }

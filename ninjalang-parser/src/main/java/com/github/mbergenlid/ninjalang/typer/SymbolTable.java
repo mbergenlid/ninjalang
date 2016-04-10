@@ -2,7 +2,12 @@ package com.github.mbergenlid.ninjalang.typer;
 
 import com.google.common.collect.ImmutableList;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Stack;
 
 public class SymbolTable {
 
@@ -23,11 +28,16 @@ public class SymbolTable {
       scopes = new Stack<>();
       scopes.push(new Scope());
       addSymbol(new TermSymbol("this"));
-      PREDEFINED.forEach(this::addSymbol);
+   }
+
+   public static SymbolTable withPredefinedTypes() {
+      final SymbolTable symbolTable = new SymbolTable();
+      PREDEFINED.forEach(symbolTable::addSymbol);
+      return symbolTable;
    }
 
    public static SymbolTable of(final Symbol symbol) {
-      final SymbolTable symbolTable = new SymbolTable();
+      final SymbolTable symbolTable = SymbolTable.withPredefinedTypes();
       symbolTable.addSymbol(symbol);
       return symbolTable;
    }
@@ -50,11 +60,15 @@ public class SymbolTable {
    }
 
    public TypeSymbol lookupType(final String name) {
+      return lookupTypeOptional(name)
+         .orElseThrow(() -> new NoSuchElementException("No symbol with name " + name));
+   }
+
+   public Optional<TypeSymbol> lookupTypeOptional(final String name) {
       return scopes.stream()
          .filter(scope -> scope.typeSymbols.containsKey(name))
          .findFirst()
-         .map(s -> s.typeSymbols.get(name))
-         .orElseThrow(() -> new NoSuchElementException("No symbol with name " + name));
+         .map(s -> s.typeSymbols.get(name));
    }
 
    public TermSymbol lookupTerm(final String name) {

@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public abstract class Type {
 
@@ -26,6 +27,10 @@ public abstract class Type {
 
    public Optional<Symbol> member(final String name) {
       return symbols.stream().filter(s -> s.getName().equals(name)).findFirst();
+   }
+
+   public List<TermSymbol> termMembers() {
+      return symbols.stream().filter(Symbol::isTermSymbol).map(Symbol::asTermSymbol).collect(Collectors.toList());
    }
 
    public Optional<TermSymbol> termMember(final String name) {

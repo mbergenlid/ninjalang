@@ -14,7 +14,7 @@ public class Typer implements TreeVisitor<Void> {
    private final List<TypeError> errors = new ArrayList<>();
 
    public Typer() {
-      this(new SymbolTable());
+      this(SymbolTable.withPredefinedTypes());
    }
 
    public Typer(SymbolTable symbolTable) {
