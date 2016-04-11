@@ -1,3 +1,4 @@
+package ninjalang;
 
 class Boolean {
 }

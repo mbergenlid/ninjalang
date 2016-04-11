@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class TypeInterface implements TreeVisitor<Type> {
 
    private final SymbolTable symbolTable;
-   private final List<PlaceHolderType> placeHolders;
+   private final List<PlaceHolderTypeInScope> placeHolders;
 
    public TypeInterface() {
       this.symbolTable = new SymbolTable();
@@ -40,8 +40,8 @@ public class TypeInterface implements TreeVisitor<Type> {
    public SymbolTable loadSymbols(List<ClassDefinition> nodes) {
       nodes.stream().forEach(node -> node.visit(this));
       placeHolders.stream().forEach(p -> {
-         final TypeSymbol actualType = symbolTable.lookupType(p.getIdentifier());
-         p.setActualType(actualType.getType());
+         final TypeSymbol actualType = p.symbolTable.lookupType(p.placeHolderType.getIdentifier());
+         p.placeHolderType.setActualType(actualType.getType());
       });
       return symbolTable;
    }
@@ -63,6 +63,8 @@ public class TypeInterface implements TreeVisitor<Type> {
 
    @Override
    public Type visit(ClassDefinition classDefinition) {
+      symbolTable.newScope();
+      symbolTable.importPackage(classDefinition.getNinjaPackage());
       final List<Symbol> functions = classDefinition.getBody()
          .map(b ->
             b.getFunctions().stream()
@@ -71,6 +73,7 @@ public class TypeInterface implements TreeVisitor<Type> {
          )
          .orElse(Collections.emptyList());
       final Type type = Type.fromIdentifier(classDefinition.getFullyQualifiedName(), functions);
+      symbolTable.exitScope();
       symbolTable.addSymbol(new TypeSymbol(type.getIdentifier(), type));
       return type;
    }
@@ -102,7 +105,7 @@ public class TypeInterface implements TreeVisitor<Type> {
          .map(TypeSymbol::getType)
          .orElseGet(() -> {
             final PlaceHolderType type = new PlaceHolderType(name);
-            placeHolders.add(type);
+            placeHolders.add(new PlaceHolderTypeInScope(type, symbolTable.copy()));
             return type;
          });
    }
@@ -169,5 +172,15 @@ public class TypeInterface implements TreeVisitor<Type> {
 
    public SymbolTable getSymbolTable() {
       return symbolTable;
+   }
+
+   private class PlaceHolderTypeInScope {
+      private final PlaceHolderType placeHolderType;
+      private final SymbolTable symbolTable;
+
+      private PlaceHolderTypeInScope(PlaceHolderType placeHolderType, SymbolTable symbolTable) {
+         this.placeHolderType = placeHolderType;
+         this.symbolTable = symbolTable;
+      }
    }
 }

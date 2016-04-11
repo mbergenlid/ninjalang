@@ -2,12 +2,17 @@ package com.github.mbergenlid.ninjalang.typer;
 
 import com.google.common.collect.ImmutableList;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Stack;
+import java.util.Spliterators;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class SymbolTable {
 
@@ -22,11 +27,10 @@ public class SymbolTable {
       new TypeSymbol("Boolean", Types.BOOLEAN)
    );
 
-   private final Stack<Scope> scopes;
+   private Scope scopes;
 
    public SymbolTable() {
-      scopes = new Stack<>();
-      scopes.push(new Scope());
+      scopes = new Scope(null);
       addSymbol(new TermSymbol("this"));
    }
 
@@ -43,7 +47,7 @@ public class SymbolTable {
    }
 
    protected TermSymbol newTermSymbol(final String name, final Type type) {
-      if(scopes.peek().hasTermSymbol(name)) {
+      if(scopes.hasTermSymbol(name)) {
          throw new TypeException(String.format("%s has already been defined in this scope", name));
       }
       final TermSymbol termSymbol = new TermSymbol(name, type);
@@ -66,9 +70,10 @@ public class SymbolTable {
 
    public Optional<TypeSymbol> lookupTypeOptional(final String name) {
       return scopes.stream()
-         .filter(scope -> scope.typeSymbols.containsKey(name))
-         .findFirst()
-         .map(s -> s.typeSymbols.get(name));
+         .map(scope -> scope.getTypeSymbol(name))
+         .filter(Optional::isPresent)
+         .map(Optional::get)
+         .findFirst();
    }
 
    public TermSymbol lookupTerm(final String name) {
@@ -80,20 +85,36 @@ public class SymbolTable {
    }
 
    public void addSymbol(final Symbol symbol) {
-      scopes.peek().addSymbol(symbol);
+      scopes.addSymbol(symbol);
    }
 
    public void newScope() {
-      scopes.push(new Scope());
+      scopes = new Scope(scopes);
    }
 
    public void exitScope() {
-      scopes.pop();
+      scopes = scopes.parentScope;
    }
 
-   private class Scope {
+   public void importPackage(List<String> ninjaPackage) {
+      scopes.addPackageImport(ninjaPackage.stream().collect(Collectors.joining(".")));
+   }
+
+   public SymbolTable copy() {
+      final SymbolTable symbolTable = new SymbolTable();
+      symbolTable.scopes = this.scopes;
+      return symbolTable;
+   }
+
+   protected class Scope {
+      private final Scope parentScope;
       private final Map<String, TypeSymbol> typeSymbols = new HashMap<>();
       private final Map<String, TermSymbol> termSymbols = new HashMap<>();
+      private final List<String> packageImports = new ArrayList<>();
+
+      public Scope(Scope parentScope) {
+         this.parentScope = parentScope;
+      }
 
       public void addSymbol(final Symbol symbol) {
          if(symbol instanceof TypeSymbol) {
@@ -105,6 +126,52 @@ public class SymbolTable {
 
       public boolean hasTermSymbol(final String name) {
          return termSymbols.containsKey(name);
+      }
+
+      public void addPackageImport(String ninjaPackage) {
+         packageImports.add(ninjaPackage);
+      }
+
+      public Optional<TermSymbol> getTermSymbol(String name) {
+         if(termSymbols.containsKey(name)) {
+            return Optional.of(termSymbols.get(name));
+         } else {
+            return packageImports.stream()
+               .map(p -> String.format("%s.%s", p, name))
+               .filter(termSymbols::containsKey)
+               .map(termSymbols::get)
+               .findFirst();
+         }
+      }
+
+      public Optional<TypeSymbol> getTypeSymbol(String name) {
+         if(typeSymbols.containsKey(name)) {
+            return Optional.of(typeSymbols.get(name));
+         } else {
+            return packageImports.stream()
+               .flatMap(p -> {
+                  final String symbolName = String.format("%s.%s", p, name);
+                  return this.stream()
+                     .filter(s -> s.typeSymbols.containsKey(symbolName))
+                     .map(s -> s.typeSymbols.get(symbolName));
+               })
+               .findFirst();
+         }
+      }
+
+      public Stream<Scope> stream() {
+         return StreamSupport.stream(new Spliterators.AbstractSpliterator<Scope>(Long.MAX_VALUE, 0) {
+            private Scope scope = Scope.this;
+            @Override
+            public boolean tryAdvance(Consumer<? super Scope> action) {
+               if(scope == null) {
+                  return false;
+               }
+               action.accept(scope);
+               scope = scope.parentScope;
+               return true;
+            }
+         }, false);
       }
    }
 }
