@@ -1,0 +1,7 @@
+package ninjalang;
+
+class Array(size: Int) {
+    val size: Int;
+    native def get(x: Int): Any
+    native def set(x: Int, v: Any): Unit
+}

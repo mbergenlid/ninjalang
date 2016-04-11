@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StandardTypesTest {
 
    @Test
-   public void shouldLoadIntType1() {
+   public void shouldLoadIntType() {
       final Type intType = Types.load("/stdtypes").lookupType("ninjalang.Int").getType();
       assertThat(intType.termMember("plus")).isPresent();
       final TermSymbol plus = intType.termMember("plus").get();
@@ -19,5 +19,13 @@ public class StandardTypesTest {
       );
       assertThat(intType.termMember("lessThan")).isPresent();
       assertThat(intType.termMember("greaterThan")).isPresent();
+   }
+
+   @Test
+   public void shouldLoadArrayType() {
+      final Type intType = Types.load("/stdtypes").lookupType("ninjalang.Array").getType();
+      assertThat(intType.termMember("get")).isPresent();
+      assertThat(intType.termMember("set")).isPresent();
+      assertThat(intType.termMember("size")).isPresent();
    }
 }

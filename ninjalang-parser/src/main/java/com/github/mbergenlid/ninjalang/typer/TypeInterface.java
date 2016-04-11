@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TypeInterface implements TreeVisitor<Type> {
 
@@ -72,7 +73,17 @@ public class TypeInterface implements TreeVisitor<Type> {
                .collect(Collectors.toList())
          )
          .orElse(Collections.emptyList());
-      final Type type = Type.fromIdentifier(classDefinition.getFullyQualifiedName(), functions);
+      final List<TermSymbol> properties = classDefinition.getBody()
+         .map(b ->
+            b.getProperties().stream()
+               .map(p -> TermSymbol.propertyTermSymbol(p.getName(), p.visit(this)))
+               .collect(Collectors.toList())
+         )
+         .orElse(Collections.emptyList());
+      final Type type = Type.fromIdentifier(
+         classDefinition.getFullyQualifiedName(),
+         Stream.concat(properties.stream(), functions.stream()).collect(Collectors.toList())
+      );
       symbolTable.exitScope();
       symbolTable.addSymbol(new TypeSymbol(type.getIdentifier(), type));
       return type;
@@ -85,7 +96,7 @@ public class TypeInterface implements TreeVisitor<Type> {
 
    @Override
    public Type visit(Property property) {
-      return null;
+      return lookupType(property.getTypeName());
    }
 
    @Override
