@@ -15,6 +15,10 @@ class ArrayList {
         size = size + 1;
     }
 
-
+    //private def ensureCapacity(newCapacity: Int): Unit = {
+    //    if(newCapacity > capacity) {
+    //        val newArray = Array.ofSize(newCapacity);
+    //    }
+    //}
 
 }

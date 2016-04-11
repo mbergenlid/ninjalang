@@ -1,6 +1,7 @@
+package ninjalang;
 
 class Int {
-    native def plus(x: Int): Int
-    native def lessThan(x: Int): Boolean
-    native def greaterThan(x: Int): Boolean
+    native def plus(x: ninjalang.Int): ninjalang.Int
+    native def lessThan(x: ninjalang.Int): Boolean
+    native def greaterThan(x: ninjalang.Int): Boolean
 }

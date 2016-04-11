@@ -1,5 +1,13 @@
 grammar Class;
 
+ninjaFile
+    : packageDefinition? classDefinition
+    ;
+
+packageDefinition
+    : 'package' Identifier ('.' Identifier)* ';'
+    ;
+
 classDefinition:
     'class' name=Identifier constructor=primaryConstructor? body=classBody?;
 
@@ -16,7 +24,7 @@ classBody:
     '{' (propertyDefinition | functionDefinition)* '}';
 
 functionDefinition:
-    accessModifier? 'native'? 'def' name=Identifier '(' functionArgumentList? ')' ':' returnType=Identifier ('=' body=statement)?;
+    accessModifier? 'native'? 'def' name=Identifier '(' functionArgumentList? ')' ':' returnType=typeReference ('=' body=statement)?;
 
 propertyDefinition:
     accessModifier? modifier=('val' | 'var') name=Identifier ':' type=Identifier
@@ -26,6 +34,10 @@ propertyDefinition:
         ';'
      ;
 
+typeReference
+    : Identifier ('.' Identifier)*
+    ;
+
 accessor:
     (accessorModifier1=accessModifier)? accessorName1=Identifier ('=' accessorBody1=expression)?
     ;
@@ -34,7 +46,7 @@ functionArgumentList:
     functionArgument ( ',' functionArgument )*;
 
 functionArgument:
-    name=Identifier ':' type=Identifier;
+    name=Identifier ':' type=Identifier ('.' Identifier)*;
 
 accessModifier:
     'private' | 'public';

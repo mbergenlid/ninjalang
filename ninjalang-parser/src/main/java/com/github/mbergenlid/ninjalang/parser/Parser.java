@@ -16,7 +16,7 @@ public class Parser extends ClassBaseListener {
       final ClassLexer l = new ClassLexer(new ANTLRInputStream(is));
       final ClassParser p = new ClassParser(new CommonTokenStream(l));
 
-      ClassParser.ClassDefinitionContext classDefinitionContext = p.classDefinition();
+      ClassParser.NinjaFileContext classDefinitionContext = p.ninjaFile();
       if(p.getNumberOfSyntaxErrors() > 0) {
          throw new RuntimeException("PARSE FAIL");
       }

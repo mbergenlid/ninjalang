@@ -11,11 +11,11 @@ public class StandardTypesTest {
 
    @Test
    public void shouldLoadIntType1() {
-      final Type intType = Types.load("/stdtypes").lookupType("Int").getType();
+      final Type intType = Types.load("/stdtypes").lookupType("ninjalang.Int").getType();
       assertThat(intType.termMember("plus")).isPresent();
       final TermSymbol plus = intType.termMember("plus").get();
       assertThat(plus.getType().asFunctionType().getReturnType()).isEqualTo(
-         Type.fromIdentifier("Int")
+         Type.fromIdentifier("ninjalang.Int")
       );
       assertThat(intType.termMember("lessThan")).isPresent();
       assertThat(intType.termMember("greaterThan")).isPresent();

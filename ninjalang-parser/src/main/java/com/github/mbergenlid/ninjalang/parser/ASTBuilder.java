@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,11 +38,25 @@ import java.util.stream.Collectors;
 public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
-   public TreeNode visitClassDefinition(ClassParser.ClassDefinitionContext ctx) {
-      Optional<PrimaryConstructor> constructor = (ctx.constructor != null) ? Optional.of((PrimaryConstructor)visit(ctx.constructor)) : Optional.empty();
-      Optional<ClassBody> body = ctx.body != null ? Optional.of((ClassBody)visit(ctx.body)) : Optional.empty();
+   public TreeNode visitNinjaFile(ClassParser.NinjaFileContext ctx) {
+      final List<String> ninjaPackage = ctx.packageDefinition() != null
+         ? ctx.packageDefinition().Identifier().stream()
+               .map(TerminalNode::getText)
+               .collect(Collectors.toList())
+         : Collections.emptyList()
+         ;
+      final ClassParser.ClassDefinitionContext classDefinitionCtx = ctx.classDefinition();
+      Optional<PrimaryConstructor> constructor = (classDefinitionCtx.constructor != null)
+         ? Optional.of((PrimaryConstructor)visit(classDefinitionCtx.constructor))
+         : Optional.empty()
+         ;
+      Optional<ClassBody> body = classDefinitionCtx.body != null
+         ? Optional.of((ClassBody)visit(classDefinitionCtx.body))
+         : Optional.empty()
+         ;
       return ClassDefinition.builder()
-         .name(ctx.name.getText())
+         .ninjaPackage(ninjaPackage)
+         .name(classDefinitionCtx.name.getText())
          .primaryConstructor(constructor)
          .body(body)
          .build();
@@ -196,16 +211,20 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
             .map(a -> (Argument) a)
             .collect(Collectors.toList())
          : ImmutableList.of();
+      final String typeName = ctx.returnType.Identifier().stream()
+         .map(TerminalNode::getText)
+         .collect(Collectors.joining("."));
       return new FunctionDefinition(
          SourcePosition.fromParserContext(ctx),
          AccessModifier.PUBLIC, ctx.name.getText(), argumentList,
-         ctx.returnType.getText(), functionBody
+         typeName, functionBody
       );
    }
 
    @Override
    public TreeNode visitFunctionArgument(ClassParser.FunctionArgumentContext ctx) {
-      return new Argument(SourcePosition.fromParserContext(ctx), ctx.name.getText(), ctx.type.getText());
+      final String type = ctx.Identifier().stream().skip(1).map(TerminalNode::getText).collect(Collectors.joining("."));
+      return new Argument(SourcePosition.fromParserContext(ctx), ctx.name.getText(), type);
    }
 
    @Override

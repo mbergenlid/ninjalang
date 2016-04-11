@@ -46,15 +46,6 @@ public class TypeInterface implements TreeVisitor<Type> {
       return symbolTable;
    }
 
-   public Type loadType(TreeNode node) {
-      final Type type = node.visit(this);
-      placeHolders.stream().forEach(p -> {
-         final TypeSymbol actualType = symbolTable.lookupType(p.getIdentifier());
-         p.setActualType(actualType.getType());
-      });
-      return type;
-   }
-
    @Override
    public Type visit(TreeNode treeNode) {
       return null;
@@ -79,7 +70,7 @@ public class TypeInterface implements TreeVisitor<Type> {
                .collect(Collectors.toList())
          )
          .orElse(Collections.emptyList());
-      final Type type = Type.fromIdentifier(classDefinition.getName(), functions);
+      final Type type = Type.fromIdentifier(classDefinition.getFullyQualifiedName(), functions);
       symbolTable.addSymbol(new TypeSymbol(type.getIdentifier(), type));
       return type;
    }
