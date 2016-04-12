@@ -97,7 +97,7 @@ public class TypeInterface implements TreeVisitor<Type> {
       final List<Symbol> argumentTypes = primaryConstructor.getArguments().stream()
          .map(Argument::getTypeName)
          .map(this::lookupType)
-         .map(t -> new TermSymbol("", t))
+         .map(t -> new TermSymbol(primaryConstructor.getName().orElse(""), t))
          .collect(Collectors.toList());
       return Type.fromIdentifier(String.format("object(%s)", type.getIdentifier()), argumentTypes);
    }

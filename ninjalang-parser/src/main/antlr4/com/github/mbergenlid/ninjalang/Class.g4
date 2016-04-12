@@ -12,7 +12,7 @@ classDefinition:
     'class' name=Identifier constructor=primaryConstructor? body=classBody?;
 
 primaryConstructor:
-    LPAREN classArgumentList? RPAREN;
+    Identifier? LPAREN classArgumentList? RPAREN;
 
 classArgumentList:
     head=classArgument (',' classArgument )*;

@@ -4,14 +4,17 @@ import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import java.util.Optional;
 
 @EqualsAndHashCode(callSuper = false)
 public class PrimaryConstructor extends TreeNode {
 
+   private final Optional<String> name;
    private final List<Argument> arguments;
 
-   public PrimaryConstructor(final SourcePosition sourcePosition, List<Argument> arguments) {
+   public PrimaryConstructor(final SourcePosition sourcePosition, Optional<String> name, List<Argument> arguments) {
       super(sourcePosition);
+      this.name = name;
       this.arguments = arguments;
    }
 
@@ -28,5 +31,9 @@ public class PrimaryConstructor extends TreeNode {
 
    public List<Argument> getArguments() {
       return arguments;
+   }
+
+   public Optional<String> getName() {
+      return name;
    }
 }
