@@ -15,6 +15,7 @@ import com.github.mbergenlid.ninjalang.ast.IfExpression;
 import com.github.mbergenlid.ninjalang.ast.IntLiteral;
 import com.github.mbergenlid.ninjalang.ast.PrimaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Property;
+import com.github.mbergenlid.ninjalang.ast.SecondaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.StringLiteral;
 import com.github.mbergenlid.ninjalang.ast.TreeNode;
@@ -85,26 +86,56 @@ public class TypeInterface implements TreeVisitor<Type> {
          classDefinition.getFullyQualifiedName(),
          Stream.concat(properties.stream(), functions.stream()).collect(Collectors.toList())
       );
-      final Optional<Type> objectType = classDefinition.getPrimaryConstructor()
-         .map(c -> createTypeObject(c, type));
+      final Type typeObject = createTypeObject(classDefinition, type);
       symbolTable.exitScope();
-      objectType.ifPresent(obj -> symbolTable.addSymbol(new TermSymbol(classDefinition.getFullyQualifiedName(), obj)));
+      symbolTable.addSymbol(new TermSymbol(classDefinition.getFullyQualifiedName(), typeObject));
       symbolTable.addSymbol(new TypeSymbol(type.getIdentifier(), type));
       return type;
    }
 
-   private Type createTypeObject(PrimaryConstructor primaryConstructor, Type type) {
-      final List<Symbol> argumentTypes = primaryConstructor.getArguments().stream()
+   private Type createTypeObject(ClassDefinition classDefinition, Type type) {
+      Optional<PrimaryConstructor> primaryConstructor = classDefinition.getPrimaryConstructor();
+      final Stream<TermSymbol> primaryConstructorStream = primaryConstructor
+         .map(p -> {
+            final Type function = createConstructor(p, type);
+            return new TermSymbol(p.getName().orElse(""), function);
+         })
+         .map(Stream::of)
+         .orElse(Stream.empty());
+      final Stream<TermSymbol> secondaryConstructors = classDefinition.getSecondaryConstructors().stream()
+         .map(c -> {
+            final Type function = createConstructor(c, type);
+            return new TermSymbol(c.getName(), function);
+         });
+      final List<Symbol> constructors =
+         Stream.concat(primaryConstructorStream, secondaryConstructors).collect(Collectors.toList());
+      return Type.fromIdentifier(String.format("object(%s)", type.getIdentifier()), constructors);
+   }
+
+   private Type createConstructor(PrimaryConstructor primaryConstructor, Type type) {
+      final List<Type> argumentTypes = primaryConstructor.getArguments().stream()
          .map(Argument::getTypeName)
          .map(this::lookupType)
-         .map(t -> new TermSymbol(primaryConstructor.getName().orElse(""), t))
          .collect(Collectors.toList());
-      return Type.fromIdentifier(String.format("object(%s)", type.getIdentifier()), argumentTypes);
+      return new FunctionType(argumentTypes, () -> type);
+   }
+
+   private Type createConstructor(SecondaryConstructor secondaryConstructor, Type type) {
+      final List<Type> argumentTypes = secondaryConstructor.getArguments().stream()
+         .map(Argument::getTypeName)
+         .map(this::lookupType)
+         .collect(Collectors.toList());
+      return new FunctionType(argumentTypes, () -> type);
    }
 
    @Override
    public Type visit(PrimaryConstructor primaryConstructor) {
 
+      return null;
+   }
+
+   @Override
+   public Type visit(SecondaryConstructor primaryConstructor) {
       return null;
    }
 

@@ -10,6 +10,7 @@ public interface TreeVisitor<T> {
    T visit(final ClassBody classBody);
    T visit(final ClassDefinition classDefinition);
    T visit(final PrimaryConstructor primaryConstructor);
+   T visit(final SecondaryConstructor primaryConstructor);
    T visit(final Property property);
    T visit(final FunctionDefinition functionDefinition);
 

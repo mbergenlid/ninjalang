@@ -21,7 +21,11 @@ classArgument:
     'val'? name=Identifier ':' type=Identifier;
 
 classBody:
-    '{' (propertyDefinition | functionDefinition)* '}';
+    '{' (constructorDefinition | propertyDefinition | functionDefinition)* '}';
+
+constructorDefinition
+    : 'constructor' Identifier LPAREN classArgumentList? RPAREN ';'
+    ;
 
 functionDefinition:
     accessModifier? 'native'? 'def' name=Identifier '(' functionArgumentList? ')' ':' returnType=typeReference ('=' body=statement)?;

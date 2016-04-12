@@ -2,16 +2,16 @@ package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.List;
-import java.util.Optional;
 
+@ToString
 @EqualsAndHashCode(callSuper = false)
-public class PrimaryConstructor extends Constructor {
+public class SecondaryConstructor extends Constructor {
+   private final String name;
 
-   private final Optional<String> name;
-
-   public PrimaryConstructor(final SourcePosition sourcePosition, Optional<String> name, List<Argument> arguments) {
+   public SecondaryConstructor(SourcePosition sourcePosition, String name, List<Argument> arguments) {
       super(sourcePosition, arguments);
       this.name = name;
    }
@@ -21,7 +21,7 @@ public class PrimaryConstructor extends Constructor {
       return visitor.visit(this);
    }
 
-   public Optional<String> getName() {
+   public String getName() {
       return name;
    }
 }

@@ -19,6 +19,7 @@ import com.github.mbergenlid.ninjalang.ast.IfExpression;
 import com.github.mbergenlid.ninjalang.ast.IntLiteral;
 import com.github.mbergenlid.ninjalang.ast.PrimaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Property;
+import com.github.mbergenlid.ninjalang.ast.SecondaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.Setter;
 import com.github.mbergenlid.ninjalang.ast.SourcePosition;
@@ -54,10 +55,18 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
          ? Optional.of((ClassBody)visit(classDefinitionCtx.body))
          : Optional.empty()
          ;
+      final List<SecondaryConstructor> secondaryConstructors = classDefinitionCtx.body != null
+         ? classDefinitionCtx.body.constructorDefinition().stream()
+            .map(this::visitConstructorDefinition)
+            .map(c -> (SecondaryConstructor) c)
+            .collect(Collectors.toList())
+         : Collections.emptyList()
+         ;
       return ClassDefinition.builder()
          .ninjaPackage(ninjaPackage)
          .name(classDefinitionCtx.name.getText())
          .primaryConstructor(constructor)
+         .secondaryConstructors(secondaryConstructors)
          .body(body)
          .build();
    }
@@ -71,6 +80,22 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       return new PrimaryConstructor(
          SourcePosition.fromParserContext(ctx),
          name, ImmutableList.of((Argument)arg)
+      );
+   }
+
+   @Override
+   public TreeNode visitConstructorDefinition(ClassParser.ConstructorDefinitionContext ctx) {
+      final List<Argument> arguments = ctx.classArgumentList() != null
+         ? ctx.classArgumentList().classArgument().stream()
+            .map(this::visitClassArgument)
+            .map(a -> (Argument) a)
+            .collect(Collectors.toList())
+         : Collections.emptyList()
+         ;
+
+      return new SecondaryConstructor(
+         SourcePosition.fromParserContext(ctx),
+         ctx.Identifier().getText(), arguments
       );
    }
 

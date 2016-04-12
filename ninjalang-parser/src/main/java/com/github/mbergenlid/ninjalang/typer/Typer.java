@@ -66,6 +66,11 @@ public class Typer implements TreeVisitor<Void> {
    }
 
    @Override
+   public Void visit(SecondaryConstructor primaryConstructor) {
+      return null;
+   }
+
+   @Override
    public Void visit(Property property) {
       property.assignSymbol(symbolTable.lookupType(property.getTypeName()));
       final Type declaredType = property.getPropertyType().getType();

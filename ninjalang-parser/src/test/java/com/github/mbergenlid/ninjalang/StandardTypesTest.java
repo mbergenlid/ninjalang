@@ -32,5 +32,6 @@ public class StandardTypesTest {
 
       final Type arrayObject = symbolTable.lookupTerm("ninjalang.Array").getType();
       assertThat(arrayObject.termMember("ofSize")).isPresent();
+      assertThat(arrayObject.termMember("empty")).isPresent();
    }
 }

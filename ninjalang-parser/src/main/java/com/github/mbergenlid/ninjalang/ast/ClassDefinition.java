@@ -19,6 +19,7 @@ public class ClassDefinition extends TreeNode {
    @NonNull
    private final String name;
    private final Optional<PrimaryConstructor> primaryConstructor;
+   private final List<SecondaryConstructor> secondaryConstructors;
    private final Optional<ClassBody> body;
 
    public ClassDefinition(
@@ -27,7 +28,7 @@ public class ClassDefinition extends TreeNode {
       Optional<PrimaryConstructor> primaryConstructor,
       Optional<ClassBody> body
    ) {
-      this(sourcePosition, name, primaryConstructor, body, Collections.emptyList());
+      this(sourcePosition, name, primaryConstructor, Collections.emptyList(), body, Collections.emptyList());
    }
 
    @Builder
@@ -35,11 +36,13 @@ public class ClassDefinition extends TreeNode {
       final SourcePosition sourcePosition,
       String name,
       Optional<PrimaryConstructor> primaryConstructor,
+      List<SecondaryConstructor> secondaryConstructors,
       Optional<ClassBody> body,
       List<String> ninjaPackage
    ) {
       super(sourcePosition);
       this.ninjaPackage = ninjaPackage;
+      this.secondaryConstructors = secondaryConstructors;
       this.name = name != null ? name : "";
       this.primaryConstructor = primaryConstructor != null ? primaryConstructor : Optional.empty();
       this.body = body != null ? body : Optional.empty();
