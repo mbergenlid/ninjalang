@@ -25,6 +25,7 @@ import com.github.mbergenlid.ninjalang.types.FunctionType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,13 +85,26 @@ public class TypeInterface implements TreeVisitor<Type> {
          classDefinition.getFullyQualifiedName(),
          Stream.concat(properties.stream(), functions.stream()).collect(Collectors.toList())
       );
+      final Optional<Type> objectType = classDefinition.getPrimaryConstructor()
+         .map(c -> createTypeObject(c, type));
       symbolTable.exitScope();
+      objectType.ifPresent(obj -> symbolTable.addSymbol(new TermSymbol(classDefinition.getFullyQualifiedName(), obj)));
       symbolTable.addSymbol(new TypeSymbol(type.getIdentifier(), type));
       return type;
    }
 
+   private Type createTypeObject(PrimaryConstructor primaryConstructor, Type type) {
+      final List<Symbol> argumentTypes = primaryConstructor.getArguments().stream()
+         .map(Argument::getTypeName)
+         .map(this::lookupType)
+         .map(t -> new TermSymbol("", t))
+         .collect(Collectors.toList());
+      return Type.fromIdentifier(String.format("object(%s)", type.getIdentifier()), argumentTypes);
+   }
+
    @Override
    public Type visit(PrimaryConstructor primaryConstructor) {
+
       return null;
    }
 

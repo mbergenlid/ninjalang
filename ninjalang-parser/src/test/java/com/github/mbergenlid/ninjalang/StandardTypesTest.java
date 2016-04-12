@@ -1,5 +1,6 @@
 package com.github.mbergenlid.ninjalang;
 
+import com.github.mbergenlid.ninjalang.typer.SymbolTable;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.github.mbergenlid.ninjalang.typer.Type;
 import com.github.mbergenlid.ninjalang.typer.Types;
@@ -23,9 +24,13 @@ public class StandardTypesTest {
 
    @Test
    public void shouldLoadArrayType() {
-      final Type intType = Types.load("/stdtypes").lookupType("ninjalang.Array").getType();
-      assertThat(intType.termMember("get")).isPresent();
-      assertThat(intType.termMember("set")).isPresent();
-      assertThat(intType.termMember("size")).isPresent();
+      final SymbolTable symbolTable = Types.load("/stdtypes");
+      final Type arrayType = symbolTable.lookupType("ninjalang.Array").getType();
+      assertThat(arrayType.termMember("get")).isPresent();
+      assertThat(arrayType.termMember("set")).isPresent();
+      assertThat(arrayType.termMember("size")).isPresent();
+
+      final Type arrayObject = symbolTable.lookupTerm("ninjalang.Array").getType();
+      assertThat(arrayObject.termMember("")).isPresent();
    }
 }
