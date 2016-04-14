@@ -12,7 +12,7 @@ public class StandardTypesTest {
 
    @Test
    public void shouldLoadIntType() {
-      final Type intType = Types.load("/stdtypes").lookupType("ninjalang.Int").getType();
+      final Type intType = Types.loadDefaults().lookupType("ninjalang.Int").getType();
       assertThat(intType.termMember("plus")).isPresent();
       final TermSymbol plus = intType.termMember("plus").get();
       assertThat(plus.getType().asFunctionType().getReturnType()).isEqualTo(
@@ -24,13 +24,13 @@ public class StandardTypesTest {
 
    @Test
    public void shouldLoadArrayType() {
-      final SymbolTable symbolTable = Types.load("/stdtypes");
-      final Type arrayType = symbolTable.lookupType("ninjalang.Array").getType();
+      final SymbolTable symbolTable = Types.loadDefaults();
+      final Type arrayType = symbolTable.lookupType("Array").getType();
       assertThat(arrayType.termMember("get")).isPresent();
       assertThat(arrayType.termMember("set")).isPresent();
       assertThat(arrayType.termMember("size")).isPresent();
 
-      final Type arrayObject = symbolTable.lookupTerm("ninjalang.Array").getType();
+      final Type arrayObject = symbolTable.lookupTerm("Array").getType();
       assertThat(arrayObject.termMember("ofSize")).isPresent();
       assertThat(arrayObject.termMember("empty")).isPresent();
    }

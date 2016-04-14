@@ -1,8 +1,30 @@
 package com.github.mbergenlid.ninjalang.typer;
 
-import com.github.mbergenlid.ninjalang.ast.*;
+import com.github.mbergenlid.ninjalang.ast.AccessBackingField;
+import com.github.mbergenlid.ninjalang.ast.Apply;
+import com.github.mbergenlid.ninjalang.ast.Argument;
+import com.github.mbergenlid.ninjalang.ast.Assign;
+import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
+import com.github.mbergenlid.ninjalang.ast.Block;
+import com.github.mbergenlid.ninjalang.ast.ClassBody;
+import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
+import com.github.mbergenlid.ninjalang.ast.EmptyExpression;
+import com.github.mbergenlid.ninjalang.ast.Expression;
+import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
+import com.github.mbergenlid.ninjalang.ast.Getter;
+import com.github.mbergenlid.ninjalang.ast.IfExpression;
+import com.github.mbergenlid.ninjalang.ast.IntLiteral;
+import com.github.mbergenlid.ninjalang.ast.PrimaryConstructor;
+import com.github.mbergenlid.ninjalang.ast.Property;
+import com.github.mbergenlid.ninjalang.ast.SecondaryConstructor;
+import com.github.mbergenlid.ninjalang.ast.Select;
+import com.github.mbergenlid.ninjalang.ast.SourcePosition;
+import com.github.mbergenlid.ninjalang.ast.StringLiteral;
+import com.github.mbergenlid.ninjalang.ast.TreeNode;
+import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 import com.github.mbergenlid.ninjalang.types.FunctionType;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +36,7 @@ public class Typer implements TreeVisitor<Void> {
    private final List<TypeError> errors = new ArrayList<>();
 
    public Typer() {
-      this(SymbolTable.withPredefinedTypes());
+      this(Types.loadDefaults());
    }
 
    public Typer(SymbolTable symbolTable) {
@@ -168,7 +190,7 @@ public class Typer implements TreeVisitor<Void> {
       assign.getAssignee().visit(this);
       assign.getValue().visit(this);
 
-      assign.setType(Types.UNIT);
+      assign.setType(symbolTable.lookupType("ninjalang.Unit").getType());
       return null;
    }
 
@@ -181,7 +203,7 @@ public class Typer implements TreeVisitor<Void> {
       if(!declaredType.equals(inferredType)) {
          throw TypeException.incompatibleTypes(declaredType, inferredType);
       }
-      assign.setType(Types.UNIT);
+      assign.setType(symbolTable.lookupType("ninjalang.Unit").getType());
       return null;
    }
 
@@ -223,6 +245,7 @@ public class Typer implements TreeVisitor<Void> {
 
    @Override
    public Void visit(IntLiteral intLiteral) {
+      intLiteral.setType(symbolTable.lookupType("Int").getType());
       return null;
    }
 
@@ -233,7 +256,7 @@ public class Typer implements TreeVisitor<Void> {
 
    @Override
    public Void visit(EmptyExpression emptyExpression) {
-      emptyExpression.setType(Types.NOTHING);
+      emptyExpression.setType(symbolTable.lookupType("ninjalang.Nothing").getType());
       return null;
    }
 

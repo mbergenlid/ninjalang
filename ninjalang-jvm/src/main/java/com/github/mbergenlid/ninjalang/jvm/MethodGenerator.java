@@ -1,14 +1,37 @@
 package com.github.mbergenlid.ninjalang.jvm;
 
-import com.github.mbergenlid.ninjalang.ast.*;
+import com.github.mbergenlid.ninjalang.ast.AccessBackingField;
+import com.github.mbergenlid.ninjalang.ast.AccessModifier;
+import com.github.mbergenlid.ninjalang.ast.Apply;
+import com.github.mbergenlid.ninjalang.ast.Argument;
+import com.github.mbergenlid.ninjalang.ast.Assign;
+import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
+import com.github.mbergenlid.ninjalang.ast.Block;
+import com.github.mbergenlid.ninjalang.ast.EmptyExpression;
+import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
+import com.github.mbergenlid.ninjalang.ast.IfExpression;
+import com.github.mbergenlid.ninjalang.ast.IntLiteral;
+import com.github.mbergenlid.ninjalang.ast.Property;
+import com.github.mbergenlid.ninjalang.ast.SecondaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Select;
+import com.github.mbergenlid.ninjalang.ast.SourcePosition;
+import com.github.mbergenlid.ninjalang.ast.StringLiteral;
+import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.github.mbergenlid.ninjalang.ast.visitor.AbstractVoidTreeVisitor;
 import com.github.mbergenlid.ninjalang.jvm.builtin.BuiltInFunctions;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.google.common.collect.ImmutableList;
 import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.Method;
-import org.apache.bcel.generic.*;
+import org.apache.bcel.generic.ClassGen;
+import org.apache.bcel.generic.ConstantPoolGen;
+import org.apache.bcel.generic.INVOKESPECIAL;
+import org.apache.bcel.generic.InstructionConstants;
+import org.apache.bcel.generic.InstructionFactory;
+import org.apache.bcel.generic.InstructionList;
+import org.apache.bcel.generic.MethodGen;
+import org.apache.bcel.generic.NOP;
+import org.apache.bcel.generic.Type;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,14 +40,16 @@ import java.util.stream.Collectors;
 
 public class MethodGenerator extends AbstractVoidTreeVisitor {
 
+   private final BuiltInFunctions builtInFunctions;
    private final ClassGen classGen;
    private final ConstantPoolGen constantPoolGen;
    private final InstructionList instructionList;
    private final InstructionFactory factory;
    private final Map<TermSymbol, Integer> localVariables;
 
-   public MethodGenerator(final ClassGen classGen) {
+   public MethodGenerator(final ClassGen classGen, final BuiltInFunctions builtInFunctions) {
       this.classGen = classGen;
+      this.builtInFunctions = builtInFunctions;
       this.constantPoolGen = classGen.getConstantPool();
       this.instructionList = new InstructionList();
       this.factory = new InstructionFactory(classGen);
@@ -158,8 +183,8 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
    @Override
    public Void visit(Select select) {
       TermSymbol symbol = select.getSymbol();
-      if(BuiltInFunctions.contains(symbol)) {
-         BuiltInFunctions.getBuiltInType(symbol, this).generate(
+      if(builtInFunctions.contains(symbol)) {
+         builtInFunctions.getBuiltInType(symbol, this).generate(
             new BuiltInFunctions.FunctionApplication(symbol, select.getQualifier().orElse(new EmptyExpression(SourcePosition.NO_SOURCE)), ImmutableList.of()), instructionList, factory);
       } else {
          if(select.getQualifier().isPresent()) {
@@ -181,8 +206,8 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
       if(apply.getFunction() instanceof Select) {
          final Select instance = (Select) apply.getFunction();
          final TermSymbol functionSymbol = instance.getSymbol();
-         if(BuiltInFunctions.contains(functionSymbol)) {
-            BuiltInFunctions.getBuiltInType(functionSymbol, this).generate(
+         if(builtInFunctions.contains(functionSymbol)) {
+            builtInFunctions.getBuiltInType(functionSymbol, this).generate(
                new BuiltInFunctions.FunctionApplication(functionSymbol, instance.getQualifier().orElse(new EmptyExpression(SourcePosition.NO_SOURCE)), apply.getArguments()), instructionList, factory);
          }
       }

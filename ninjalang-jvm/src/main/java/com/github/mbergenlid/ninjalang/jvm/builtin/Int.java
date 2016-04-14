@@ -19,13 +19,13 @@ public class Int implements BuiltInFunctions.BuiltInType {
 
    @Override
    public void generate(BuiltInFunctions.FunctionApplication function, InstructionList list, InstructionFactory factory) {
-      if(function.functionSymbol == Types.INT.member("plus").get()) {
+      if(function.functionSymbol.getName().equals("plus")) {
          Preconditions.checkArgument(function.arguments.size() == 1);
          function.instance.visit(methodGenerator);
          function.arguments.stream().forEach(a -> a.visit(methodGenerator));
 
          list.append(InstructionFactory.createBinaryOperation("+", Type.INT));
-      } else if(function.functionSymbol == Types.INT.member("greaterThan").get()) {
+      } else if(function.functionSymbol.getName().equals("greaterThan")) {
          Preconditions.checkArgument(function.arguments.size() == 1);
          function.instance.visit(methodGenerator);
          function.arguments.stream().forEach(a -> a.visit(methodGenerator));

@@ -26,7 +26,7 @@ public class PlaceHolderType extends Type {
 
    @Override
    public String getIdentifier() {
-      return actualTypeName;
+      return delegateToActualType(Type::getIdentifier, () -> actualTypeName);
    }
 
    @Override
@@ -49,16 +49,6 @@ public class PlaceHolderType extends Type {
    @Override
    public FunctionType asFunctionType() {
       return delegateToActualType(Type::asFunctionType, super::asFunctionType);
-   }
-
-   @Override
-   public int hashCode() {
-      return delegateToActualType(Type::hashCode, super::hashCode);
-   }
-
-   @Override
-   public boolean equals(Object o) {
-      return delegateToActualType(t -> t.equals(o), () -> super.equals(o));
    }
 
    @Override

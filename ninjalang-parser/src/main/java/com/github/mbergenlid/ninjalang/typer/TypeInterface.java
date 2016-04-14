@@ -22,6 +22,7 @@ import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 import com.github.mbergenlid.ninjalang.types.FunctionType;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +39,7 @@ public class TypeInterface implements TreeVisitor<Type> {
    public TypeInterface() {
       this.symbolTable = new SymbolTable();
       this.placeHolders = new ArrayList<>();
+      symbolTable.addSymbol(new TypeSymbol("ninjalang.Nothing", new Nothing()));
    }
 
    public SymbolTable loadSymbols(List<ClassDefinition> nodes) {
@@ -46,6 +48,7 @@ public class TypeInterface implements TreeVisitor<Type> {
          final TypeSymbol actualType = p.symbolTable.lookupType(p.placeHolderType.getIdentifier());
          p.placeHolderType.setActualType(actualType.getType());
       });
+      symbolTable.importPackage(ImmutableList.of("ninjalang"));
       return symbolTable;
    }
 
@@ -68,17 +71,18 @@ public class TypeInterface implements TreeVisitor<Type> {
    public Type visit(ClassDefinition classDefinition) {
       symbolTable.newScope();
       symbolTable.importPackage(classDefinition.getNinjaPackage());
+      final DeferredSymbol ownerSymbol = new DeferredSymbol();
       final List<Symbol> functions = classDefinition.getBody()
          .map(b ->
             b.getFunctions().stream()
-               .map(f -> (Symbol)new TermSymbol(f.getName(), f.visit(this)))
+               .map(f -> (Symbol)new TermSymbol(f.getName(), f.visit(this), ownerSymbol))
                .collect(Collectors.toList())
          )
          .orElse(Collections.emptyList());
       final List<TermSymbol> properties = classDefinition.getBody()
          .map(b ->
             b.getProperties().stream()
-               .map(p -> TermSymbol.propertyTermSymbol(p.getName(), p.visit(this)))
+               .map(p -> TermSymbol.propertyTermSymbol(p.getName(), p.visit(this), ownerSymbol))
                .collect(Collectors.toList())
          )
          .orElse(Collections.emptyList());
@@ -86,10 +90,12 @@ public class TypeInterface implements TreeVisitor<Type> {
          classDefinition.getFullyQualifiedName(),
          Stream.concat(properties.stream(), functions.stream()).collect(Collectors.toList())
       );
+      final TypeSymbol typeSymbol = new TypeSymbol(classDefinition.getFullyQualifiedName(), type);
+      ownerSymbol.set(typeSymbol);
       final Type typeObject = createTypeObject(classDefinition, type);
       symbolTable.exitScope();
       symbolTable.addSymbol(new TermSymbol(classDefinition.getFullyQualifiedName(), typeObject));
-      symbolTable.addSymbol(new TypeSymbol(type.getIdentifier(), type));
+      symbolTable.addSymbol(typeSymbol);
       return type;
    }
 

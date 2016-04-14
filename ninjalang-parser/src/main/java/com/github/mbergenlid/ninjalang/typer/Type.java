@@ -50,19 +50,13 @@ public abstract class Type {
 
 
    @Override
-   public int hashCode() {
+   public final int hashCode() {
       return getIdentifier().hashCode();
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-
-      Type type = (Type) o;
-
-      return getIdentifier().equals(type.getIdentifier());
-
+   public final boolean equals(Object o) {
+      return o != null && o instanceof Type && getIdentifier().equals(((Type) o).getIdentifier());
    }
 
    @Override

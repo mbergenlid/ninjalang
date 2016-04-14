@@ -1,7 +1,5 @@
 package com.github.mbergenlid.ninjalang.typer;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,17 +14,6 @@ import java.util.stream.StreamSupport;
 
 public class SymbolTable {
 
-   private static final List<Symbol> PREDEFINED = ImmutableList.of(
-      new TypeSymbol("Any", Types.ANY),
-      new TypeSymbol("Nothing", Types.NOTHING),
-      new TypeSymbol("Unit", Types.UNIT),
-      Types.INT_SYMBOL,
-      new TypeSymbol("String", Types.STRING),
-      new TypeSymbol("Array", Types.ARRAY),
-      new TermSymbol("Array", Types.ARRAY_OBJECT),
-      new TypeSymbol("Boolean", Types.BOOLEAN)
-   );
-
    private Scope scopes;
 
    public SymbolTable() {
@@ -35,9 +22,7 @@ public class SymbolTable {
    }
 
    public static SymbolTable withPredefinedTypes() {
-      final SymbolTable symbolTable = new SymbolTable();
-      PREDEFINED.forEach(symbolTable::addSymbol);
-      return symbolTable;
+      return new SymbolTable();
    }
 
    public static SymbolTable of(final Symbol symbol) {
@@ -76,11 +61,16 @@ public class SymbolTable {
          .findFirst();
    }
 
-   public TermSymbol lookupTerm(final String name) {
+   public Optional<TermSymbol> lookupTermOptional(final String name) {
       return scopes.stream()
-         .filter(scope -> scope.termSymbols.containsKey(name))
-         .findFirst()
-         .map(s -> s.termSymbols.get(name))
+         .map(scope -> scope.getTermSymbol(name))
+         .filter(Optional::isPresent)
+         .map(Optional::get)
+         .findFirst();
+   }
+
+   public TermSymbol lookupTerm(final String name) {
+      return lookupTermOptional(name)
          .orElseThrow(() -> new NoSuchElementException("No symbol with name " + name));
    }
 
@@ -137,9 +127,12 @@ public class SymbolTable {
             return Optional.of(termSymbols.get(name));
          } else {
             return packageImports.stream()
-               .map(p -> String.format("%s.%s", p, name))
-               .filter(termSymbols::containsKey)
-               .map(termSymbols::get)
+               .flatMap(p -> {
+                  final String symbolName = String.format("%s.%s", p, name);
+                  return this.stream()
+                     .filter(s -> s.termSymbols.containsKey(symbolName))
+                     .map(s -> s.termSymbols.get(symbolName));
+               })
                .findFirst();
          }
       }

@@ -8,7 +8,7 @@ public class TermSymbol extends Symbol {
 
    private boolean propertySymbol = false;
    private boolean valSymbol = false;
-   private final Optional<Symbol> owner;
+   private final Optional<DeferredSymbol> owner;
    private final String name;
 
    protected TermSymbol(String name) {
@@ -19,7 +19,7 @@ public class TermSymbol extends Symbol {
       this(name, type, null);
    }
 
-   protected TermSymbol(String name, Type type, Symbol owner) {
+   protected TermSymbol(String name, Type type, DeferredSymbol owner) {
       super(type);
       this.name = name;
       this.owner = Optional.ofNullable(owner);
@@ -31,7 +31,7 @@ public class TermSymbol extends Symbol {
       return termSymbol;
    }
 
-   public static TermSymbol propertyTermSymbol(String name, Type type, Symbol owner) {
+   public static TermSymbol propertyTermSymbol(String name, Type type, DeferredSymbol owner) {
       TermSymbol termSymbol = new TermSymbol(name, type, owner);
       termSymbol.propertySymbol = true;
       return termSymbol;
@@ -60,7 +60,7 @@ public class TermSymbol extends Symbol {
 
    @Override
    public Optional<Symbol> owner() {
-      return owner;
+      return owner.map(DeferredSymbol::get);
    }
 
    @Override

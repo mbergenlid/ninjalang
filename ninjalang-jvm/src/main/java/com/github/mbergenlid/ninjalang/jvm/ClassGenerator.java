@@ -1,8 +1,8 @@
 package com.github.mbergenlid.ninjalang.jvm;
 
 import com.github.mbergenlid.ninjalang.ast.*;
+import com.github.mbergenlid.ninjalang.jvm.builtin.BuiltInFunctions;
 import org.apache.bcel.Constants;
-import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.*;
@@ -13,7 +13,13 @@ import java.util.stream.Collectors;
 
 public class ClassGenerator {
 
-   public static JavaClass generateClass(final ClassDefinition classDef) throws IOException {
+   private final BuiltInFunctions builtInFunctions;
+
+   public ClassGenerator(BuiltInFunctions builtInFunctions) {
+      this.builtInFunctions = builtInFunctions;
+   }
+
+   public JavaClass generateClass(final ClassDefinition classDef) throws IOException {
       final ClassGen classGen = new ClassGen(classDef.getName(), "java.lang.Object", classDef.getName(), Constants.ACC_PUBLIC, new String[]{});
       generatePrimaryConstructor(classDef, classGen);
       if(classDef.getBody().isPresent()) {
@@ -22,33 +28,33 @@ public class ClassGenerator {
       return classGen.getJavaClass();
    }
 
-   private static void generatePrimaryConstructor(ClassDefinition classDef, ClassGen classGen) {
+   private void generatePrimaryConstructor(ClassDefinition classDef, ClassGen classGen) {
       classDef.getBody().ifPresent(body -> {
          final List<Property> propertiesWithBackingField = body.getProperties().stream()
             .filter(Property::needsBackingField)
             .collect(Collectors.toList());
-         final Method constructor = new MethodGenerator(classGen).generateConstructor(propertiesWithBackingField);
+         final Method constructor = new MethodGenerator(classGen, builtInFunctions).generateConstructor(propertiesWithBackingField);
          classGen.addMethod(constructor);
       });
    }
 
-   private static void generateBody(ClassBody body, ClassGen classGen) {
+   private void generateBody(ClassBody body, ClassGen classGen) {
       body.getProperties().stream()
          .forEach(p -> generateProperty(p, classGen));
       body.getFunctions().stream()
          .forEach(f -> generateFunction(f, classGen));
    }
 
-   private static void generateFunction(FunctionDefinition functionDefinition, ClassGen classGen) {
-      final Method method = new MethodGenerator(classGen).generateFromFunction(functionDefinition);
+   private void generateFunction(FunctionDefinition functionDefinition, ClassGen classGen) {
+      final Method method = new MethodGenerator(classGen, builtInFunctions).generateFromFunction(functionDefinition);
       classGen.addMethod(method);
    }
 
-   private static void generateProperty(Property property, ClassGen classGen) {
-      final Method getter = new MethodGenerator(classGen).generateFromFunction(property.getter());
+   private void generateProperty(Property property, ClassGen classGen) {
+      final Method getter = new MethodGenerator(classGen, builtInFunctions).generateFromFunction(property.getter());
       classGen.addMethod(getter);
       property.getSetter()
-         .map(setter -> new MethodGenerator(classGen).generateFromFunction(setter))
+         .map(setter -> new MethodGenerator(classGen, builtInFunctions).generateFromFunction(setter))
          .ifPresent(m -> {
             final FieldGen fieldGen = new FieldGen(Constants.ACC_PRIVATE, TypeConverter.fromNinjaType(property.getType()), property.getName(), classGen.getConstantPool());
             classGen.addField(fieldGen.getField());

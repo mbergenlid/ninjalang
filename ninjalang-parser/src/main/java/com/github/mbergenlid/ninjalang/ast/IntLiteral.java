@@ -15,7 +15,6 @@ public class IntLiteral extends Expression {
    public IntLiteral(final SourcePosition sourcePosition, int value) {
       super(sourcePosition);
       this.value = value;
-      super.setType(Types.INT);
    }
 
    public <T> T visit(final TreeVisitor<T> visitor) {

@@ -2,6 +2,8 @@ package com.github.mbergenlid.ninjalang.jvm;
 
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.ast.PrimaryConstructor;
+import com.github.mbergenlid.ninjalang.jvm.builtin.BuiltInFunctions;
+import com.github.mbergenlid.ninjalang.typer.Types;
 import org.apache.bcel.classfile.JavaClass;
 import org.junit.Test;
 
@@ -18,7 +20,8 @@ public class ClassGeneratorTest {
 
    @Test
    public void generateSimpleClass() throws IOException {
-      JavaClass blaha = ClassGenerator.generateClass(ClassDefinition.builder().name("SimpleClass")
+      JavaClass blaha = new ClassGenerator(new BuiltInFunctions(Types.loadDefaults()))
+         .generateClass(ClassDefinition.builder().name("SimpleClass")
          .primaryConstructor(Optional.<PrimaryConstructor>empty()).build());
 
       File classFile = File.createTempFile("SimpleClass", ".class");
@@ -27,7 +30,7 @@ public class ClassGeneratorTest {
    }
 
    @Test
-   public void testClassWithProperties() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+   public void testClassWithProperties() throws Exception {
       final ClassGeneratorTestHelper helper = new ClassGeneratorTestHelper("ClassWithProperties");
       Class<?> aClass = helper.loadClass();
 

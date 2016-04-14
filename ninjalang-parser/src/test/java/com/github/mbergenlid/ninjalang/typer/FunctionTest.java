@@ -14,10 +14,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FunctionTest {
 
    Typer typer;
+   SymbolTable symbolTable = Types.loadDefaults();
 
    @Before
    public void setUp() {
-      typer = new Typer();
+      typer = new Typer(symbolTable);
    }
 
    @Test
@@ -27,12 +28,12 @@ public class FunctionTest {
 
       typer.typeTree(apply);
       assertThat(apply.getFunction().getType().getIdentifier()).isEqualTo("()->ninjalang.Array");
-      assertThat(apply.getType()).isEqualTo(Types.ARRAY);
+      assertThat(apply.getType()).isEqualTo(symbolTable.lookupType(Types.ARRAY).getType());
    }
 
    @Test(expected = TypeException.class)
    public void shouldNotBeAbleToApplyOnNonFunction() {
-      typer = new Typer(SymbolTable.of(new TermSymbol("array", Types.ARRAY)));
+      typer = new Typer(SymbolTable.of(new TermSymbol("array", symbolTable.lookupType(Types.ARRAY).getType())));
       final Apply apply = new Apply(SourcePosition.NO_SOURCE,
          new Select(SourcePosition.NO_SOURCE, new Select(SourcePosition.NO_SOURCE, "array"), "size"), ImmutableList.of());
 

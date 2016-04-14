@@ -49,19 +49,22 @@ public class TyperTest {
          new Setter(SourcePosition.NO_SOURCE, "setProperty", "Int", new AssignBackingField(SourcePosition.NO_SOURCE, "property", new Select(SourcePosition.NO_SOURCE, "value")))
       );
 
-      final Typer typer = new Typer();
+      final SymbolTable symbolTable = Types.loadDefaults();
+      final Typer typer = new Typer(symbolTable);
 
       typer.typeTree(property);
-      assertThat(property.getSetter().get().getReturnType().getType()).isEqualTo(Types.UNIT);
+      assertThat(property.getSetter().get().getReturnType().getType())
+         .isEqualTo(symbolTable.lookupType("ninjalang.Unit").getType());
    }
 
    @Test
    public void testFieldGetter() {
-      final Getter getter = new Getter(SourcePosition.NO_SOURCE, "getProperty", "Int", new Select(SourcePosition.NO_SOURCE, "property"));
-      final Typer typer = new Typer(SymbolTable.of(new TermSymbol("property", Types.INT)));
+      final Getter getter = new Getter(SourcePosition.NO_SOURCE, "getProperty", "ninjalang.Int", new Select(SourcePosition.NO_SOURCE, "property"));
+      final SymbolTable symbolTable = Types.loadDefaults();
+      symbolTable.addSymbol(new TermSymbol("property", symbolTable.lookupType("ninjalang.Int").getType()));
+      final Typer typer = new Typer(symbolTable);
       typer.typeTree(getter);
 
-      assertThat(getter.getBody().get().getType()).isEqualTo(Types.INT);
+      assertThat(getter.getBody().get().getType()).isEqualTo(symbolTable.lookupType("ninjalang.Int").getType());
    }
-
 }
