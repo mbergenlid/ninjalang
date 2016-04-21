@@ -1,7 +1,9 @@
 package com.github.mbergenlid.ninjalang.jvm.builtin;
 
 import com.github.mbergenlid.ninjalang.jvm.MethodGenerator;
+import org.apache.bcel.Constants;
 import org.apache.bcel.generic.ARRAYLENGTH;
+import org.apache.bcel.generic.ArrayType;
 import org.apache.bcel.generic.InstructionFactory;
 import org.apache.bcel.generic.InstructionList;
 import org.apache.bcel.generic.Type;
@@ -30,6 +32,16 @@ public class Array implements BuiltInFunctions.BuiltInType {
          case "size":
             list.append(new ARRAYLENGTH());
             break;
+         case "copyWithNewSize":
+            list.append(
+               factory.createInvoke(
+                  "java.util.Arrays",
+                  "copyOf",
+                  new ArrayType(Type.OBJECT, 1),
+                  new Type[] {new ArrayType(Type.OBJECT, 1), Type.INT},
+                  Constants.INVOKESTATIC
+               )
+            );
       }
    }
 }

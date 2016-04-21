@@ -27,12 +27,16 @@ public abstract class Symbol {
 
    public abstract boolean isTermSymbol();
    public abstract boolean isTypeSymbol();
+   public abstract boolean isThisSymbol();
 
    public abstract String getName();
    public abstract Optional<Symbol> owner();
 
    public TermSymbol asTermSymbol() {
       return (TermSymbol) this;
+   }
+   public TypeSymbol asTypeSymbol() {
+      return (TypeSymbol) this;
    }
 
    @Override

@@ -39,6 +39,8 @@ public class Types {
             }
          }).collect(Collectors.toList());
       final TypeInterface typeInterface = new TypeInterface();
-      return typeInterface.loadSymbols(classes);
+      final SymbolTable symbolTable = typeInterface.loadSymbols(classes);
+      symbolTable.addSymbol(new TypeSymbol("ninjalang.Nothing", new Nothing()));
+      return symbolTable;
    }
 }

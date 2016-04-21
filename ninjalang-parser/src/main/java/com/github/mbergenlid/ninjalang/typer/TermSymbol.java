@@ -54,6 +54,11 @@ public class TermSymbol extends Symbol {
    }
 
    @Override
+   public boolean isThisSymbol() {
+      return name.equals("this");
+   }
+
+   @Override
    public String getName() {
       return name;
    }

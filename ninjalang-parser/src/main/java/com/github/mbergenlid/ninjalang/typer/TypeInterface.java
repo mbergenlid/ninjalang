@@ -37,9 +37,12 @@ public class TypeInterface implements TreeVisitor<Type> {
    private final List<PlaceHolderTypeInScope> placeHolders;
 
    public TypeInterface() {
-      this.symbolTable = new SymbolTable();
+      this(new SymbolTable());
+   }
+
+   public TypeInterface(SymbolTable symbolTable) {
+      this.symbolTable = symbolTable;
       this.placeHolders = new ArrayList<>();
-      symbolTable.addSymbol(new TypeSymbol("ninjalang.Nothing", new Nothing()));
    }
 
    public SymbolTable loadSymbols(List<ClassDefinition> nodes) {
@@ -49,6 +52,7 @@ public class TypeInterface implements TreeVisitor<Type> {
          p.placeHolderType.setActualType(actualType.getType());
       });
       symbolTable.importPackage(ImmutableList.of("ninjalang"));
+      symbolTable.importTerm("ninjalang");
       return symbolTable;
    }
 
@@ -90,6 +94,7 @@ public class TypeInterface implements TreeVisitor<Type> {
          classDefinition.getFullyQualifiedName(),
          Stream.concat(properties.stream(), functions.stream()).collect(Collectors.toList())
       );
+      classDefinition.setType(type);
       final TypeSymbol typeSymbol = new TypeSymbol(classDefinition.getFullyQualifiedName(), type);
       ownerSymbol.set(typeSymbol);
       final Type typeObject = createTypeObject(classDefinition, type);

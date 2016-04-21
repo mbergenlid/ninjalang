@@ -16,10 +16,14 @@ import com.github.mbergenlid.ninjalang.ast.SecondaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.SourcePosition;
 import com.github.mbergenlid.ninjalang.ast.StringLiteral;
+import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.github.mbergenlid.ninjalang.ast.visitor.AbstractVoidTreeVisitor;
 import com.github.mbergenlid.ninjalang.jvm.builtin.BuiltInFunctions;
+import com.github.mbergenlid.ninjalang.typer.Symbol;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
+import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
+import com.github.mbergenlid.ninjalang.types.FunctionType;
 import com.google.common.collect.ImmutableList;
 import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.Method;
@@ -188,14 +192,20 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
             new BuiltInFunctions.FunctionApplication(symbol, select.getQualifier().orElse(new EmptyExpression(SourcePosition.NO_SOURCE)), ImmutableList.of()), instructionList, factory);
       } else {
          if(select.getQualifier().isPresent()) {
-            select.getQualifier().get().visit(this);
+            final TreeNode node = select.getQualifier().get();
+            node.visit(this);
+         } else if(localVariables.containsKey(symbol)) {
+            instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(select.getType()), localVariables.get(symbol)));
+         } else {
+            instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
          }
          if(symbol.isPropertySymbol()) {
-            instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-            instructionList.append(factory.createGetField(classGen.getClassName(),
-               symbol.getName(), TypeConverter.fromNinjaType(symbol.getType())));
-         } else {
-            instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(select.getType()), localVariables.get(symbol)));
+            //Invoke getter...
+            final String methodName = String.format("get%s%s", symbol.getName().substring(0, 1).toUpperCase(),
+               symbol.getName().substring(1));
+            final String className = symbol.owner().get().getName();
+            instructionList.append(factory.createInvoke(
+               className, methodName, TypeConverter.fromNinjaType(select.getType()), new Type[]{}, Constants.INVOKEVIRTUAL));
          }
       }
       return null;
@@ -208,7 +218,34 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
          final TermSymbol functionSymbol = instance.getSymbol();
          if(builtInFunctions.contains(functionSymbol)) {
             builtInFunctions.getBuiltInType(functionSymbol, this).generate(
-               new BuiltInFunctions.FunctionApplication(functionSymbol, instance.getQualifier().orElse(new EmptyExpression(SourcePosition.NO_SOURCE)), apply.getArguments()), instructionList, factory);
+               new BuiltInFunctions.FunctionApplication(
+                  functionSymbol,
+                  instance.getQualifier().orElse(new EmptyExpression(SourcePosition.NO_SOURCE)),
+                  apply.getArguments()
+               ), instructionList, factory);
+         } else {
+            instance.visit(this);
+            final FunctionType functionType = functionSymbol.getType().asFunctionType();
+            final Type[] argTypes = apply.getArguments().stream()
+               .map(a -> TypeConverter.fromNinjaType(a.getType()))
+               .toArray(Type[]::new);
+            apply.getArguments().stream().forEach(a -> a.visit(this));
+            functionSymbol.owner()
+               .filter(Symbol::isTypeSymbol)
+               .map(Symbol::asTypeSymbol)
+               .map(TypeSymbol::getType)
+               .map(com.github.mbergenlid.ninjalang.typer.Type::getIdentifier)
+               .ifPresent(className ->
+                  instructionList.append(
+                     factory.createInvoke(
+                     className,
+                     functionSymbol.getName(),
+                     TypeConverter.fromNinjaType(functionType.getReturnType()),
+                     argTypes,
+                     Constants.INVOKEVIRTUAL
+                  )
+               ));
+            //factory.createInvoke()
          }
       }
       return null;

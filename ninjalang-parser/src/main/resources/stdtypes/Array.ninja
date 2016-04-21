@@ -3,6 +3,9 @@ package ninjalang;
 class Array ofSize(size: Int) {
     constructor empty();
     val size: Int;
+
     native def get(x: Int): Any
     native def set(x: Int, v: Any): Unit
+
+    native def copyWithNewSize(newSize: Int): Array
 }

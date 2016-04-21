@@ -30,6 +30,11 @@ public class SymbolSupplier extends Symbol {
    }
 
    @Override
+   public boolean isThisSymbol() {
+      return symbol().isThisSymbol();
+   }
+
+   @Override
    public String getName() {
       return symbol().getName();
    }

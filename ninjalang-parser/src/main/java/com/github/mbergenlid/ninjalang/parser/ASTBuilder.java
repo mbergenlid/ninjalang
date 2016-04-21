@@ -276,8 +276,6 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
          );
       } else if(ctx.statementExpression != null) {
          return visitExpression(ctx.expression());
-      } else if(ctx.block() != null) {
-         return visitBlock(ctx.block());
       }
       return super.visitStatement(ctx);
    }
@@ -333,6 +331,8 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
             select,
             ImmutableList.of((Expression)visitExpression(ctx.expression(1)))
          );
+      } else if(ctx.block() != null) {
+         return visitBlock(ctx.block());
       }
       return visitAddExpression(ctx.addExpression());
    }

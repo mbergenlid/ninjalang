@@ -32,6 +32,11 @@ public class TypeSymbol extends Symbol {
    }
 
    @Override
+   public boolean isThisSymbol() {
+      return false;
+   }
+
+   @Override
    public String getName() {
       return name;
    }

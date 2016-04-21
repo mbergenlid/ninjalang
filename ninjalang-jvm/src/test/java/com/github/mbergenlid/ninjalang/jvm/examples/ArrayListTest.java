@@ -53,7 +53,7 @@ public class ArrayListTest {
       assertThat(newSize).isEqualTo(2);
    }
 
-   @Ignore
+   @Test
    public void testIncreaseCapacity() throws IOException, ClassNotFoundException {
       ClassGeneratorTestHelper arrayList = new ClassGeneratorTestHelper("/examples", "ArrayList");
       arrayList.loadClass();

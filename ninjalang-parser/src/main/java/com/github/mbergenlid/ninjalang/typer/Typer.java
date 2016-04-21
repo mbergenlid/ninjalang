@@ -24,7 +24,6 @@ import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 import com.github.mbergenlid.ninjalang.types.FunctionType;
-import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,12 +71,15 @@ public class Typer implements TreeVisitor<Void> {
 
    @Override
    public Void visit(ClassDefinition classDefinition) {
+      symbolTable.newScope();
+      symbolTable.addSymbol(new TermSymbol("this", classDefinition.getType()));
+      symbolTable.importPackage("ninjalang");
+      symbolTable.importTerm("ninjalang");
+      classDefinition.getType().termMembers().stream()
+         .forEach(symbolTable::addSymbol);
       classDefinition.getPrimaryConstructor().ifPresent(pc -> pc.visit(this));
       classDefinition.getBody().ifPresent(b -> b.visit(this));
-      final List<Symbol> termSymbols = classDefinition.getBody().get().getFunctions().stream()
-         .map(f -> new TermSymbol(f.getName(), f.getType()))
-         .collect(Collectors.toList());
-      classDefinition.setType(Type.fromIdentifier(classDefinition.getName(), termSymbols));
+      symbolTable.exitScope();
       return null;
    }
 
@@ -96,7 +98,6 @@ public class Typer implements TreeVisitor<Void> {
    public Void visit(Property property) {
       property.assignSymbol(symbolTable.lookupType(property.getTypeName()));
       final Type declaredType = property.getPropertyType().getType();
-      symbolTable.newTermSymbol(property.getName(), declaredType);
 
       symbolTable.newScope();
       property.getInitialValue().visit(this);
@@ -117,7 +118,6 @@ public class Typer implements TreeVisitor<Void> {
       property.setType(declaredType);
       symbolTable.exitScope();
 
-      symbolTable.addSymbol(TermSymbol.propertyTermSymbol(property.getName(), property.getType()));
       return null;
    }
 
@@ -125,11 +125,6 @@ public class Typer implements TreeVisitor<Void> {
    public Void visit(FunctionDefinition functionDefinition) {
       symbolTable.newScope();
       functionDefinition.getArgumentList().stream().forEach(a -> a.visit(this));
-      functionDefinition.getArgumentList().stream().forEach(a -> {
-         final Type type = symbolTable.lookupType(a.getDeclaredType().getName()).getType();
-         a.getSymbol().setType(type);
-         symbolTable.addSymbol(a.getSymbol());
-      });
 
       functionDefinition.assignTypeSymbol(symbolTable.lookupType(functionDefinition.getReturnTypeName()));
       final Type declaredType = functionDefinition.getReturnType().getType();
@@ -151,10 +146,6 @@ public class Typer implements TreeVisitor<Void> {
          functionDefinition.getArgumentList().stream().map(Argument::getType).collect(Collectors.toList()),
          () -> functionDefinition.getReturnType().getType()
       ));
-      symbolTable.addSymbol(new TermSymbol(
-         functionDefinition.getName(),
-         functionDefinition.getType()
-         ));
       return null;
    }
 
@@ -262,9 +253,10 @@ public class Typer implements TreeVisitor<Void> {
 
    @Override
    public Void visit(ValDef valDef) {
-      visit(valDef.getValue());
+      valDef.getValue().visit(this);
       final Type inferredType = valDef.getValue().getType();
       symbolTable.addSymbol(TermSymbol.localValTermSymbol(valDef.getName(), inferredType));
+      valDef.setType(symbolTable.lookupType("ninjalang.Unit").getType());
       return null;
    }
 

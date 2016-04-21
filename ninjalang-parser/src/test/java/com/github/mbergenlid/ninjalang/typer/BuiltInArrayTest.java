@@ -3,6 +3,7 @@ package com.github.mbergenlid.ninjalang.typer;
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
 import com.github.mbergenlid.ninjalang.parser.Parser;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -21,7 +22,8 @@ public class BuiltInArrayTest {
 
    private ClassDefinition parseAndTypeCheck(final String name) throws IOException {
       final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream(name));
-      new Typer().typeTree(classDefinition);
+      final SymbolTable symbolTable = new TypeInterface(Types.loadDefaults()).loadSymbols(ImmutableList.of(classDefinition));
+      new Typer(symbolTable).typeTree(classDefinition);
       return classDefinition;
    }
 }

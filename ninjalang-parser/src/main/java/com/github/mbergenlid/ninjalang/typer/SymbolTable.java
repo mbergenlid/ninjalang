@@ -20,7 +20,6 @@ public class SymbolTable {
    public SymbolTable() {
       typeScopes = new Scope<>(null);
       termScopes = new Scope<>(null);
-      addSymbol(new TermSymbol("this"));
    }
 
    public static SymbolTable withPredefinedTypes() {
@@ -120,7 +119,7 @@ public class SymbolTable {
 
       public void addSymbol(final T symbol) {
          if(symbols.containsKey(symbol.getName())) {
-            throw new IllegalArgumentException("Scope already contains type symbol " + symbol.getName());
+            throw new IllegalArgumentException("Scope already contains symbol " + symbol.getName());
          }
          symbols.put(symbol.getName(), symbol);
       }

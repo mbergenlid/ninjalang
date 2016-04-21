@@ -11,14 +11,15 @@ class ArrayList {
     def set(i: Int, value: Any): Unit = array[i] = value;
 
     def add(x: Any): Unit = {
+        this.ensureCapacity(size+1);
         array[size] = x;
         size = size + 1;
     }
 
-    //private def ensureCapacity(newCapacity: Int): Unit = {
-    //    if(newCapacity > capacity) {
-    //        val newArray = Array.ofSize(newCapacity);
-    //    }
-    //}
+    private def ensureCapacity(newCapacity: Int): Unit = {
+        if(newCapacity > capacity) {
+            array = array.copyWithNewSize(newCapacity);
+        }
+    }
 
 }

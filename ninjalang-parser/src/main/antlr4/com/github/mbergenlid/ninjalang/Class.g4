@@ -58,7 +58,6 @@ accessModifier:
 statement
     :   declaration='val' Identifier ('=' expression)? ';'
     |   statementExpression=expression ';'?
-    |   block
     ;
 
 block
@@ -70,6 +69,7 @@ expression
     |   '(' parenExpression=expression ')'
     |   lessThan=expression '<' expression
     |   greaterThan=expression '>' expression
+    |   block
     |   addExpression
     ;
 
