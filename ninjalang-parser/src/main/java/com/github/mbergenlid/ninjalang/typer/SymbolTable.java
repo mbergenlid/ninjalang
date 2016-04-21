@@ -14,10 +14,12 @@ import java.util.stream.StreamSupport;
 
 public class SymbolTable {
 
-   private Scope scopes;
+   private Scope<TypeSymbol> typeScopes;
+   private Scope<TermSymbol> termScopes;
 
    public SymbolTable() {
-      scopes = new Scope(null);
+      typeScopes = new Scope<>(null);
+      termScopes = new Scope<>(null);
       addSymbol(new TermSymbol("this"));
    }
 
@@ -32,7 +34,7 @@ public class SymbolTable {
    }
 
    protected TermSymbol newTermSymbol(final String name, final Type type) {
-      if(scopes.hasTermSymbol(name)) {
+      if(termScopes.hasSymbol(name)) {
          throw new TypeException(String.format("%s has already been defined in this scope", name));
       }
       final TermSymbol termSymbol = new TermSymbol(name, type);
@@ -41,11 +43,7 @@ public class SymbolTable {
    }
 
    public boolean hasType(final String name) {
-      return scopes.stream().filter(scope -> scope.typeSymbols.containsKey(name)).findFirst().isPresent();
-   }
-
-   public boolean hasTerm(final String name) {
-      return scopes.stream().filter(scope -> scope.termSymbols.containsKey(name)).findFirst().isPresent();
+      return typeScopes.stream().filter(scope -> scope.hasSymbol(name)).findFirst().isPresent();
    }
 
    public TypeSymbol lookupType(final String name) {
@@ -54,16 +52,16 @@ public class SymbolTable {
    }
 
    public Optional<TypeSymbol> lookupTypeOptional(final String name) {
-      return scopes.stream()
-         .map(scope -> scope.getTypeSymbol(name))
+      return typeScopes.stream()
+         .map(scope -> scope.getSymbol(name))
          .filter(Optional::isPresent)
          .map(Optional::get)
          .findFirst();
    }
 
    public Optional<TermSymbol> lookupTermOptional(final String name) {
-      return scopes.stream()
-         .map(scope -> scope.getTermSymbol(name))
+      return termScopes.stream()
+         .map(scope -> scope.getSymbol(name))
          .filter(Optional::isPresent)
          .map(Optional::get)
          .findFirst();
@@ -75,88 +73,86 @@ public class SymbolTable {
    }
 
    public void addSymbol(final Symbol symbol) {
-      scopes.addSymbol(symbol);
+      if(symbol instanceof TypeSymbol) {
+         typeScopes.addSymbol((TypeSymbol) symbol);
+      } else {
+         termScopes.addSymbol((TermSymbol) symbol);
+      }
    }
 
    public void newScope() {
-      scopes = new Scope(scopes);
+      typeScopes = new Scope<>(typeScopes);
+      termScopes = new Scope<>(termScopes);
    }
 
    public void exitScope() {
-      scopes = scopes.parentScope;
+      typeScopes = typeScopes.parentScope;
+      termScopes = termScopes.parentScope;
    }
 
    public void importPackage(List<String> ninjaPackage) {
-      scopes.addPackageImport(ninjaPackage.stream().collect(Collectors.joining(".")));
+      typeScopes.addImport(ninjaPackage.stream().collect(Collectors.joining(".")));
+   }
+
+   public void importPackage(String ninjaPackage) {
+      typeScopes.addImport(ninjaPackage);
+   }
+
+   public void importTerm(String term) {
+      termScopes.addImport(term);
    }
 
    public SymbolTable copy() {
       final SymbolTable symbolTable = new SymbolTable();
-      symbolTable.scopes = this.scopes;
+      symbolTable.typeScopes = this.typeScopes;
+      symbolTable.termScopes = this.termScopes;
       return symbolTable;
    }
 
-   protected class Scope {
-      private final Scope parentScope;
-      private final Map<String, TypeSymbol> typeSymbols = new HashMap<>();
-      private final Map<String, TermSymbol> termSymbols = new HashMap<>();
-      private final List<String> packageImports = new ArrayList<>();
+   protected class Scope<T extends Symbol> {
+      private final Scope<T> parentScope;
+      private final Map<String, T> symbols = new HashMap<>();
+      private final List<String> imports = new ArrayList<>();
 
-      public Scope(Scope parentScope) {
+      public Scope(Scope<T> parentScope) {
          this.parentScope = parentScope;
       }
 
-      public void addSymbol(final Symbol symbol) {
-         if(symbol instanceof TypeSymbol) {
-            typeSymbols.put(symbol.getName(), (TypeSymbol) symbol);
-         } else {
-            termSymbols.put(symbol.getName(), (TermSymbol) symbol);
+      public void addSymbol(final T symbol) {
+         if(symbols.containsKey(symbol.getName())) {
+            throw new IllegalArgumentException("Scope already contains type symbol " + symbol.getName());
          }
+         symbols.put(symbol.getName(), symbol);
       }
 
-      public boolean hasTermSymbol(final String name) {
-         return termSymbols.containsKey(name);
+      public boolean hasSymbol(final String name) {
+         return symbols.containsKey(name);
       }
 
-      public void addPackageImport(String ninjaPackage) {
-         packageImports.add(ninjaPackage);
+      public void addImport(String importString) {
+         imports.add(importString);
       }
 
-      public Optional<TermSymbol> getTermSymbol(String name) {
-         if(termSymbols.containsKey(name)) {
-            return Optional.of(termSymbols.get(name));
+      public Optional<T> getSymbol(String name) {
+         if(symbols.containsKey(name)) {
+            return Optional.of(symbols.get(name));
          } else {
-            return packageImports.stream()
+            return imports.stream()
                .flatMap(p -> {
                   final String symbolName = String.format("%s.%s", p, name);
                   return this.stream()
-                     .filter(s -> s.termSymbols.containsKey(symbolName))
-                     .map(s -> s.termSymbols.get(symbolName));
+                     .filter(s -> s.symbols.containsKey(symbolName))
+                     .map(s -> s.symbols.get(symbolName));
                })
                .findFirst();
          }
       }
 
-      public Optional<TypeSymbol> getTypeSymbol(String name) {
-         if(typeSymbols.containsKey(name)) {
-            return Optional.of(typeSymbols.get(name));
-         } else {
-            return packageImports.stream()
-               .flatMap(p -> {
-                  final String symbolName = String.format("%s.%s", p, name);
-                  return this.stream()
-                     .filter(s -> s.typeSymbols.containsKey(symbolName))
-                     .map(s -> s.typeSymbols.get(symbolName));
-               })
-               .findFirst();
-         }
-      }
-
-      public Stream<Scope> stream() {
-         return StreamSupport.stream(new Spliterators.AbstractSpliterator<Scope>(Long.MAX_VALUE, 0) {
-            private Scope scope = Scope.this;
+      public Stream<Scope<T>> stream() {
+         return StreamSupport.stream(new Spliterators.AbstractSpliterator<Scope<T>>(Long.MAX_VALUE, 0) {
+            private Scope<T> scope = Scope.this;
             @Override
-            public boolean tryAdvance(Consumer<? super Scope> action) {
+            public boolean tryAdvance(Consumer<? super Scope<T>> action) {
                if(scope == null) {
                   return false;
                }
