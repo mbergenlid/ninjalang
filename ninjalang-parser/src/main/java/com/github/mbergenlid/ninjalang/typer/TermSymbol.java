@@ -6,7 +6,6 @@ public class TermSymbol extends Symbol {
 
    public static final TermSymbol NO_SYMBOL = new TermSymbol("<no-symbol", Type.NO_TYPE);
 
-   private boolean propertySymbol = false;
    private boolean valSymbol = false;
    private final Optional<DeferredSymbol> owner;
    private final String name;
@@ -25,16 +24,8 @@ public class TermSymbol extends Symbol {
       this.owner = Optional.ofNullable(owner);
    }
 
-   public static TermSymbol propertyTermSymbol(String name, Type type) {
-      TermSymbol termSymbol = new TermSymbol(name, type);
-      termSymbol.propertySymbol = true;
-      return termSymbol;
-   }
-
-   public static TermSymbol propertyTermSymbol(String name, Type type, DeferredSymbol owner) {
-      TermSymbol termSymbol = new TermSymbol(name, type, owner);
-      termSymbol.propertySymbol = true;
-      return termSymbol;
+   public static PropertySymbol propertyTermSymbol(String name, Type type, DeferredSymbol owner) {
+      return new PropertySymbol(name, type, owner);
    }
 
    public static TermSymbol localValTermSymbol(String name, Type type) {
@@ -74,7 +65,11 @@ public class TermSymbol extends Symbol {
    }
 
    public boolean isPropertySymbol() {
-      return propertySymbol;
+      return this instanceof PropertySymbol;
+   }
+
+   public PropertySymbol asPropertySymbol() {
+      return (PropertySymbol) this;
    }
 
    public boolean isValSymbol() {

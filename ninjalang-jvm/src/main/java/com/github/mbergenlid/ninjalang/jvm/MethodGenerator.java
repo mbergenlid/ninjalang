@@ -20,6 +20,7 @@ import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.github.mbergenlid.ninjalang.ast.visitor.AbstractVoidTreeVisitor;
 import com.github.mbergenlid.ninjalang.jvm.builtin.BuiltInFunctions;
+import com.github.mbergenlid.ninjalang.typer.PropertySymbol;
 import com.github.mbergenlid.ninjalang.typer.Symbol;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
@@ -201,9 +202,9 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
          }
          if(symbol.isPropertySymbol()) {
             //Invoke getter...
-            final String methodName = String.format("get%s%s", symbol.getName().substring(0, 1).toUpperCase(),
-               symbol.getName().substring(1));
-            final String className = symbol.owner().get().getName();
+            final PropertySymbol propertySymbol = symbol.asPropertySymbol();
+            final String methodName = propertySymbol.getterName();
+            final String className = propertySymbol.owningType().getName();
             instructionList.append(factory.createInvoke(
                className, methodName, TypeConverter.fromNinjaType(select.getType()), new Type[]{}, Constants.INVOKEVIRTUAL));
          }
