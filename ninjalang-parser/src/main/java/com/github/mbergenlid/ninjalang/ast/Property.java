@@ -28,27 +28,22 @@ public class Property extends TreeNode {
       this.typeName = propertyType;
       this.propertyType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);
       this.initialValue = initialValue;
-      final String getterName = setter != null ?
-         String.format("get%s%s", name.substring(0,1).toUpperCase(), name.substring(1)) : name;
       if(setter == null) {
-         this.getter = new Getter(sourcePosition, getterName, propertyType, initialValue);
+         this.getter = new Getter(sourcePosition, name, propertyType, initialValue);
       } else {
-         this.getter = new Getter(sourcePosition, getterName, propertyType, new AccessBackingField(sourcePosition, name));
+         this.getter = new Getter(sourcePosition, name, propertyType, new AccessBackingField(sourcePosition, name));
       }
       this.setter = Optional.ofNullable(setter);
    }
 
-   public Property(final SourcePosition sourcePosition, String name, String propertyType, Expression initialValue, Getter getter, Setter setter) {
-      super(sourcePosition);
-      this.name = name;
-      this.typeName = propertyType;
-      this.propertyType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);
-      this.initialValue = initialValue;
-      this.getter = getter;
-      this.setter = Optional.of(setter);
-   }
-
-   public Property(final SourcePosition sourcePosition, String name, String propertyType, Expression initialValue, Getter getter, Optional<Setter> setter) {
+   public Property(
+      final SourcePosition sourcePosition,
+      String name,
+      String propertyType,
+      Expression initialValue,
+      Getter getter,
+      Optional<Setter> setter
+   ) {
       super(sourcePosition);
       this.name = name;
       this.typeName = propertyType;

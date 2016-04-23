@@ -30,17 +30,20 @@ public class BasicParserTest {
 
    @Test
    public void testClassWithProperties() throws IOException {
-      ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/ClassWithProperties.ninja"));
+      ClassDefinition classDefinition = Parser.classDefinition(getClass()
+         .getResourceAsStream("/ClassWithProperties.ninja"));
       assertThat(classDefinition.getName()).isEqualTo("ClassWithProperties");
       assertThat(classDefinition.getPrimaryConstructor()).isEmpty();
       assertThat(classDefinition.getBody()).isPresent();
       assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
-         new Property(NO_SOURCE, "name", "String", new StringLiteral(NO_SOURCE, "hello"), new Getter(NO_SOURCE, "getName", "String", new StringLiteral(NO_SOURCE, "hello")), Optional.empty()),
-         new Property(NO_SOURCE, "prop", "Int", new IntLiteral(NO_SOURCE, 42), new Getter(NO_SOURCE, "getProp", "Int", new IntLiteral(NO_SOURCE, 42)), Optional.empty()),
+         new Property(NO_SOURCE, "name", "String", new StringLiteral(NO_SOURCE, "hello"),
+            new Getter(NO_SOURCE, "name", "String", new StringLiteral(NO_SOURCE, "hello")), Optional.empty()),
+         new Property(NO_SOURCE, "prop", "Int", new IntLiteral(NO_SOURCE, 42),
+            new Getter(NO_SOURCE, "prop", "Int", new IntLiteral(NO_SOURCE, 42)), Optional.empty()),
          new Property(NO_SOURCE, "mutableProperty", "Int", new IntLiteral(NO_SOURCE, 1),
             new Setter(
                NO_SOURCE,
-               "setMutableProperty",
+               "mutableProperty",
                "Int",
                new AssignBackingField(NO_SOURCE, "mutableProperty", new Select(NO_SOURCE, "value")))
             )
@@ -49,7 +52,8 @@ public class BasicParserTest {
 
    @Test
    public void testClassWithPrivateProperty() throws IOException {
-      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/ClassWithPrivateProperty.ninja"));
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass()
+         .getResourceAsStream("/ClassWithPrivateProperty.ninja"));
       assertThat(classDefinition.getName()).isEqualTo("ClassWithPrivateProperty");
 
       final List<Property> properties = classDefinition.getBody().get().getProperties();
@@ -60,7 +64,8 @@ public class BasicParserTest {
          .hasTypeName("Int")
          .hasInitialValue(new IntLiteral(NO_SOURCE, 1))
          .hasGetter(
-            new Getter(NO_SOURCE, AccessModifier.PRIVATE, "getProperty", "Int", new AccessBackingField(NO_SOURCE, "property"))
+            new Getter(NO_SOURCE, AccessModifier.PRIVATE, "property", "Int",
+               new AccessBackingField(NO_SOURCE, "property"))
          )
          ;
       assertThat(property.getSetter()).isPresent();
@@ -68,7 +73,7 @@ public class BasicParserTest {
       SetterAssert.assertThat(setter)
          .hasAccessModifier(AccessModifier.PRIVATE)
          .hasArgumentList(new Argument(NO_SOURCE, "value", "Int"))
-         .hasName("setProperty")
+         .hasName("property")
          .hasReturnTypeName("Unit")
          ;
       AssignBackingFieldAssert.assertThat((AssignBackingField) setter.getBody().get())
@@ -83,7 +88,8 @@ public class BasicParserTest {
       assertThat(classDefinition.getBody().get().getProperties()).isNotEmpty();
       final Property property1 = classDefinition.getBody().get().getProperties().get(0);
       assertThat(property1.getInitialValue()).isEqualTo(
-         new Apply(NO_SOURCE, new Select(NO_SOURCE, new Select(NO_SOURCE, "Array"), "ofSize"), ImmutableList.of(new IntLiteral(NO_SOURCE, 10)))
+         new Apply(NO_SOURCE, new Select(NO_SOURCE, new Select(NO_SOURCE, "Array"), "ofSize"),
+            ImmutableList.of(new IntLiteral(NO_SOURCE, 10)))
       );
       final Property property2 = classDefinition.getBody().get().getProperties().get(1);
       assertThat(property2.getInitialValue()).isEqualTo(
@@ -93,36 +99,41 @@ public class BasicParserTest {
 
    @Test
    public void testPropertyWithGetter() throws IOException {
-      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/PropertyWithoutBackingField.ninja"));
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass()
+         .getResourceAsStream("/PropertyWithoutBackingField.ninja"));
       assertThat(classDefinition.getBody().get().getProperties()).isNotEmpty();
       final Property property2 = classDefinition.getBody().get().getProperties().get(1);
       assertThat(property2.getInitialValue()).isEqualTo(new EmptyExpression(NO_SOURCE));
       assertThat(property2.getGetter()).isEqualTo(
-         new Getter(NO_SOURCE, "getSize", "Int", new Select(NO_SOURCE, new Select(NO_SOURCE, "array"), "size"))
+         new Getter(NO_SOURCE, "size", "Int", new Select(NO_SOURCE, new Select(NO_SOURCE, "array"), "size"))
       );
       assertThat(property2.getSetter()).isEqualTo(Optional.empty());
    }
 
    @Test
    public void testPropertyWithPrivateSetter() throws IOException {
-      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/PropertyModifiers.ninja"));
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass()
+         .getResourceAsStream("/PropertyModifiers.ninja"));
       assertThat(classDefinition.getBody().get().getProperties()).isNotEmpty();
       final Property property1 = classDefinition.getBody().get().getProperties().get(0);
       assertThat(property1.getInitialValue()).isEqualTo(new IntLiteral(NO_SOURCE, 5));
       assertThat(property1.getGetter()).isEqualTo(
-         new Getter(NO_SOURCE, "getSize", "Int", new AccessBackingField(NO_SOURCE, "size"))
+         new Getter(NO_SOURCE, "size", "Int", new AccessBackingField(NO_SOURCE, "size"))
       );
       assertThat(property1.getSetter()).isPresent();
       assertThat(property1.getSetter().get()).isEqualTo(
-         new Setter(NO_SOURCE, AccessModifier.PRIVATE, "setSize", "Int", new AssignBackingField(NO_SOURCE, "size", new Select(NO_SOURCE, "value")))
+         new Setter(NO_SOURCE, AccessModifier.PRIVATE, "size", "Int",
+            new AssignBackingField(NO_SOURCE, "size", new Select(NO_SOURCE, "value")))
       );
    }
 
    @Test
    public void plusOperator() throws IOException {
-      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/Functions.ninja"));
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass()
+         .getResourceAsStream("/Functions.ninja"));
       final FunctionDefinition f1 =
-         classDefinition.getBody().get().getFunctions().stream().filter(f -> f.getName().equals("addOne")).findAny().get();
+         classDefinition.getBody().get().getFunctions().stream()
+            .filter(f -> f.getName().equals("addOne")).findAny().get();
       final Expression body = f1.getBody().get();
       assertThat(body).isEqualTo(
          new Apply(

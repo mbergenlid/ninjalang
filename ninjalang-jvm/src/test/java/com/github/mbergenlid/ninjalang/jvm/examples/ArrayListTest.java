@@ -41,15 +41,15 @@ public class ArrayListTest {
       arrayList.loadClass();
       ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
 
-      int initialSize = (int) proxy.invoke("getSize");
+      int initialSize = (int) proxy.invoke("size");
       assertThat(initialSize).isEqualTo(0);
 
       proxy.invoke("add", arg(Object.class, "Hello"));
-      int newSize = (int) proxy.invoke("getSize");
+      int newSize = (int) proxy.invoke("size");
       assertThat(newSize).isEqualTo(1);
 
       proxy.invoke("add", arg(Object.class, "World"));
-      newSize = (int) proxy.invoke("getSize");
+      newSize = (int) proxy.invoke("size");
       assertThat(newSize).isEqualTo(2);
    }
 
@@ -59,13 +59,13 @@ public class ArrayListTest {
       arrayList.loadClass();
       ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
 
-      int initialSize = (int) proxy.invoke("getSize");
+      int initialSize = (int) proxy.invoke("size");
       assertThat(initialSize).isEqualTo(0);
 
       for(int i = 0; i < 11; i++) {
          proxy.invoke("add", arg(Object.class, "Hello"));
       }
-      int newSize = (int) proxy.invoke("getSize");
+      int newSize = (int) proxy.invoke("size");
       assertThat(newSize).isEqualTo(11);
    }
 
@@ -75,7 +75,7 @@ public class ArrayListTest {
       arrayList.loadClass();
       ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
 
-      final int initialCapacity = (int) proxy.invoke("getCapacity");
+      final int initialCapacity = (int) proxy.invoke("capacity");
       assertThat(initialCapacity).isEqualTo(10);
    }
 }

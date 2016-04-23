@@ -37,18 +37,18 @@ public class ClassGeneratorTest {
       assertThat(aClass.getName()).isEqualTo("ClassWithProperties");
 
       Object instance = aClass.newInstance();
-      Method name = aClass.getMethod("getName");
+      Method name = aClass.getMethod("name");
       String result = (String) name.invoke(instance);
       assertThat(result).isEqualTo("hello");
 
-      Method prop = aClass.getMethod("getProp");
+      Method prop = aClass.getMethod("prop");
       int intResult = (int) prop.invoke(instance);
       assertThat(intResult).isEqualTo(42);
 
-      final Method getMutableProperty = aClass.getMethod("getMutableProperty");
+      final Method getMutableProperty = aClass.getMethod("mutableProperty");
       final int originalValue = (int) getMutableProperty.invoke(instance);
       assertThat(originalValue).isEqualTo(1);
-      final Method setMutableProperty = aClass.getMethod("setMutableProperty", int.class);
+      final Method setMutableProperty = aClass.getMethod("mutableProperty", int.class);
       setMutableProperty.invoke(instance, 5);
       final int updatedValue = (int) getMutableProperty.invoke(instance);
       assertThat(updatedValue).isEqualTo(5);
@@ -60,14 +60,14 @@ public class ClassGeneratorTest {
       arrayList.loadClass();
       ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
 
-      final int originalValue = (int) proxy.invoke("getMutableProperty");
+      final int originalValue = (int) proxy.invoke("mutableProperty");
       assertThat(originalValue).isEqualTo(1);
 
       proxy.invoke("trySetMutableProperty", arg(int.class, 9));
-      assertThat(proxy.invoke("getMutableProperty")).isEqualTo(1);
+      assertThat(proxy.invoke("mutableProperty")).isEqualTo(1);
 
       proxy.invoke("trySetMutableProperty", arg(int.class, 11));
-      assertThat(proxy.invoke("getMutableProperty")).isEqualTo(11);
+      assertThat(proxy.invoke("mutableProperty")).isEqualTo(11);
    }
 
    @Test

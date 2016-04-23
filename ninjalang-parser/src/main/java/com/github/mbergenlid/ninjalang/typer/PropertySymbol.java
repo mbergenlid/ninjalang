@@ -11,6 +11,6 @@ public class PropertySymbol extends TermSymbol {
    }
 
    public String getterName() {
-      return String.format("get%s%s", getName().substring(0, 1).toUpperCase(), getName().substring(1));
+      return getName();
    }
 }

@@ -139,7 +139,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
             : new Getter(
                SourcePosition.fromParserContext(ctx),
                AccessModifier.valueOf(accessModifier.toUpperCase()),
-               String.format("get%s%s", name.substring(0, 1).toUpperCase(), name.substring(1)),
+               name,
                declaredType, initialValue
             )
          ;
@@ -166,7 +166,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       return new Getter(
          sourcePosition,
          AccessModifier.valueOf(accessModifier.toUpperCase()),
-         String.format("get%s%s", name.substring(0, 1).toUpperCase(), name.substring(1)),
+         name,
          declaredType, new AccessBackingField(sourcePosition, name)
       );
    }
@@ -175,7 +175,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       return new Setter(
          sourcePosition,
          AccessModifier.valueOf(accessModifier.toUpperCase()),
-         String.format("set%s%s", name.substring(0, 1).toUpperCase(), name.substring(1)),
+         name,
          declaredType, new AssignBackingField(sourcePosition, name, new Select(sourcePosition, "value"))
       );
    }
@@ -204,7 +204,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       return new Getter(
          sourcePosition,
          AccessModifier.valueOf(accessModifier.toUpperCase()),
-         String.format("get%s%s", propertyName.substring(0,1).toUpperCase(), propertyName.substring(1)),
+         propertyName,
          propertyType, body
       );
    }
@@ -212,16 +212,23 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
    private Setter createSetter(final String propertyName, final String propertyType, final String propertyModifier,
                                final String propertyAccessModifier, final Expression initialValue,
                                final ClassParser.AccessorContext ctx, SourcePosition sourcePosition) {
-      final String accessModifier = ctx.accessModifier() != null ? ctx.accessModifier().getText() : propertyAccessModifier;
+      final String accessModifier = ctx.accessModifier() != null
+         ? ctx.accessModifier().getText()
+         : propertyAccessModifier
+         ;
       final boolean isVar = propertyModifier.equals("var");
       final boolean hasInitialValue = !initialValue.equals(new EmptyExpression(SourcePosition.fromParserContext(ctx)));
       final Expression body = ctx.expression() != null
          ? (Expression) visit(ctx.expression())
-         : ((isVar && hasInitialValue) ? new AssignBackingField(SourcePosition.fromParserContext(ctx), propertyName, new Select(SourcePosition.fromParserContext(ctx), "value")) : new EmptyExpression(SourcePosition.fromParserContext(ctx)));
+         : ((isVar && hasInitialValue)
+            ? new AssignBackingField(SourcePosition.fromParserContext(ctx), propertyName,
+               new Select(SourcePosition.fromParserContext(ctx), "value"))
+            : new EmptyExpression(SourcePosition.fromParserContext(ctx))
+         );
       return new Setter(
          sourcePosition,
          AccessModifier.valueOf(accessModifier.toUpperCase()),
-         String.format("set%s%s", propertyName.substring(0,1).toUpperCase(), propertyName.substring(1)),
+         propertyName,
          propertyType, body
       );
    }
