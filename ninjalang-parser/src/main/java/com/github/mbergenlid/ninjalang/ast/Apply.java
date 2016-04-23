@@ -10,10 +10,10 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class Apply extends Statement {
 
-   private final Expression function;
+   private final Select function;
    private final List<Expression> arguments;
 
-   public Apply(final SourcePosition sourcePosition, Expression function, List<Expression> arguments) {
+   public Apply(final SourcePosition sourcePosition, Select function, List<Expression> arguments) {
       super(sourcePosition);
       this.function = function;
       this.arguments = arguments;
@@ -31,7 +31,7 @@ public class Apply extends Statement {
       visit(visitor);
    }
 
-   public Expression getFunction() {
+   public Select getFunction() {
       return function;
    }
 

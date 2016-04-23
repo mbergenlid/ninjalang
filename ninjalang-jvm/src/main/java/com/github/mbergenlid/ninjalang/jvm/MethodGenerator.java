@@ -214,40 +214,37 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
 
    @Override
    public Void visit(Apply apply) {
-      if(apply.getFunction() instanceof Select) {
-         final Select instance = (Select) apply.getFunction();
-         final TermSymbol functionSymbol = instance.getSymbol();
-         if(builtInFunctions.contains(functionSymbol)) {
-            builtInFunctions.getBuiltInType(functionSymbol, this).generate(
-               new BuiltInFunctions.FunctionApplication(
-                  functionSymbol,
-                  instance.getQualifier().orElse(new EmptyExpression(SourcePosition.NO_SOURCE)),
-                  apply.getArguments()
-               ), instructionList, factory);
-         } else {
-            instance.visit(this);
-            final FunctionType functionType = functionSymbol.getType().asFunctionType();
-            final Type[] argTypes = apply.getArguments().stream()
-               .map(a -> TypeConverter.fromNinjaType(a.getType()))
-               .toArray(Type[]::new);
-            apply.getArguments().stream().forEach(a -> a.visit(this));
-            functionSymbol.owner()
-               .filter(Symbol::isTypeSymbol)
-               .map(Symbol::asTypeSymbol)
-               .map(TypeSymbol::getType)
-               .map(com.github.mbergenlid.ninjalang.typer.Type::getIdentifier)
-               .ifPresent(className ->
-                  instructionList.append(
-                     factory.createInvoke(
-                     className,
-                     functionSymbol.getName(),
-                     TypeConverter.fromNinjaType(functionType.getReturnType()),
-                     argTypes,
-                     Constants.INVOKEVIRTUAL
-                  )
-               ));
-            //factory.createInvoke()
-         }
+      final Select instance = apply.getFunction();
+      final TermSymbol functionSymbol = instance.getSymbol();
+      if(builtInFunctions.contains(functionSymbol)) {
+         builtInFunctions.getBuiltInType(functionSymbol, this).generate(
+            new BuiltInFunctions.FunctionApplication(
+               functionSymbol,
+               instance.getQualifier().orElse(new EmptyExpression(SourcePosition.NO_SOURCE)),
+               apply.getArguments()
+            ), instructionList, factory);
+      } else {
+         instance.visit(this);
+         final FunctionType functionType = functionSymbol.getType().asFunctionType();
+         final Type[] argTypes = apply.getArguments().stream()
+            .map(a -> TypeConverter.fromNinjaType(a.getType()))
+            .toArray(Type[]::new);
+         apply.getArguments().stream().forEach(a -> a.visit(this));
+         functionSymbol.owner()
+            .filter(Symbol::isTypeSymbol)
+            .map(Symbol::asTypeSymbol)
+            .map(TypeSymbol::getType)
+            .map(com.github.mbergenlid.ninjalang.typer.Type::getIdentifier)
+            .ifPresent(className ->
+               instructionList.append(
+                  factory.createInvoke(
+                  className,
+                  functionSymbol.getName(),
+                  TypeConverter.fromNinjaType(functionType.getReturnType()),
+                  argTypes,
+                  Constants.INVOKEVIRTUAL
+               )
+            ));
       }
       return null;
    }

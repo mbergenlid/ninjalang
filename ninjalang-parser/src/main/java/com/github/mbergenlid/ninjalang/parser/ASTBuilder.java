@@ -365,12 +365,19 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
          final Expression index = (Expression) visitExpression(ctx.expression(0));
          if(ctx.expression().size() == 2) {
             final Expression value = (Expression) visitExpression(ctx.expression(1));
-            return new Apply(SourcePosition.fromParserContext(ctx), new Select(SourcePosition.fromParserContext(ctx), instance, "set"), ImmutableList.of(index, value));
+            return new Apply(
+               SourcePosition.fromParserContext(ctx),
+               new Select(SourcePosition.fromParserContext(ctx), instance, "set"),
+               ImmutableList.of(index, value)
+            );
          } else {
-            return new Apply(SourcePosition.fromParserContext(ctx), new Select(SourcePosition.fromParserContext(ctx), instance, "get"), ImmutableList.of(index));
+            return new Apply(
+               SourcePosition.fromParserContext(ctx),
+               new Select(SourcePosition.fromParserContext(ctx), instance, "get"),
+               ImmutableList.of(index)
+            );
          }
       } else if(ctx.apply != null) {
-         final Expression function = (Expression) visitTerm(ctx.term());
          final List<Expression> arguments = ctx.expressionList() == null ?
             ImmutableList.of()
             :
@@ -378,7 +385,12 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
                .map(this::visitExpression)
                .map(t -> (Expression)t)
                .collect(Collectors.toList());
-         return new Apply(SourcePosition.fromParserContext(ctx), function, arguments);
+         final Expression function = (Expression) visitTerm(ctx.term());
+         final Select select = function instanceof Select
+            ? (Select) function
+            : new Select(SourcePosition.fromParserContext(ctx), Optional.of(function), "apply")
+            ;
+         return new Apply(SourcePosition.fromParserContext(ctx), select, arguments);
       } else if(ctx.assign != null) {
          final Select assignee = (Select) visitTerm(ctx.term());
          final Expression value = (Expression) visitExpression(ctx.expression(0));
