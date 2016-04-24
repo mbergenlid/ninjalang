@@ -20,6 +20,7 @@ import com.github.mbergenlid.ninjalang.ast.SecondaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.SourcePosition;
 import com.github.mbergenlid.ninjalang.ast.StringLiteral;
+import com.github.mbergenlid.ninjalang.ast.SuperClassList;
 import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
@@ -80,6 +81,11 @@ public class Typer implements TreeVisitor<Void> {
       classDefinition.getPrimaryConstructor().ifPresent(pc -> pc.visit(this));
       classDefinition.getBody().ifPresent(b -> b.visit(this));
       symbolTable.exitScope();
+      return null;
+   }
+
+   @Override
+   public Void visit(SuperClassList superClass) {
       return null;
    }
 

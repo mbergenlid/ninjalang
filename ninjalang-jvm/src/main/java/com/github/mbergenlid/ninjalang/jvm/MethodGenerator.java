@@ -16,6 +16,7 @@ import com.github.mbergenlid.ninjalang.ast.SecondaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.SourcePosition;
 import com.github.mbergenlid.ninjalang.ast.StringLiteral;
+import com.github.mbergenlid.ninjalang.ast.SuperClassList;
 import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.github.mbergenlid.ninjalang.ast.visitor.AbstractVoidTreeVisitor;
@@ -143,6 +144,11 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
 
    @Override
    public Void visit(ValDef valDef) {
+      return null;
+   }
+
+   @Override
+   public Void visit(SuperClassList superClass) {
       return null;
    }
 

@@ -1,10 +1,12 @@
 package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
+import com.google.common.collect.ImmutableList;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.experimental.FieldDefaults;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +23,8 @@ public class ClassDefinition extends TreeNode {
    private final Optional<PrimaryConstructor> primaryConstructor;
    private final List<SecondaryConstructor> secondaryConstructors;
    private final Optional<ClassBody> body;
+   @NonNull
+   private final SuperClassList superClasses;
 
    public ClassDefinition(
       final SourcePosition sourcePosition,
@@ -28,7 +32,8 @@ public class ClassDefinition extends TreeNode {
       Optional<PrimaryConstructor> primaryConstructor,
       Optional<ClassBody> body
    ) {
-      this(sourcePosition, name, primaryConstructor, Collections.emptyList(), body, Collections.emptyList());
+      this(sourcePosition, name, primaryConstructor, Collections.emptyList(),
+         body, Collections.emptyList(), SuperClassList.empty());
    }
 
    @Builder
@@ -38,11 +43,13 @@ public class ClassDefinition extends TreeNode {
       Optional<PrimaryConstructor> primaryConstructor,
       List<SecondaryConstructor> secondaryConstructors,
       Optional<ClassBody> body,
-      List<String> ninjaPackage
+      List<String> ninjaPackage,
+      SuperClassList superClasses
    ) {
       super(sourcePosition);
-      this.ninjaPackage = ninjaPackage;
-      this.secondaryConstructors = secondaryConstructors;
+      this.ninjaPackage = ninjaPackage != null ? ninjaPackage : ImmutableList.of();
+      this.secondaryConstructors = secondaryConstructors != null ? secondaryConstructors : ImmutableList.of();
+      this.superClasses = superClasses != null ? superClasses : SuperClassList.empty();
       this.name = name != null ? name : "";
       this.primaryConstructor = primaryConstructor != null ? primaryConstructor : Optional.empty();
       this.body = body != null ? body : Optional.empty();

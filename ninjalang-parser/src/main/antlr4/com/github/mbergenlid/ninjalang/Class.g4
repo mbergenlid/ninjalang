@@ -1,7 +1,7 @@
 grammar Class;
 
 ninjaFile
-    : packageDefinition? classDefinition
+    : packageDefinition? classDefinition EOF
     ;
 
 packageDefinition
@@ -9,7 +9,7 @@ packageDefinition
     ;
 
 classDefinition:
-    'class' name=Identifier constructor=primaryConstructor? body=classBody?;
+    'class' name=Identifier constructor=primaryConstructor? extendsClause? body=classBody?;
 
 primaryConstructor:
     Identifier? LPAREN classArgumentList? RPAREN;
@@ -19,6 +19,10 @@ classArgumentList:
 
 classArgument:
     'val'? name=Identifier ':' type=Identifier;
+
+extendsClause
+    : ':' Identifier (',' Identifier)*
+    ;
 
 classBody:
     '{' (constructorDefinition | propertyDefinition | functionDefinition)* '}';

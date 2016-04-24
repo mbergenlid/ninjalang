@@ -143,4 +143,14 @@ public class BasicParserTest {
          )
       );
    }
+
+   @Test
+   public void testClassInheritence() throws IOException {
+      final ClassDefinition classDefinition = Parser.classDefinition(
+         getClass().getResourceAsStream("/inheritence/Sub.ninja"));
+
+      assertThat(classDefinition.getSuperClasses()).isEqualTo(
+         new SuperClassList(NO_SOURCE, "Base", "Base2")
+      );
+   }
 }

@@ -25,6 +25,7 @@ import com.github.mbergenlid.ninjalang.ast.Setter;
 import com.github.mbergenlid.ninjalang.ast.SourcePosition;
 import com.github.mbergenlid.ninjalang.ast.Statement;
 import com.github.mbergenlid.ninjalang.ast.StringLiteral;
+import com.github.mbergenlid.ninjalang.ast.SuperClassList;
 import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.google.common.collect.ImmutableList;
@@ -62,13 +63,25 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
             .collect(Collectors.toList())
          : Collections.emptyList()
          ;
+      final SuperClassList superClassList = (SuperClassList) visitExtendsClause(classDefinitionCtx.extendsClause());
       return ClassDefinition.builder()
+         .sourcePosition(SourcePosition.fromParserContext(ctx))
          .ninjaPackage(ninjaPackage)
          .name(classDefinitionCtx.name.getText())
          .primaryConstructor(constructor)
          .secondaryConstructors(secondaryConstructors)
+         .superClasses(superClassList)
          .body(body)
          .build();
+   }
+
+   @Override
+   public TreeNode visitExtendsClause(ClassParser.ExtendsClauseContext ctx) {
+      if(ctx == null) {
+         return SuperClassList.empty();
+      }
+      final String[] baseClasses = ctx.Identifier().stream().map(TerminalNode::getText).toArray(String[]::new);
+      return new SuperClassList(SourcePosition.fromParserContext(ctx), baseClasses);
    }
 
    @Override

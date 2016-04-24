@@ -18,6 +18,7 @@ import com.github.mbergenlid.ninjalang.ast.Property;
 import com.github.mbergenlid.ninjalang.ast.SecondaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.StringLiteral;
+import com.github.mbergenlid.ninjalang.ast.SuperClassList;
 import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
@@ -102,6 +103,11 @@ public class TypeInterface implements TreeVisitor<Type> {
       symbolTable.addSymbol(new TermSymbol(classDefinition.getFullyQualifiedName(), typeObject));
       symbolTable.addSymbol(typeSymbol);
       return type;
+   }
+
+   @Override
+   public Type visit(SuperClassList superClass) {
+      return null;
    }
 
    private Type createTypeObject(ClassDefinition classDefinition, Type type) {
