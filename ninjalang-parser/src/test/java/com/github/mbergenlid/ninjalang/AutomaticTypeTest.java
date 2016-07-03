@@ -1,16 +1,14 @@
 package com.github.mbergenlid.ninjalang;
 
-import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.ast.SourcePosition;
-import com.github.mbergenlid.ninjalang.parser.Parser;
 import com.github.mbergenlid.ninjalang.typer.TypeError;
-import com.github.mbergenlid.ninjalang.typer.Typer;
 import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -18,7 +16,7 @@ import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TyperTestRule  {
+public class AutomaticTypeTest {
 
    @Test
    public void test1() throws IOException {
@@ -62,9 +60,10 @@ public class TyperTestRule  {
    }
 
    private List<TypeError> parseAndTypeCheck(final String name) throws IOException {
-      try(InputStream inputStream = getClass().getResourceAsStream(name)) {
-         final ClassDefinition classDefinition = Parser.classDefinition(inputStream);
-         return new Typer().typeTree(classDefinition);
+      try {
+         return new Compiler().parseAndTypeCheck(getClass().getResource(name).toURI());
+      } catch (URISyntaxException e) {
+         throw new RuntimeException(e);
       }
    }
 
