@@ -76,6 +76,7 @@ public class Typer implements TreeVisitor<Void> {
       symbolTable.addSymbol(new TermSymbol("this", classDefinition.getType()));
       symbolTable.importPackage("ninjalang");
       symbolTable.importTerm("ninjalang");
+      classDefinition.getTypeImports().stream().forEach(symbolTable::importType);
       classDefinition.getType().termMembers().stream()
          .forEach(symbolTable::addSymbol);
       classDefinition.getPrimaryConstructor().ifPresent(pc -> pc.visit(this));
@@ -139,7 +140,7 @@ public class Typer implements TreeVisitor<Void> {
          final Expression body = functionDefinition.getBody().get();
          body.visit(this);
          final Type inferredType = body.getType();
-         if(!declaredType.equals(inferredType)) {
+         if(!inferredType.isSubTypeOf(declaredType)) {
             final SourcePosition sourcePosition = body instanceof Block
                ? ((Block) body).getReturnExpression().getSourcePosition()
                : body.getSourcePosition();

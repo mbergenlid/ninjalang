@@ -8,6 +8,7 @@ import com.github.mbergenlid.ninjalang.ast.Apply;
 import com.github.mbergenlid.ninjalang.ast.Argument;
 import com.github.mbergenlid.ninjalang.ast.Assign;
 import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
+import com.github.mbergenlid.ninjalang.ast.Import;
 import com.github.mbergenlid.ninjalang.ast.Block;
 import com.github.mbergenlid.ninjalang.ast.ClassBody;
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
@@ -29,6 +30,7 @@ import com.github.mbergenlid.ninjalang.ast.SuperClassList;
 import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.google.common.collect.ImmutableList;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,6 +49,9 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
                .collect(Collectors.toList())
          : Collections.emptyList()
          ;
+      final List<Import> typeImports = ctx.importStatement() != null
+         ? ctx.importStatement().stream().map(this::resolveImports).collect(Collectors.toList())
+         : ImmutableList.of();
       final ClassParser.ClassDefinitionContext classDefinitionCtx = ctx.classDefinition();
       Optional<PrimaryConstructor> constructor = (classDefinitionCtx.constructor != null)
          ? Optional.of((PrimaryConstructor)visit(classDefinitionCtx.constructor))
@@ -67,6 +72,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       return ClassDefinition.builder()
          .sourcePosition(SourcePosition.fromParserContext(ctx))
          .ninjaPackage(ninjaPackage)
+         .typeImports(typeImports)
          .name(classDefinitionCtx.name.getText())
          .primaryConstructor(constructor)
          .secondaryConstructors(secondaryConstructors)
@@ -82,6 +88,10 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       }
       final String[] baseClasses = ctx.Identifier().stream().map(TerminalNode::getText).toArray(String[]::new);
       return new SuperClassList(SourcePosition.fromParserContext(ctx), baseClasses);
+   }
+
+   public Import resolveImports(ClassParser.ImportStatementContext ctx) {
+      return new Import(ctx.Identifier().stream().map(ParseTree::getText).collect(Collectors.toList()));
    }
 
    @Override

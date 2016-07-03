@@ -8,9 +8,10 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterators;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import com.github.mbergenlid.ninjalang.ast.Import;
 
 public class SymbolTable {
 
@@ -90,15 +91,19 @@ public class SymbolTable {
    }
 
    public void importPackage(List<String> ninjaPackage) {
-      typeScopes.addImport(ninjaPackage.stream().collect(Collectors.joining(".")));
+      importType(Import.wildCardImport(ninjaPackage));
+   }
+
+   public void importType(Import pkg) {
+      typeScopes.addImport(pkg);
    }
 
    public void importPackage(String ninjaPackage) {
-      typeScopes.addImport(ninjaPackage);
+      importType(Import.wildCardImport(ninjaPackage));
    }
 
    public void importTerm(String term) {
-      termScopes.addImport(term);
+      termScopes.addImport(Import.wildCardImport(term));
    }
 
    public SymbolTable copy() {
@@ -111,7 +116,7 @@ public class SymbolTable {
    protected class Scope<T extends Symbol> {
       private final Scope<T> parentScope;
       private final Map<String, T> symbols = new HashMap<>();
-      private final List<String> imports = new ArrayList<>();
+      private final List<Import> imports = new ArrayList<>();
 
       public Scope(Scope<T> parentScope) {
          this.parentScope = parentScope;
@@ -128,8 +133,8 @@ public class SymbolTable {
          return symbols.containsKey(name);
       }
 
-      public void addImport(String importString) {
-         imports.add(importString);
+      public void addImport(Import typeImportString) {
+         imports.add(typeImportString);
       }
 
       public Optional<T> getSymbol(String name) {
@@ -138,10 +143,16 @@ public class SymbolTable {
          } else {
             return imports.stream()
                .flatMap(p -> {
-                  final String symbolName = String.format("%s.%s", p, name);
-                  return this.stream()
-                     .filter(s -> s.symbols.containsKey(symbolName))
-                     .map(s -> s.symbols.get(symbolName));
+
+                  final Optional<String> symbolName = p.typeName().map(n ->
+                     n.equals(name) ? Optional.of(p.fullName()) : Optional.<String>empty()
+                  ).orElseGet(() -> Optional.of(String.format("%s.%s", p.packageString(), name)));
+
+                  return symbolName.map(n ->
+                     this.stream()
+                        .filter(s -> s.symbols.containsKey(n))
+                        .map(s -> s.symbols.get(n))
+                  ).orElse(Stream.empty());
                })
                .findFirst();
          }

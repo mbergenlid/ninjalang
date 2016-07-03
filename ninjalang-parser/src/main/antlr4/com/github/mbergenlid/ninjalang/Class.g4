@@ -1,11 +1,15 @@
 grammar Class;
 
 ninjaFile
-    : packageDefinition? classDefinition EOF
+    : packageDefinition? importStatement* classDefinition EOF
     ;
 
 packageDefinition
     : 'package' Identifier ('.' Identifier)* ';'
+    ;
+
+importStatement
+    : 'import' Identifier ('.' Identifier)* ';'
     ;
 
 classDefinition:

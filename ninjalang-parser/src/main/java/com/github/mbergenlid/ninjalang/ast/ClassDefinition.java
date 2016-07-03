@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.experimental.FieldDefaults;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +17,7 @@ import java.util.stream.Stream;
 @EqualsAndHashCode(callSuper = false)
 public class ClassDefinition extends TreeNode {
    private final List<String> ninjaPackage;
+   private final List<Import> typeImports;
    @NonNull
    private final String name;
    private final Optional<PrimaryConstructor> primaryConstructor;
@@ -32,12 +32,13 @@ public class ClassDefinition extends TreeNode {
       Optional<PrimaryConstructor> primaryConstructor,
       Optional<ClassBody> body
    ) {
-      this(sourcePosition, name, primaryConstructor, Collections.emptyList(),
+      this(Collections.emptyList(), sourcePosition, name, primaryConstructor, Collections.emptyList(),
          body, Collections.emptyList(), SuperClassList.empty());
    }
 
    @Builder
    public ClassDefinition(
+      List<Import> typeImports,
       final SourcePosition sourcePosition,
       String name,
       Optional<PrimaryConstructor> primaryConstructor,
@@ -47,6 +48,7 @@ public class ClassDefinition extends TreeNode {
       SuperClassList superClasses
    ) {
       super(sourcePosition);
+      this.typeImports = typeImports != null ? typeImports : ImmutableList.of();
       this.ninjaPackage = ninjaPackage != null ? ninjaPackage : ImmutableList.of();
       this.secondaryConstructors = secondaryConstructors != null ? secondaryConstructors : ImmutableList.of();
       this.superClasses = superClasses != null ? superClasses : SuperClassList.empty();

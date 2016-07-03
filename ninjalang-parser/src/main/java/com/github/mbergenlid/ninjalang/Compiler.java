@@ -14,16 +14,22 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Compiler {
 
-   public List<TypeError> parseAndTypeCheck(final URI uri) throws IOException {
-      final URL url = uri.toURL();
-      try(InputStream inputStream = url.openStream()) {
-         final ClassDefinition classDefinition = Parser.classDefinition(inputStream);
-         final ImmutableList<ClassDefinition> classDefinitions = ImmutableList.of(classDefinition);
-         final SymbolTable symbolTable = new TypeInterface(Types.loadDefaults()).loadSymbols(classDefinitions);
-         return new Typer(symbolTable).typeTree(classDefinition);
-      }
+   public List<TypeError> parseAndTypeCheck(final List<URI> uris) throws IOException {
+      final List<ClassDefinition> classDefinitions = uris.stream().map(uri -> {
+         try(InputStream inputStream = uri.toURL().openStream()) {
+            return Parser.classDefinition(inputStream);
+         } catch (IOException e) {
+            throw new RuntimeException(e);
+         }
+      }).collect(Collectors.toList());
+
+      final SymbolTable symbolTable = new TypeInterface(Types.loadDefaults()).loadSymbols(classDefinitions);
+      return classDefinitions.stream()
+         .flatMap(classDef -> new Typer(symbolTable).typeTree(classDef).stream())
+         .collect(Collectors.toList());
    }
 }

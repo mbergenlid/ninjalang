@@ -1,0 +1,13 @@
+package autotests;
+
+import inheritence.Base;
+
+class Inheritence {
+
+    def method(): Unit = {
+    }
+
+    def method2(b: Base): Unit = {
+
+    }
+}

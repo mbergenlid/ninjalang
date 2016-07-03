@@ -1,5 +1,6 @@
 package com.github.mbergenlid.ninjalang.typer;
 
+import com.github.mbergenlid.ninjalang.ast.Import;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,13 +27,24 @@ public class SymbolTableTest {
    }
 
    @Test
-   public void importType() {
+   public void importWildcardType() {
       final SymbolTable symbolTable = new SymbolTable();
       symbolTable.addSymbol(new TypeSymbol("com.package.Type"));
       symbolTable.newScope();
 
       assertThat(symbolTable.lookupTypeOptional("Type")).isEmpty();
       symbolTable.importPackage("com.package");
+      assertThat(symbolTable.lookupTypeOptional("Type")).isPresent();
+   }
+
+   @Test
+   public void importType() {
+      final SymbolTable symbolTable = new SymbolTable();
+      symbolTable.addSymbol(new TypeSymbol("com.package.Type"));
+      symbolTable.newScope();
+
+      assertThat(symbolTable.lookupTypeOptional("Type")).isEmpty();
+      symbolTable.importType(new Import("com.package.Type"));
       assertThat(symbolTable.lookupTypeOptional("Type")).isPresent();
    }
 
@@ -49,12 +61,24 @@ public class SymbolTableTest {
    }
 
    @Test
-   public void importsFromParentScopeShouldBeIncluded() {
+   public void wildcardImportsFromParentScopeShouldBeIncluded() {
       final SymbolTable symbolTable = new SymbolTable();
       symbolTable.addSymbol(new TypeSymbol("com.package.Type"));
       symbolTable.newScope();
 
       symbolTable.importPackage("com.package");
+      symbolTable.newScope();
+
+      assertThat(symbolTable.lookupTypeOptional("Type")).isPresent();
+   }
+
+   @Test
+   public void importsFromParentScopeShouldBeIncluded() {
+      final SymbolTable symbolTable = new SymbolTable();
+      symbolTable.addSymbol(new TypeSymbol("com.package.Type"));
+      symbolTable.newScope();
+
+      symbolTable.importType(new Import("com.package.Type"));
       symbolTable.newScope();
 
       assertThat(symbolTable.lookupTypeOptional("Type")).isPresent();

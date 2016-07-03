@@ -1,6 +1,7 @@
 package com.github.mbergenlid.ninjalang.parser;
 
 import com.github.mbergenlid.ninjalang.ast.*;
+import com.github.mbergenlid.ninjalang.ast.Import;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
@@ -152,5 +153,13 @@ public class BasicParserTest {
       assertThat(classDefinition.getSuperClasses()).isEqualTo(
          new SuperClassList(NO_SOURCE, "Base", "Base2")
       );
+   }
+
+   @Test
+   public void testImports() throws IOException {
+      final ClassDefinition classDefinition = Parser.classDefinition(
+         getClass().getResourceAsStream("/autotests/Inheritence.ninja"));
+
+      assertThat(classDefinition.getTypeImports()).isEqualTo(ImmutableList.of(new Import("inheritence.Base")));
    }
 }

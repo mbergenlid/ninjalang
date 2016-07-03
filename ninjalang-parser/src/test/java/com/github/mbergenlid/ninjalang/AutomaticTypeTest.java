@@ -8,11 +8,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,13 +47,20 @@ public class AutomaticTypeTest {
       test("/autotests/Int.ninja");
    }
 
-   public void test(final String ninjaFile) throws IOException {
+   @Test
+   public void test6() throws IOException {
+      test("/autotests/Inheritence.ninja", "/inheritence/Base.ninja");
+   }
+
+   public void test(final String ninjaFile, final String... dependencies) throws IOException {
       List<TypeError> expectedErrors;
       try(InputStream inputStream = getClass().getResourceAsStream(ninjaFile)) {
          expectedErrors = getExpectedErrors(inputStream);
       }
-      final List<TypeError> errors = parseAndTypeCheck(ninjaFile);
-      assertThat(errors.size()).isEqualTo(expectedErrors.size());
+      final List<TypeError> errors = parseAndTypeCheck(
+         Stream.concat(Arrays.stream(dependencies), Stream.of(ninjaFile)).toArray(String[]::new)
+      );
+      assertThat(errors.size()).withFailMessage(errors.toString()).isEqualTo(expectedErrors.size());
 
       for(int i = 0; i < expectedErrors.size(); i++) {
          assertThat(errors.get(i).getSourcePosition().getLine())
@@ -59,12 +70,15 @@ public class AutomaticTypeTest {
       }
    }
 
-   private List<TypeError> parseAndTypeCheck(final String name) throws IOException {
-      try {
-         return new Compiler().parseAndTypeCheck(getClass().getResource(name).toURI());
-      } catch (URISyntaxException e) {
-         throw new RuntimeException(e);
-      }
+   private List<TypeError> parseAndTypeCheck(final String... name) throws IOException {
+      final List<URI> uris = Arrays.stream(name).map(n -> {
+         try {
+            return getClass().getResource(n).toURI();
+         } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+         }
+      }).collect(Collectors.toList());
+      return new Compiler().parseAndTypeCheck(uris);
    }
 
    private List<TypeError> getExpectedErrors(final InputStream inputStream) throws IOException {

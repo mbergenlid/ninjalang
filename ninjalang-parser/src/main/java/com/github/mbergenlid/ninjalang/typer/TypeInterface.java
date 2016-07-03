@@ -76,6 +76,7 @@ public class TypeInterface implements TreeVisitor<Type> {
    public Type visit(ClassDefinition classDefinition) {
       symbolTable.newScope();
       symbolTable.importPackage(classDefinition.getNinjaPackage());
+      classDefinition.getTypeImports().stream().forEach(symbolTable::importType);
       final DeferredSymbol ownerSymbol = new DeferredSymbol();
       final List<Symbol> functions = classDefinition.getBody()
          .map(b ->
