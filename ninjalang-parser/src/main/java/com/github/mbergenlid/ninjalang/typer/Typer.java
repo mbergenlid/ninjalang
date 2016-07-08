@@ -76,10 +76,13 @@ public class Typer implements TreeVisitor<Void> {
       symbolTable.addSymbol(new TermSymbol("this", classDefinition.getType()));
       symbolTable.importPackage("ninjalang");
       symbolTable.importTerm("ninjalang");
-      classDefinition.getTypeImports().stream().forEach(symbolTable::importType);
+      classDefinition.getTypeImports().stream().forEach(imp -> {
+         symbolTable.importType(imp);
+         symbolTable.importTerm(imp);
+      });
       classDefinition.getType().termMembers().stream()
          .forEach(symbolTable::addSymbol);
-      classDefinition.getPrimaryConstructor().ifPresent(pc -> pc.visit(this));
+      classDefinition.getPrimaryConstructor().visit(this);
       classDefinition.getBody().ifPresent(b -> b.visit(this));
       symbolTable.exitScope();
       return null;

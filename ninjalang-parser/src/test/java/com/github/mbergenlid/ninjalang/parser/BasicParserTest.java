@@ -25,7 +25,6 @@ public class BasicParserTest {
    public void testPointClass() throws IOException {
       ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/Point.ninja"));
       assertThat(classDefinition.getName()).isEqualTo("Point");
-      assertThat(classDefinition.getPrimaryConstructor()).isPresent();
       assertThat(classDefinition.getBody()).isEmpty();
    }
 
@@ -34,7 +33,6 @@ public class BasicParserTest {
       ClassDefinition classDefinition = Parser.classDefinition(getClass()
          .getResourceAsStream("/ClassWithProperties.ninja"));
       assertThat(classDefinition.getName()).isEqualTo("ClassWithProperties");
-      assertThat(classDefinition.getPrimaryConstructor()).isEmpty();
       assertThat(classDefinition.getBody()).isPresent();
       assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
          new Property(NO_SOURCE, "name", "String", new StringLiteral(NO_SOURCE, "hello"),

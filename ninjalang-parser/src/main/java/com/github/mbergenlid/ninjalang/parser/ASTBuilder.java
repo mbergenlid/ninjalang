@@ -96,14 +96,21 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitPrimaryConstructor(ClassParser.PrimaryConstructorContext ctx) {
-      TreeNode arg = visit(ctx.classArgumentList().head);
+      List<Argument> args = ctx.classArgumentList() != null
+         ? visit(ctx.classArgumentList())
+         : ImmutableList.of()
+         ;
       final Optional<String> name = ctx.Identifier() != null
          ? Optional.of(ctx.Identifier().getText())
          : Optional.empty();
       return new PrimaryConstructor(
          SourcePosition.fromParserContext(ctx),
-         name, ImmutableList.of((Argument)arg)
+         name, args
       );
+   }
+
+   public List<Argument> visit(ClassParser.ClassArgumentListContext ctx) {
+      return ctx.classArgument().stream().map(this::visit).map(arg -> (Argument)arg).collect(Collectors.toList());
    }
 
    @Override

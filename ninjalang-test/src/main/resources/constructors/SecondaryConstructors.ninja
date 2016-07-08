@@ -1,0 +1,7 @@
+package constructors;
+
+class SecondaryConstructors {
+
+    constructor first();
+    constructor second(x: String);
+}

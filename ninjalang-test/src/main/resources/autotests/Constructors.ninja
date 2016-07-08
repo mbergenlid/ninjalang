@@ -1,0 +1,16 @@
+package autotests;
+
+import constructors.NoNameConstructor;
+import constructors.NamedConstructor;
+import constructors.NamedConstructorWithArguments;
+import constructors.SecondaryConstructors;
+
+class Constructors {
+
+    def noName(): NoNameConstructor = NoNameConstructor.create();
+    def withName(): NamedConstructor = NamedConstructor.fromName();
+    def withArguments(): NamedConstructorWithArguments = NamedConstructorWithArguments.from("x", 5);
+
+    def secondaryNoArguments(): SecondaryConstructors = SecondaryConstructors.first();
+    def secondaryWithArguments(): SecondaryConstructors = SecondaryConstructors.second("x");
+}

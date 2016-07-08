@@ -52,6 +52,16 @@ public class AutomaticTypeTest {
       test("/autotests/Inheritence.ninja", "/inheritence/Base.ninja");
    }
 
+   @Test
+   public void testConstructors() throws IOException {
+      test("/autotests/Constructors.ninja",
+         "/constructors/NoNameConstructor.ninja",
+         "/constructors/NamedConstructor.ninja",
+         "/constructors/NamedConstructorWithArguments.ninja",
+         "/constructors/SecondaryConstructors.ninja"
+      );
+   }
+
    public void test(final String ninjaFile, final String... dependencies) throws IOException {
       List<TypeError> expectedErrors;
       try(InputStream inputStream = getClass().getResourceAsStream(ninjaFile)) {

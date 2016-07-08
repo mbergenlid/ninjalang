@@ -20,7 +20,7 @@ public class ClassDefinition extends TreeNode {
    private final List<Import> typeImports;
    @NonNull
    private final String name;
-   private final Optional<PrimaryConstructor> primaryConstructor;
+   private final PrimaryConstructor primaryConstructor;
    private final List<SecondaryConstructor> secondaryConstructors;
    private final Optional<ClassBody> body;
    @NonNull
@@ -53,7 +53,8 @@ public class ClassDefinition extends TreeNode {
       this.secondaryConstructors = secondaryConstructors != null ? secondaryConstructors : ImmutableList.of();
       this.superClasses = superClasses != null ? superClasses : SuperClassList.empty();
       this.name = name != null ? name : "";
-      this.primaryConstructor = primaryConstructor != null ? primaryConstructor : Optional.empty();
+      this.primaryConstructor = (primaryConstructor != null ? primaryConstructor : Optional.<PrimaryConstructor>empty())
+         .orElse(new PrimaryConstructor(sourcePosition, Optional.empty(), ImmutableList.of()));
       this.body = body != null ? body : Optional.empty();
    }
 
@@ -64,7 +65,7 @@ public class ClassDefinition extends TreeNode {
 
    @Override
    public void foreachPostfix(TreeVisitor<Void> visitor) {
-      primaryConstructor.ifPresent(pc -> pc.foreachPostfix(visitor));
+      primaryConstructor.foreachPostfix(visitor);
       body.ifPresent(b -> b.foreachPostfix(visitor));
       visitor.visit(this);
    }

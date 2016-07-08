@@ -112,14 +112,10 @@ public class TypeInterface implements TreeVisitor<Type> {
    }
 
    private Type createTypeObject(ClassDefinition classDefinition, Type type) {
-      Optional<PrimaryConstructor> primaryConstructor = classDefinition.getPrimaryConstructor();
-      final Stream<TermSymbol> primaryConstructorStream = primaryConstructor
-         .map(p -> {
-            final Type function = createConstructor(p, type);
-            return new TermSymbol(p.getName().orElse(""), function);
-         })
-         .map(Stream::of)
-         .orElse(Stream.empty());
+      final PrimaryConstructor primaryConstructor = classDefinition.getPrimaryConstructor();
+      final Stream<TermSymbol> primaryConstructorStream = Stream.of(
+         new TermSymbol(primaryConstructor.getName().orElse("create"), createConstructor(primaryConstructor, type))
+      );
       final Stream<TermSymbol> secondaryConstructors = classDefinition.getSecondaryConstructors().stream()
          .map(c -> {
             final Type function = createConstructor(c, type);

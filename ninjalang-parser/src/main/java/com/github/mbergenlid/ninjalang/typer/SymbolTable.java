@@ -103,7 +103,11 @@ public class SymbolTable {
    }
 
    public void importTerm(String term) {
-      termScopes.addImport(Import.wildCardImport(term));
+      importTerm(Import.wildCardImport(term));
+   }
+
+   public void importTerm(Import term) {
+      termScopes.addImport(term);
    }
 
    public SymbolTable copy() {

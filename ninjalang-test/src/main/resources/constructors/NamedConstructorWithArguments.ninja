@@ -1,0 +1,3 @@
+package constructors;
+
+class NamedConstructorWithArguments from(x: String, y: Int)
