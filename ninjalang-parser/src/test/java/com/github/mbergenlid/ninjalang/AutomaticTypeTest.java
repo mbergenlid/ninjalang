@@ -54,7 +54,12 @@ public class AutomaticTypeTest {
 
    @Test
    public void testInheritance() throws IOException {
-      test("/autotests/Inheritence.ninja", "/inheritance/Base.ninja", "/inheritance/Sub.ninja", "/inheritance/Base2.ninja");
+      test("/autotests/Inheritence.ninja",
+         "/inheritance/Base.ninja",
+         "/inheritance/Sub.ninja",
+         "/inheritance/Base2.ninja",
+         "/inheritance/SubSub.ninja"
+      );
    }
 
    @Test

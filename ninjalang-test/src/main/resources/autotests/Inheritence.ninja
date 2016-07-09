@@ -2,14 +2,20 @@ package autotests;
 
 import inheritance.Base;
 import inheritance.Sub;
+import inheritance.Base2;
+import inheritance.SubSub;
 
 class Inheritence {
 
     def method(): Unit = {
         method2(Sub.create());
+        method3(Sub.create());
+
+        method2(SubSub.create());
+        method3(SubSub.create());
     }
 
-    def method2(b: Base): Unit = {
+    def method2(b: Base): Unit = {}
 
-    }
+    def method3(b: Base2): Unit = {}
 }

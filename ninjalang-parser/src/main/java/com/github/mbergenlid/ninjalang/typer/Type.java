@@ -70,7 +70,7 @@ public abstract class Type {
    }
 
    public boolean isSubTypeOf(Type declaredType) {
-      return this.equals(declaredType) || parentTypes.stream().anyMatch(declaredType::isSubTypeOf);
+      return this.equals(declaredType) || parentTypes.stream().anyMatch(sup -> sup.isSubTypeOf(declaredType));
    }
 
    public static class ConcreteType extends Type {

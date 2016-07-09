@@ -158,6 +158,8 @@ public class BasicParserTest {
       final ClassDefinition classDefinition = Parser.classDefinition(
          getClass().getResourceAsStream("/autotests/Inheritence.ninja"));
 
-      assertThat(classDefinition.getTypeImports()).isEqualTo(ImmutableList.of(new Import("inheritance.Base"), new Import("inheritance.Sub")));
+      assertThat(classDefinition.getTypeImports()).isEqualTo(ImmutableList.of(
+         new Import("inheritance.Base"), new Import("inheritance.Sub"), new Import("inheritance.Base2"), new Import("inheritance.SubSub")
+      ));
    }
 }
