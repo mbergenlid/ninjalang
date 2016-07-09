@@ -1,0 +1,8 @@
+package autotests;
+
+class Test5 {
+
+    def method1(): Int = method2("wrong"); //error: incompatible types: ninjalang.String can not be converted to ninjalang.Int
+
+    def method2(x: Int): Int = x + 1;
+}

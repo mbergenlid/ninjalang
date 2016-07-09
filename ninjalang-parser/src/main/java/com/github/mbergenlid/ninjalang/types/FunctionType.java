@@ -30,6 +30,10 @@ public class FunctionType extends Type {
       return output.get();
    }
 
+   public List<Type> getInputTypes() {
+      return input;
+   }
+
    @Override
    public boolean isFunctionType() {
       return true;

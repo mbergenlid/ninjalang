@@ -25,6 +25,8 @@ import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 import com.github.mbergenlid.ninjalang.types.FunctionType;
+import com.github.mbergenlid.ninjalang.util.Pair;
+import com.github.mbergenlid.ninjalang.util.Zipper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -234,9 +236,19 @@ public class Typer implements TreeVisitor<Void> {
    @Override
    public Void visit(Apply apply) {
       apply.getFunction().visit(this);
-      apply.getArguments().stream().forEach(a -> a.visit(this));
       final Type type = apply.getFunction().getType();
       if(type.isFunctionType()) {
+         Zipper.zip(
+            apply.getArguments().stream(),
+            type.asFunctionType().getInputTypes().stream(),
+            Pair::new
+         ).forEach(pair -> {
+            pair.left.visit(this);
+            final Type inferredType = pair.left.getType();
+            if(!inferredType.isSubTypeOf(pair.right)) {
+               errors.add(TypeError.incompatibleTypes(pair.left.getSourcePosition(), pair.right, inferredType));
+            }
+         });
          apply.setType(type.asFunctionType().getReturnType());
       } else if(type != Type.NO_TYPE) {
          throw new TypeException(String.format("%s is not a function", type));

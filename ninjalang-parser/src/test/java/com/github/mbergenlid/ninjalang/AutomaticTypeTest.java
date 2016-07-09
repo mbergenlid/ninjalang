@@ -44,6 +44,11 @@ public class AutomaticTypeTest {
 
    @Test
    public void test5() throws IOException {
+      test("/autotests/Test5.ninja");
+   }
+
+   @Test
+   public void testInt() throws IOException {
       test("/autotests/Int.ninja");
    }
 
