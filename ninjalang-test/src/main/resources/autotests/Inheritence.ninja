@@ -13,9 +13,13 @@ class Inheritence {
 
         method2(SubSub.create());
         method3(SubSub.create());
+
+        method4(Base.create()); //error: incompatible types: inheritance.Base can not be converted to inheritance.Sub
     }
 
     def method2(b: Base): Unit = {}
 
     def method3(b: Base2): Unit = {}
+
+    def method4(s: Sub): Unit = {}
 }
