@@ -28,7 +28,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -77,6 +77,9 @@ public class TypeInterface implements TreeVisitor<Type> {
       symbolTable.newScope();
       symbolTable.importPackage(classDefinition.getNinjaPackage());
       classDefinition.getTypeImports().stream().forEach(symbolTable::importType);
+      final List<Type> superTypes = classDefinition.getSuperClasses().getNames().stream()
+         .map(this::lookupType).collect(Collectors.toList());
+
       final DeferredSymbol ownerSymbol = new DeferredSymbol();
       final List<Symbol> functions = classDefinition.getBody()
          .map(b ->
@@ -94,7 +97,8 @@ public class TypeInterface implements TreeVisitor<Type> {
          .orElse(Collections.emptyList());
       final Type type = Type.fromIdentifier(
          classDefinition.getFullyQualifiedName(),
-         Stream.concat(properties.stream(), functions.stream()).collect(Collectors.toList())
+         Stream.concat(properties.stream(), functions.stream()).collect(Collectors.toList()),
+         superTypes
       );
       classDefinition.setType(type);
       final TypeSymbol typeSymbol = new TypeSymbol(classDefinition.getFullyQualifiedName(), type);
@@ -123,7 +127,11 @@ public class TypeInterface implements TreeVisitor<Type> {
          });
       final List<Symbol> constructors =
          Stream.concat(primaryConstructorStream, secondaryConstructors).collect(Collectors.toList());
-      return Type.fromIdentifier(String.format("object(%s)", type.getIdentifier()), constructors);
+      return Type.fromIdentifier(
+         String.format("object(%s)", type.getIdentifier()),
+         constructors,
+         ImmutableList.of()
+      );
    }
 
    private Type createConstructor(PrimaryConstructor primaryConstructor, Type type) {

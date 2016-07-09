@@ -4,6 +4,7 @@ import com.github.mbergenlid.ninjalang.typer.Type;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 

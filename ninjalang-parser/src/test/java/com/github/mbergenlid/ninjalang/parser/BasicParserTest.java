@@ -146,7 +146,7 @@ public class BasicParserTest {
    @Test
    public void testClassInheritence() throws IOException {
       final ClassDefinition classDefinition = Parser.classDefinition(
-         getClass().getResourceAsStream("/inheritence/Sub.ninja"));
+         getClass().getResourceAsStream("/inheritance/Sub.ninja"));
 
       assertThat(classDefinition.getSuperClasses()).isEqualTo(
          new SuperClassList(NO_SOURCE, "Base", "Base2")
@@ -158,6 +158,6 @@ public class BasicParserTest {
       final ClassDefinition classDefinition = Parser.classDefinition(
          getClass().getResourceAsStream("/autotests/Inheritence.ninja"));
 
-      assertThat(classDefinition.getTypeImports()).isEqualTo(ImmutableList.of(new Import("inheritence.Base")));
+      assertThat(classDefinition.getTypeImports()).isEqualTo(ImmutableList.of(new Import("inheritance.Base"), new Import("inheritance.Sub")));
    }
 }

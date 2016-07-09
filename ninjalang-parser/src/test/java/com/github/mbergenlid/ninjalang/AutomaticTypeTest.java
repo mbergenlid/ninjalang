@@ -53,8 +53,8 @@ public class AutomaticTypeTest {
    }
 
    @Test
-   public void test6() throws IOException {
-      test("/autotests/Inheritence.ninja", "/inheritence/Base.ninja");
+   public void testInheritance() throws IOException {
+      test("/autotests/Inheritence.ninja", "/inheritance/Base.ninja", "/inheritance/Sub.ninja", "/inheritance/Base2.ninja");
    }
 
    @Test

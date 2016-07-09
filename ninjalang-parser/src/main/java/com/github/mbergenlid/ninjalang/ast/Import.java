@@ -1,6 +1,7 @@
 package com.github.mbergenlid.ninjalang.ast;
 
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Arrays;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = false)
+@ToString
 public class Import {
 
    private final Optional<String> typeName;

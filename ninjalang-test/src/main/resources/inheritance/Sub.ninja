@@ -1,3 +1,3 @@
-package inheritence;
+package inheritance;
 
 class Sub : Base, Base2

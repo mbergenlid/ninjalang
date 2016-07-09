@@ -11,18 +11,23 @@ public abstract class Type {
 
    public static final Type NO_TYPE = Type.fromIdentifier("<noType>");
    private final List<Symbol> symbols;
+   private final List<Type> parentTypes;
 
    public static Type fromIdentifier(final String identifier) {
       return new ConcreteType(identifier);
    }
 
-   public static Type fromIdentifier(final String identifier, List<Symbol> symbols) {
-      return new ConcreteType(identifier, symbols);
+   public static Type fromIdentifier(final String identifier, List<Symbol> symbols, List<Type> parentTypes) {
+      return new ConcreteType(identifier, symbols, parentTypes);
    }
 
-
    public Type(List<Symbol> symbols) {
+      this(symbols, ImmutableList.of());
+   }
+
+   public Type(List<Symbol> symbols, List<Type> parentTypes) {
       this.symbols = symbols;
+      this.parentTypes = parentTypes;
    }
 
    public Optional<Symbol> member(final String name) {
@@ -65,7 +70,7 @@ public abstract class Type {
    }
 
    public boolean isSubTypeOf(Type declaredType) {
-      return this.equals(declaredType);
+      return this.equals(declaredType) || parentTypes.stream().anyMatch(declaredType::isSubTypeOf);
    }
 
    public static class ConcreteType extends Type {
@@ -73,11 +78,11 @@ public abstract class Type {
       private final String identifier;
 
       public ConcreteType(String identifier) {
-         this(identifier, ImmutableList.of());
+         this(identifier, ImmutableList.of(), ImmutableList.of());
       }
 
-      public ConcreteType(String identifier, List<Symbol> symbols) {
-         super(symbols);
+      public ConcreteType(String identifier, List<Symbol> symbols, List<Type> parentTypes) {
+         super(symbols, parentTypes);
          this.identifier = identifier;
       }
 

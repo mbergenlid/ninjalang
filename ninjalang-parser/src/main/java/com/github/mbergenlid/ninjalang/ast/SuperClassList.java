@@ -31,4 +31,8 @@ public class SuperClassList extends TreeNode {
    public static SuperClassList empty() {
       return new SuperClassList(SourcePosition.NO_SOURCE);
    }
+
+   public List<String> getNames() {
+      return names;
+   }
 }
