@@ -1,15 +1,8 @@
 package com.github.mbergenlid.ninjalang.jvm;
 
-import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
+import com.github.mbergenlid.ninjalang.Compiler;
 import com.github.mbergenlid.ninjalang.jvm.builtin.BuiltInFunctions;
-import com.github.mbergenlid.ninjalang.parser.Parser;
-import com.github.mbergenlid.ninjalang.typer.SymbolTable;
-import com.github.mbergenlid.ninjalang.typer.TypeError;
-import com.github.mbergenlid.ninjalang.typer.TypeInterface;
-import com.github.mbergenlid.ninjalang.typer.Typer;
-import com.github.mbergenlid.ninjalang.typer.Types;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import org.apache.bcel.classfile.JavaClass;
 
@@ -17,52 +10,79 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ClassGeneratorTestHelper {
 
+   private final List<URI> classesToCompile;
    private final String ninjaClass;
-   private final String path;
    private Class<?> theClass;
+   private final File classDirectory;
+   private URLClassLoader classLoader;
 
    public ClassGeneratorTestHelper(final String ninjaClassName) {
       this("", ninjaClassName);
    }
 
    public ClassGeneratorTestHelper(final String path, final String ninjaClassName) {
-      this.ninjaClass = ninjaClassName;
-      this.path = path;
+      this(ninjaClassName, Collections.singletonList(String.format("%s/%s.ninja", path, ninjaClassName)));
    }
 
-   public Class<?> loadClass() throws IOException, ClassNotFoundException {
-      if(theClass == null) {
-         ClassDefinition classDefinition = Parser.classDefinition(
-            ClassGeneratorTestHelper.class.getResourceAsStream(String.format("%s/%s.ninja", path, ninjaClass))
-         );
-         final TypeInterface typeInterface = new TypeInterface(Types.loadDefaults());
-         final SymbolTable symbolTable = typeInterface.loadSymbols(ImmutableList.of(classDefinition));
-         List<TypeError> typeErrors = new Typer(symbolTable).typeTree(classDefinition);
-         if(!typeErrors.isEmpty()) {
-            typeErrors.stream().forEach(System.err::println);
-            throw new RuntimeException("Type error");
+   public ClassGeneratorTestHelper(final String classToLoad, final List<String> classesToCompile) {
+      this.classDirectory = Files.createTempDir();
+      this.ninjaClass = classToLoad;
+      this.classesToCompile = classesToCompile.stream().map(c -> {
+         try {
+            return ClassGeneratorTestHelper.class.getResource(c).toURI();
+         } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
          }
-         JavaClass javaClass = new ClassGenerator(new BuiltInFunctions(symbolTable)).generateClass(classDefinition);
-
-         final File classDirectory = Files.createTempDir();
-
-         File classFile = new File(classDirectory, String.format("%s.class", ninjaClass));
-         javaClass.dump(classFile);
-         System.out.println(classFile.getAbsoluteFile().getParentFile().toURI().toURL());
-
-         URLClassLoader urlClassLoader = new URLClassLoader(
+      }).collect(Collectors.toList());
+      try {
+         compile();
+         classLoader = new URLClassLoader(
             new URL[] {classDirectory.toURI().toURL()});
+      } catch (IOException e) {
+         throw new RuntimeException(e);
+      }
+   }
 
-         theClass = urlClassLoader.loadClass(ninjaClass);
+   public Class<?> loadClass() throws Exception {
+      if(theClass == null) {
+         theClass = classLoader.loadClass(ninjaClass);
       }
       return theClass;
+   }
+
+   private void compile() throws IOException {
+      final Compiler.CompilationResult compilationResult = new Compiler().parseAndTypeCheck(classesToCompile);
+      if(compilationResult.failed()) {
+         compilationResult.errors().stream().forEach(System.err::println);
+         throw new RuntimeException("Type error");
+      }
+      compilationResult.classDefinitions().stream()
+         .forEach(classDefinition -> {
+            try {
+               JavaClass javaClass = new ClassGenerator(new BuiltInFunctions(compilationResult.symbolTable()))
+                  .generateClass(classDefinition);
+               File classFile = new File(classDirectory, String.format("%s.class", classDefinition.getName()));
+               javaClass.dump(classFile);
+               System.out.println(classFile.getAbsoluteFile().getParentFile().toURI().toURL());
+            } catch (IOException e) {
+               throw new RuntimeException(e);
+            }
+         });
+   }
+
+   public Class<?> loadClass(String className) throws Exception {
+      return classLoader.loadClass(className);
    }
 
    public Proxy newInstance() {

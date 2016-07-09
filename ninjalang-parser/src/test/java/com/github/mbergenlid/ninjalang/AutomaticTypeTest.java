@@ -98,7 +98,7 @@ public class AutomaticTypeTest {
             throw new RuntimeException(e);
          }
       }).collect(Collectors.toList());
-      return new Compiler().parseAndTypeCheck(uris);
+      return new Compiler().parseAndTypeCheck(uris).errors();
    }
 
    private List<TypeError> getExpectedErrors(final InputStream inputStream) throws IOException {

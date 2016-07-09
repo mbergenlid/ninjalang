@@ -12,13 +12,12 @@ import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Compiler {
 
-   public List<TypeError> parseAndTypeCheck(final List<URI> uris) throws IOException {
+   public CompilationResult parseAndTypeCheck(final List<URI> uris) throws IOException {
       final List<ClassDefinition> classDefinitions = uris.stream().map(uri -> {
          try(InputStream inputStream = uri.toURL().openStream()) {
             return Parser.classDefinition(inputStream);
@@ -28,8 +27,59 @@ public class Compiler {
       }).collect(Collectors.toList());
 
       final SymbolTable symbolTable = new TypeInterface(Types.loadDefaults()).loadSymbols(classDefinitions);
-      return classDefinitions.stream()
+      final List<TypeError> errors = classDefinitions.stream()
          .flatMap(classDef -> new Typer(symbolTable).typeTree(classDef).stream())
          .collect(Collectors.toList());
+      if(!errors.isEmpty()) {
+         return CompilationResult.error(errors);
+      } else {
+         return CompilationResult.success(symbolTable, classDefinitions);
+      }
+   }
+
+   public static class CompilationResult {
+      private final SymbolTable symbolTable;
+      private final List<ClassDefinition> typedClassDefinitions;
+      private final List<TypeError> errors;
+
+      private CompilationResult(SymbolTable symbolTable, List<ClassDefinition> typedClassDefinitions, List<TypeError> errors) {
+         this.symbolTable = symbolTable;
+         this.typedClassDefinitions = typedClassDefinitions;
+         this.errors = errors;
+      }
+
+      public static CompilationResult error(List<TypeError> errors) {
+         return new CompilationResult(null, ImmutableList.of(), errors);
+      }
+
+      public static CompilationResult success(SymbolTable symbolTable, List<ClassDefinition> typedClassDefinitions) {
+         return new CompilationResult(symbolTable, typedClassDefinitions, ImmutableList.of());
+      }
+
+      public boolean succeeded() {
+         return errors.isEmpty();
+      }
+
+      public boolean failed() {
+         return !errors.isEmpty();
+      }
+
+      public List<ClassDefinition> classDefinitions() {
+         if(failed()) {
+            throw new IllegalStateException("Compilation failed!");
+         }
+         return typedClassDefinitions;
+      }
+
+      public SymbolTable symbolTable() {
+         if(failed()) {
+            throw new IllegalStateException("Compilation failed!");
+         }
+         return symbolTable;
+      }
+
+      public List<TypeError> errors() {
+         return errors;
+      }
    }
 }

@@ -2,6 +2,7 @@ package com.github.mbergenlid.ninjalang.jvm;
 
 import com.github.mbergenlid.ninjalang.ast.*;
 import com.github.mbergenlid.ninjalang.jvm.builtin.BuiltInFunctions;
+import com.google.common.collect.ImmutableList;
 import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
@@ -20,7 +21,8 @@ public class ClassGenerator {
    }
 
    public JavaClass generateClass(final ClassDefinition classDef) throws IOException {
-      final ClassGen classGen = new ClassGen(classDef.getName(), "java.lang.Object", classDef.getName(), Constants.ACC_PUBLIC, new String[]{});
+      final String superClass = classDef.getSuperClasses().getNames().stream().findAny().orElse("java.lang.Object");
+      final ClassGen classGen = new ClassGen(classDef.getName(), superClass, classDef.getName(), Constants.ACC_PUBLIC, new String[]{});
       generatePrimaryConstructor(classDef, classGen);
       if(classDef.getBody().isPresent()) {
          generateBody(classDef.getBody().get(), classGen);
@@ -29,13 +31,12 @@ public class ClassGenerator {
    }
 
    private void generatePrimaryConstructor(ClassDefinition classDef, ClassGen classGen) {
-      classDef.getBody().ifPresent(body -> {
-         final List<Property> propertiesWithBackingField = body.getProperties().stream()
-            .filter(Property::needsBackingField)
-            .collect(Collectors.toList());
-         final Method constructor = new MethodGenerator(classGen, builtInFunctions).generateConstructor(propertiesWithBackingField);
-         classGen.addMethod(constructor);
-      });
+      final List<Property> propertiesWithBackingField = classDef.getBody().map(body -> body.getProperties().stream()
+         .filter(Property::needsBackingField)
+         .collect(Collectors.toList())
+      ).orElse(ImmutableList.of());
+      final Method constructor = new MethodGenerator(classGen, builtInFunctions).generateConstructor(propertiesWithBackingField);
+      classGen.addMethod(constructor);
    }
 
    private void generateBody(ClassBody body, ClassGen classGen) {

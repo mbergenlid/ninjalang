@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
@@ -55,7 +54,7 @@ public class ClassGeneratorTest {
    }
 
    @Test
-   public void testTrySetProperty() throws IOException, ClassNotFoundException {
+   public void testTrySetProperty() throws Exception {
       ClassGeneratorTestHelper arrayList = new ClassGeneratorTestHelper("", "ClassWithProperties");
       arrayList.loadClass();
       ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
@@ -71,7 +70,7 @@ public class ClassGeneratorTest {
    }
 
    @Test
-   public void testFeatureClass() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+   public void testFeatureClass() throws Exception {
       final ClassGeneratorTestHelper helper = new ClassGeneratorTestHelper("Functions");
       Class<?> aClass = helper.loadClass();
 

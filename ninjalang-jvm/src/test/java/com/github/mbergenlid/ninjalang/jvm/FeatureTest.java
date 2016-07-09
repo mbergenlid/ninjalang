@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class FeatureTest {
    @Test
-   public void ifStatements() throws IOException, ClassNotFoundException {
+   public void ifStatements() throws Exception {
       ClassGeneratorTestHelper functions = new ClassGeneratorTestHelper("", "Functions");
       functions.loadClass();
       ClassGeneratorTestHelper.Proxy proxy = functions.newInstance();

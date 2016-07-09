@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ArrayListTest {
 
    @Test
-   public void shouldCompile() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+   public void shouldCompile() throws Exception {
       ClassGeneratorTestHelper arrayList = new ClassGeneratorTestHelper("/examples", "ArrayList");
       arrayList.loadClass();
       ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
@@ -24,7 +24,7 @@ public class ArrayListTest {
    }
 
    @Test
-   public void testSetAndGet() throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+   public void testSetAndGet() throws Exception {
       ClassGeneratorTestHelper arrayList = new ClassGeneratorTestHelper("/examples", "ArrayList");
       arrayList.loadClass();
       ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
@@ -36,7 +36,7 @@ public class ArrayListTest {
    }
 
    @Test
-   public void testAdd() throws IOException, ClassNotFoundException {
+   public void testAdd() throws Exception {
       ClassGeneratorTestHelper arrayList = new ClassGeneratorTestHelper("/examples", "ArrayList");
       arrayList.loadClass();
       ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
@@ -54,7 +54,7 @@ public class ArrayListTest {
    }
 
    @Test
-   public void testIncreaseCapacity() throws IOException, ClassNotFoundException {
+   public void testIncreaseCapacity() throws Exception {
       ClassGeneratorTestHelper arrayList = new ClassGeneratorTestHelper("/examples", "ArrayList");
       arrayList.loadClass();
       ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
@@ -70,7 +70,7 @@ public class ArrayListTest {
    }
 
    @Test
-   public void testCapacity() throws IOException, ClassNotFoundException {
+   public void testCapacity() throws Exception {
       ClassGeneratorTestHelper arrayList = new ClassGeneratorTestHelper("/examples", "ArrayList");
       arrayList.loadClass();
       ClassGeneratorTestHelper.Proxy proxy = arrayList.newInstance();
