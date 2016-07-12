@@ -6,6 +6,7 @@ import com.github.mbergenlid.ninjalang.ast.Argument;
 import com.github.mbergenlid.ninjalang.ast.Assign;
 import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
 import com.github.mbergenlid.ninjalang.ast.Block;
+import com.github.mbergenlid.ninjalang.ast.ClassArgument;
 import com.github.mbergenlid.ninjalang.ast.ClassBody;
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.ast.EmptyExpression;
@@ -64,6 +65,11 @@ public class TypeInterface implements TreeVisitor<Type> {
 
    @Override
    public Type visit(Argument argument) {
+      return null;
+   }
+
+   @Override
+   public Type visit(ClassArgument argument) {
       return null;
    }
 

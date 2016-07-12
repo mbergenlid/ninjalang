@@ -22,4 +22,9 @@ public class EmptyExpression extends Expression {
    public boolean equals(Object obj) {
       return obj != null && obj.getClass().equals(EmptyExpression.class);
    }
+
+   @Override
+   public boolean isConstant() {
+      return true;
+   }
 }

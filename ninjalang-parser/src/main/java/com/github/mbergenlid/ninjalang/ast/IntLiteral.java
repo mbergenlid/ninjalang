@@ -25,4 +25,9 @@ public class IntLiteral extends Expression {
    public void foreachPostfix(TreeVisitor<Void> visitor) {
       visitor.visit(this);
    }
+
+   @Override
+   public boolean isConstant() {
+      return true;
+   }
 }

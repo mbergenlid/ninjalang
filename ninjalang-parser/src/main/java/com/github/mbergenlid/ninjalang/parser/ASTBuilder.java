@@ -8,6 +8,8 @@ import com.github.mbergenlid.ninjalang.ast.Apply;
 import com.github.mbergenlid.ninjalang.ast.Argument;
 import com.github.mbergenlid.ninjalang.ast.Assign;
 import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
+import com.github.mbergenlid.ninjalang.ast.ClassArgument;
+import com.github.mbergenlid.ninjalang.ast.Constructor;
 import com.github.mbergenlid.ninjalang.ast.Import;
 import com.github.mbergenlid.ninjalang.ast.Block;
 import com.github.mbergenlid.ninjalang.ast.ClassBody;
@@ -38,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
@@ -57,10 +60,34 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
          ? Optional.of((PrimaryConstructor)visit(classDefinitionCtx.constructor))
          : Optional.empty()
          ;
+      final Optional<List<Property>> constructorProperties = constructor.map(c ->
+         c.getClassArguments()
+            .filter(ClassArgument::isPropertyArgument)
+            .map(ca -> new Property(
+               ca.getSourcePosition(),
+               ca.getName(),
+               ca.getTypeName(),
+               new Select(ca.getSourcePosition(), ca.getName()))
+            ).collect(Collectors.toList())
+      );
       Optional<ClassBody> body = classDefinitionCtx.body != null
          ? Optional.of((ClassBody)visit(classDefinitionCtx.body))
          : Optional.empty()
          ;
+      body = body.map(b ->
+         Optional.of(new ClassBody(
+            b.getSourcePosition(),
+            Stream.concat(b.getProperties().stream(), constructorProperties.map(List::stream).orElse(Stream.empty())).collect(Collectors.toList()),
+            b.getFunctions()
+         ))
+      ).orElseGet(() -> constructorProperties.map(cp ->
+         new ClassBody(
+            constructor.map(Constructor::getSourcePosition).orElse(SourcePosition.NO_SOURCE),
+            cp,
+            ImmutableList.of()
+         )
+      ))
+      ;
       final List<SecondaryConstructor> secondaryConstructors = classDefinitionCtx.body != null
          ? classDefinitionCtx.body.constructorDefinition().stream()
             .map(this::visitConstructorDefinition)
@@ -96,7 +123,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitPrimaryConstructor(ClassParser.PrimaryConstructorContext ctx) {
-      List<Argument> args = ctx.classArgumentList() != null
+      List<ClassArgument> args = ctx.classArgumentList() != null
          ? visit(ctx.classArgumentList())
          : ImmutableList.of()
          ;
@@ -109,15 +136,15 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       );
    }
 
-   public List<Argument> visit(ClassParser.ClassArgumentListContext ctx) {
-      return ctx.classArgument().stream().map(this::visit).map(arg -> (Argument)arg).collect(Collectors.toList());
+   public List<ClassArgument> visit(ClassParser.ClassArgumentListContext ctx) {
+      return ctx.classArgument().stream().map(this::visit).map(arg -> (ClassArgument)arg).collect(Collectors.toList());
    }
 
    @Override
    public TreeNode visitConstructorDefinition(ClassParser.ConstructorDefinitionContext ctx) {
-      final List<Argument> arguments = ctx.classArgumentList() != null
-         ? ctx.classArgumentList().classArgument().stream()
-            .map(this::visitClassArgument)
+      final List<Argument> arguments = ctx.functionArgumentList() != null
+         ? ctx.functionArgumentList().functionArgument().stream()
+            .map(this::visitFunctionArgument)
             .map(a -> (Argument) a)
             .collect(Collectors.toList())
          : Collections.emptyList()
@@ -131,7 +158,13 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
 
    @Override
    public TreeNode visitClassArgument(ClassParser.ClassArgumentContext ctx) {
-      return new Argument(SourcePosition.fromParserContext(ctx), ctx.name.getText(), ctx.type.getText());
+      if(ctx.isVal != null) {
+         return ClassArgument.propertyArgument(
+            SourcePosition.fromParserContext(ctx), ctx.name.getText(), ctx.type.getText());
+      } else {
+         return ClassArgument.ordinaryArgument(
+            SourcePosition.fromParserContext(ctx), ctx.name.getText(), ctx.type.getText());
+      }
    }
 
    @Override

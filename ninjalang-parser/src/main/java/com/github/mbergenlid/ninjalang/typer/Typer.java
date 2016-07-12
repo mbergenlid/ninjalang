@@ -6,6 +6,7 @@ import com.github.mbergenlid.ninjalang.ast.Argument;
 import com.github.mbergenlid.ninjalang.ast.Assign;
 import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
 import com.github.mbergenlid.ninjalang.ast.Block;
+import com.github.mbergenlid.ninjalang.ast.ClassArgument;
 import com.github.mbergenlid.ninjalang.ast.ClassBody;
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.ast.EmptyExpression;
@@ -66,6 +67,11 @@ public class Typer implements TreeVisitor<Void> {
    }
 
    @Override
+   public Void visit(ClassArgument argument) {
+      return visit((Argument)argument);
+   }
+
+   @Override
    public Void visit(ClassBody classBody) {
       classBody.getProperties().stream().forEach(p -> p.visit(this));
       classBody.getFunctions().stream().forEach(f -> f.visit(this));
@@ -85,7 +91,12 @@ public class Typer implements TreeVisitor<Void> {
       classDefinition.getType().termMembers().stream()
          .forEach(symbolTable::addSymbol);
       classDefinition.getPrimaryConstructor().visit(this);
+      symbolTable.newScope();
+      classDefinition.getPrimaryConstructor().getClassArguments()
+         .map(ClassArgument::getSymbol)
+         .forEach(symbolTable::addSymbol);
       classDefinition.getBody().ifPresent(b -> b.visit(this));
+      symbolTable.exitScope();
       symbolTable.exitScope();
       return null;
    }
@@ -97,7 +108,9 @@ public class Typer implements TreeVisitor<Void> {
 
    @Override
    public Void visit(PrimaryConstructor primaryConstructor) {
+      symbolTable.newScope();
       primaryConstructor.getArguments().stream().forEach(a -> a.visit(this));
+      symbolTable.exitScope();
       return null;
    }
 

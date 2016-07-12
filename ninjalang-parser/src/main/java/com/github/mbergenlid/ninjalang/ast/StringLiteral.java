@@ -26,4 +26,9 @@ public class StringLiteral extends Expression {
    public void foreachPostfix(TreeVisitor<Void> visitor) {
       visit(visitor);
    }
+
+   @Override
+   public boolean isConstant() {
+      return true;
+   }
 }

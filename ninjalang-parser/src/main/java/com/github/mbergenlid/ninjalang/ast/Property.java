@@ -28,7 +28,7 @@ public class Property extends TreeNode {
       this.typeName = propertyType;
       this.propertyType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);
       this.initialValue = initialValue;
-      if(setter == null) {
+      if(setter == null && initialValue.isConstant()) {
          this.getter = new Getter(sourcePosition, name, propertyType, initialValue);
       } else {
          this.getter = new Getter(sourcePosition, name, propertyType, new AccessBackingField(sourcePosition, name));
@@ -69,7 +69,7 @@ public class Property extends TreeNode {
    }
 
    public boolean needsBackingField() {
-      return setter.isPresent();
+      return setter.isPresent() || !initialValue.isConstant();
    }
 
    public TypeSymbol getPropertyType() {

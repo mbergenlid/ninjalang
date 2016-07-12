@@ -22,7 +22,7 @@ classArgumentList:
     head=classArgument (',' classArgument )*;
 
 classArgument:
-    'val'? name=Identifier ':' type=Identifier;
+    isVal='val'? name=Identifier ':' type=Identifier;
 
 extendsClause
     : ':' Identifier (',' Identifier)*
@@ -32,7 +32,7 @@ classBody:
     '{' (constructorDefinition | propertyDefinition | functionDefinition)* '}';
 
 constructorDefinition
-    : 'constructor' Identifier LPAREN classArgumentList? RPAREN ';'
+    : 'constructor' Identifier LPAREN functionArgumentList? RPAREN ';'
     ;
 
 functionDefinition:

@@ -25,7 +25,7 @@ public class BasicParserTest {
    public void testPointClass() throws IOException {
       ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/Point.ninja"));
       assertThat(classDefinition.getName()).isEqualTo("Point");
-      assertThat(classDefinition.getBody()).isEmpty();
+      assertThat(classDefinition.getBody()).isPresent();
    }
 
    @Test

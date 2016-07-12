@@ -8,6 +8,7 @@ import org.apache.bcel.classfile.JavaClass;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -89,7 +90,15 @@ public class ClassGeneratorTestHelper {
       Preconditions.checkState(theClass != null, "Must call loadClass before newInstance");
       try {
          return new Proxy(theClass);
-      } catch (InstantiationException | IllegalAccessException e) {
+      } catch (Exception e) {
+         throw new RuntimeException(e);
+      }
+   }
+
+   public Proxy newInstance(String name, Arg... args) {
+      try {
+         return new Proxy(loadClass(name), args);
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
@@ -102,9 +111,12 @@ public class ClassGeneratorTestHelper {
       private final Class<?> clazz;
       private final Object instance;
 
-      public Proxy(Class<?> clazz) throws IllegalAccessException, InstantiationException {
+      public Proxy(Class<?> clazz, Arg... args) throws Exception {
          this.clazz = clazz;
-         this.instance = clazz.newInstance();
+         final Class[] argumentTypes = Arrays.stream(args).map(Arg::getType).toArray(Class[]::new);
+         final Object[] argumentValues = Arrays.stream(args).map(Arg::getValue).toArray();
+         final Constructor<?> constructor = clazz.getConstructor(argumentTypes);
+         this.instance = constructor.newInstance(argumentValues);
       }
 
       public Object invoke(final String methodName, Arg... args) {

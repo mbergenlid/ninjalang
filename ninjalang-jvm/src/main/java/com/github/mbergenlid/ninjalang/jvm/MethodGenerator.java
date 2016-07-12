@@ -7,10 +7,12 @@ import com.github.mbergenlid.ninjalang.ast.Argument;
 import com.github.mbergenlid.ninjalang.ast.Assign;
 import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
 import com.github.mbergenlid.ninjalang.ast.Block;
+import com.github.mbergenlid.ninjalang.ast.ClassArgument;
 import com.github.mbergenlid.ninjalang.ast.EmptyExpression;
 import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
 import com.github.mbergenlid.ninjalang.ast.IfExpression;
 import com.github.mbergenlid.ninjalang.ast.IntLiteral;
+import com.github.mbergenlid.ninjalang.ast.PrimaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Property;
 import com.github.mbergenlid.ninjalang.ast.SecondaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Select;
@@ -62,12 +64,23 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
       this.localVariables = new HashMap<>();
    }
 
-   public Method generateConstructor(List<Property> properties) {
+   public Method generateConstructor(PrimaryConstructor primaryConstructor, List<Property> properties) {
+      final Type[] types = primaryConstructor.getArguments().stream()
+         .map(Argument::getType)
+         .map(TypeConverter::fromNinjaType)
+         .toArray(Type[]::new);
+      final String[] names = primaryConstructor.getArguments().stream()
+         .map(Argument::getName)
+         .toArray(String[]::new);
+      int index = 1;
+      for(Argument arg : primaryConstructor.getArguments()) {
+         localVariables.put(arg.getSymbol(), index++);
+      }
       final MethodGen methodGen = new MethodGen(
          Constants.ACC_PUBLIC,
          Type.VOID,
-         new Type[0],
-         new String[0],
+         types,
+         names,
          "<init>",
          classGen.getClassName(),
          instructionList,
@@ -144,6 +157,11 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
 
    @Override
    public Void visit(ValDef valDef) {
+      return null;
+   }
+
+   @Override
+   public Void visit(ClassArgument argument) {
       return null;
    }
 

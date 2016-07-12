@@ -35,7 +35,8 @@ public class ClassGenerator {
          .filter(Property::needsBackingField)
          .collect(Collectors.toList())
       ).orElse(ImmutableList.of());
-      final Method constructor = new MethodGenerator(classGen, builtInFunctions).generateConstructor(propertiesWithBackingField);
+      final Method constructor = new MethodGenerator(classGen, builtInFunctions)
+         .generateConstructor(classDef.getPrimaryConstructor(), propertiesWithBackingField);
       classGen.addMethod(constructor);
    }
 
@@ -52,14 +53,19 @@ public class ClassGenerator {
    }
 
    private void generateProperty(Property property, ClassGen classGen) {
+      if(property.needsBackingField()) {
+         final FieldGen fieldGen = new FieldGen(
+            Constants.ACC_PRIVATE,
+            TypeConverter.fromNinjaType(property.getType()),
+            property.getName(),
+            classGen.getConstantPool()
+         );
+         classGen.addField(fieldGen.getField());
+      }
       final Method getter = new MethodGenerator(classGen, builtInFunctions).generateFromFunction(property.getter());
       classGen.addMethod(getter);
       property.getSetter()
          .map(setter -> new MethodGenerator(classGen, builtInFunctions).generateFromFunction(setter))
-         .ifPresent(m -> {
-            final FieldGen fieldGen = new FieldGen(Constants.ACC_PRIVATE, TypeConverter.fromNinjaType(property.getType()), property.getName(), classGen.getConstantPool());
-            classGen.addField(fieldGen.getField());
-            classGen.addMethod(m);
-         });
+         .ifPresent(classGen::addMethod);
    }
 }

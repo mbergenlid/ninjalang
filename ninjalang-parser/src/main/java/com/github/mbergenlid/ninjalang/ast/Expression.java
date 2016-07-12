@@ -12,4 +12,8 @@ public abstract class Expression extends TreeNode {
    public <T> T visit(TreeVisitor<T> visitor) {
       return visitor.visit(this);
    }
+
+   public boolean isConstant() {
+      return false;
+   }
 }
