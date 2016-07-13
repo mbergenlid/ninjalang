@@ -14,6 +14,7 @@ import com.github.mbergenlid.ninjalang.ast.Expression;
 import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
 import com.github.mbergenlid.ninjalang.ast.Getter;
 import com.github.mbergenlid.ninjalang.ast.IfExpression;
+import com.github.mbergenlid.ninjalang.ast.Import;
 import com.github.mbergenlid.ninjalang.ast.IntLiteral;
 import com.github.mbergenlid.ninjalang.ast.PrimaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Property;
@@ -31,6 +32,7 @@ import com.github.mbergenlid.ninjalang.util.Zipper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Typer implements TreeVisitor<Void> {
@@ -88,6 +90,7 @@ public class Typer implements TreeVisitor<Void> {
          symbolTable.importType(imp);
          symbolTable.importTerm(imp);
       });
+      symbolTable.importTerm(Import.wildCardImport(classDefinition.getNinjaPackage()));
       classDefinition.getType().termMembers().stream()
          .forEach(symbolTable::addSymbol);
       classDefinition.getPrimaryConstructor().visit(this);
@@ -128,7 +131,7 @@ public class Typer implements TreeVisitor<Void> {
       property.getInitialValue().visit(this);
       if(property.getInitialValue().hasType()) {
          final Type inferredType = property.getInitialValue().getType();
-         if(!inferredType.isSubTypeOf(declaredType)) {
+         if(!inferredType.isSubTypeOf(declaredType) && inferredType != Type.NO_TYPE) {
             errors.add(TypeError.incompatibleTypes(property.getInitialValue().getSourcePosition(), declaredType, inferredType));
          } else {
             final Getter getter = property.getGetter();
@@ -241,7 +244,12 @@ public class Typer implements TreeVisitor<Void> {
             errors.add(TypeError.noSuchMember(select.getSourcePosition(), select.getName()));
          }
       } else {
-         select.setSymbol(symbolTable.lookupTerm(select.getName()));
+         final Optional<TermSymbol> symbol = symbolTable.lookupTermOptional(select.getName());
+         if(symbol.isPresent()) {
+            select.setSymbol(symbol.get());
+         } else {
+            errors.add(TypeError.noSuchSymbol(select.getSourcePosition(), select.getName()));
+         }
       }
       return null;
    }

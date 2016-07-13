@@ -20,6 +20,10 @@ public class TypeError {
       return new TypeError(String.format("can not resolve member '%s'", member), sourcePosition);
    }
 
+   public static TypeError noSuchSymbol(final SourcePosition sourcePosition, final String symbolName) {
+      return new TypeError(String.format("can not find symbol '%s'", symbolName), sourcePosition);
+   }
+
    public String getMessage() {
       return message;
    }

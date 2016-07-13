@@ -2,4 +2,5 @@ package examples;
 
 class Shape {
 
+    def area(): Int = 0;
 }

@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class Type {
 
@@ -39,7 +40,18 @@ public abstract class Type {
    }
 
    public Optional<TermSymbol> termMember(final String name) {
-      return symbols.stream().filter(Symbol::isTermSymbol).filter(s -> s.getName().equals(name)).map(Symbol::asTermSymbol).findAny();
+      final Optional<TermSymbol> ownMember = symbols.stream()
+         .filter(Symbol::isTermSymbol)
+         .filter(s -> s.getName().equals(name))
+         .map(Symbol::asTermSymbol)
+         .findAny();
+      if(ownMember.isPresent()) {
+         return ownMember;
+      } else {
+         return parentTypes.stream()
+            .flatMap(t -> t.termMember(name).map(Stream::of).orElse(Stream.empty()))
+            .findFirst();
+      }
    }
 
    public boolean isFunctionType() {

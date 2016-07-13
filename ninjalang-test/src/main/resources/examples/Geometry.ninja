@@ -1,4 +1,9 @@
 package examples;
 
 class Geometry {
+
+    def test(): Int = {
+        val rect = Rectangle.create(5, 2);
+        rect.area();
+    }
 }
