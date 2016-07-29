@@ -25,6 +25,11 @@ public class ValDef extends Statement {
    }
 
    @Override
+   public boolean isPure() {
+      return value.isPure();
+   }
+
+   @Override
    public void foreachPostfix(TreeVisitor<Void> visitor) {
       value.foreachPostfix(visitor);
       visit(visitor);

@@ -30,6 +30,11 @@ public class AssignBackingField extends Expression {
    }
 
    @Override
+   public boolean isPure() {
+      return false;
+   }
+
+   @Override
    public void foreachPostfix(TreeVisitor<Void> visitor) {
       value.foreachPostfix(visitor);
       visit(visitor);

@@ -21,6 +21,11 @@ public class IfExpression extends Statement {
    }
 
    @Override
+   public boolean isPure() {
+      return condition.isPure() && thenClause.isPure() && elseClause.isPure();
+   }
+
+   @Override
    public void foreachPostfix(TreeVisitor<Void> visitor) {
       visit(visitor);
    }

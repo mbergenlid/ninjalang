@@ -25,6 +25,11 @@ public class Apply extends Statement {
    }
 
    @Override
+   public boolean isPure() {
+      return function.getType().asFunctionType().isPure() && arguments.stream().allMatch(Expression::isPure);
+   }
+
+   @Override
    public void foreachPostfix(TreeVisitor<Void> visitor) {
       function.foreachPostfix(visitor);
       arguments.stream().forEach(a -> a.foreachPostfix(visitor));

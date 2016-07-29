@@ -38,6 +38,11 @@ public class Select extends Expression {
    }
 
    @Override
+   public boolean isPure() {
+      return true;
+   }
+
+   @Override
    public void foreachPostfix(TreeVisitor<Void> visitor) {
 
    }

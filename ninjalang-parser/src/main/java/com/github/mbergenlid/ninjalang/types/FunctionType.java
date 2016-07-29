@@ -12,12 +12,14 @@ public class FunctionType extends Type {
 
    private final List<Type> input;
    private final Supplier<Type> output;
+   private final boolean pure;
 
-   public FunctionType(List<Type> input, Supplier<Type> outputType) {
+   public FunctionType(List<Type> input, Supplier<Type> outputType, boolean isPure) {
       super(ImmutableList.of());
       assert outputType != null;
       this.input = input;
       this.output = outputType;
+      this.pure = isPure;
    }
 
    @Override
@@ -38,5 +40,9 @@ public class FunctionType extends Type {
    @Override
    public boolean isFunctionType() {
       return true;
+   }
+
+   public boolean isPure() {
+      return pure;
    }
 }

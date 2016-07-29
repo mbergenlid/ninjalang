@@ -58,4 +58,59 @@ public abstract class AbstractVoidTreeVisitor implements TreeVisitor<Void> {
    public Void visit(StringLiteral stringLiteral) {
       return null;
    }
+
+   @Override
+   public Void visit(ClassArgument argument) {
+      return null;
+   }
+
+   @Override
+   public Void visit(SuperClassList superClass) {
+      return null;
+   }
+
+   @Override
+   public Void visit(SecondaryConstructor primaryConstructor) {
+      return null;
+   }
+
+   @Override
+   public Void visit(Block expression) {
+      return null;
+   }
+
+   @Override
+   public Void visit(IfExpression ifExpression) {
+      return null;
+   }
+
+   @Override
+   public Void visit(Assign assign) {
+      return null;
+   }
+
+   @Override
+   public Void visit(Select select) {
+      return null;
+   }
+
+   @Override
+   public Void visit(Apply apply) {
+      return null;
+   }
+
+   @Override
+   public Void visit(AccessBackingField access) {
+      return null;
+   }
+
+   @Override
+   public Void visit(EmptyExpression emptyExpression) {
+      return null;
+   }
+
+   @Override
+   public Void visit(ValDef valDef) {
+      return null;
+   }
 }

@@ -2,6 +2,7 @@ package com.github.mbergenlid.ninjalang;
 
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.parser.Parser;
+import com.github.mbergenlid.ninjalang.typer.PurityChecker;
 import com.github.mbergenlid.ninjalang.typer.SymbolTable;
 import com.github.mbergenlid.ninjalang.typer.TypeError;
 import com.github.mbergenlid.ninjalang.typer.TypeInterface;
@@ -14,6 +15,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Compiler {
 
@@ -28,7 +30,10 @@ public class Compiler {
 
       final SymbolTable symbolTable = new TypeInterface(Types.loadDefaults()).loadSymbols(classDefinitions);
       final List<TypeError> errors = classDefinitions.stream()
-         .flatMap(classDef -> new Typer(symbolTable).typeTree(classDef).stream())
+         .flatMap(classDef -> Stream.concat(
+            new Typer(symbolTable).typeTree(classDef).stream(),
+            new PurityChecker().checkPurity(classDef).stream()
+         ))
          .collect(Collectors.toList());
       if(!errors.isEmpty()) {
          return CompilationResult.error(errors);

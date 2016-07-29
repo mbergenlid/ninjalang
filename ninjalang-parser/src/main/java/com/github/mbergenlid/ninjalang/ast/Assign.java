@@ -23,6 +23,11 @@ public class Assign extends Statement {
    }
 
    @Override
+   public boolean isPure() {
+      return value.isPure();
+   }
+
+   @Override
    public void foreachPostfix(TreeVisitor<Void> visitor) {
       visit(visitor);
    }

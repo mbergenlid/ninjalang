@@ -1,5 +1,6 @@
 package com.github.mbergenlid.ninjalang.typer;
 
+import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
 import com.github.mbergenlid.ninjalang.ast.SourcePosition;
 
 public class TypeError {
@@ -22,6 +23,13 @@ public class TypeError {
 
    public static TypeError noSuchSymbol(final SourcePosition sourcePosition, final String symbolName) {
       return new TypeError(String.format("can not find symbol '%s'", symbolName), sourcePosition);
+   }
+
+   public static TypeError pureFunctionUsingImpureExpressions(final SourcePosition sourcePosition, final FunctionDefinition functionDefinition) {
+      return new TypeError(
+         String.format("function '%s' is using impure expressions and has to be marked as 'impure'.", functionDefinition.getName()),
+         sourcePosition
+      );
    }
 
    public String getMessage() {

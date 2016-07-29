@@ -7,10 +7,10 @@ class ArrayList {
     var capacity: Int
         get = array.size;
 
-    def get(i: Int): Any = array[i];
-    def set(i: Int, value: Any): Unit = array[i] = value;
+    impure def get(i: Int): Any = array[i];
+    impure def set(i: Int, value: Any): Unit = array[i] = value;
 
-    def add(x: Any): Unit = {
+    impure def add(x: Any): Unit = {
         this.ensureCapacity(size+1);
         array[size] = x;
         size = size + 1;

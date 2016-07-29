@@ -25,6 +25,11 @@ public class Block extends Statement {
    }
 
    @Override
+   public boolean isPure() {
+      return statements.stream().allMatch(Statement::isPure) && returnExpression.isPure();
+   }
+
+   @Override
    public void foreachPostfix(TreeVisitor<Void> visitor) {
       visit(visitor);
    }

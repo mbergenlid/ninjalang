@@ -172,7 +172,8 @@ public class Typer implements TreeVisitor<Void> {
 
       functionDefinition.setType(new FunctionType(
          functionDefinition.getArgumentList().stream().map(Argument::getType).collect(Collectors.toList()),
-         () -> functionDefinition.getReturnType().getType()
+         () -> functionDefinition.getReturnType().getType(),
+         functionDefinition.isPure()
       ));
       return null;
    }

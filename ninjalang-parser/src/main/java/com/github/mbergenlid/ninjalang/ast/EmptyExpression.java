@@ -27,4 +27,9 @@ public class EmptyExpression extends Expression {
    public boolean isConstant() {
       return true;
    }
+
+   @Override
+   public boolean isPure() {
+      return true;
+   }
 }

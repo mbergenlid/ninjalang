@@ -72,6 +72,11 @@ public class AutomaticTypeTest {
       );
    }
 
+   @Test
+   public void testImpurity() throws IOException {
+      test("/autotests/Purity.ninja");
+   }
+
    public void test(final String ninjaFile, final String... dependencies) throws IOException {
       List<TypeError> expectedErrors;
       try(InputStream inputStream = getClass().getResourceAsStream(ninjaFile)) {

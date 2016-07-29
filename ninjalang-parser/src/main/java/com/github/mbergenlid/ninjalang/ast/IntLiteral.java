@@ -30,4 +30,9 @@ public class IntLiteral extends Expression {
    public boolean isConstant() {
       return true;
    }
+
+   @Override
+   public boolean isPure() {
+      return true;
+   }
 }

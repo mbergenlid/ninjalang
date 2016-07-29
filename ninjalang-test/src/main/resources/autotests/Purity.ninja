@@ -1,0 +1,14 @@
+package autotests;
+
+class Purity {
+
+    impure def notPure(): Int = 5;
+
+    def error(): Int = notPure(); //error: function 'error' is using impure expressions and has to be marked as 'impure'.
+
+    def thisIsPure(): Int = 1;
+
+    def pureBooleanExpression(): Boolean = 1 > 7;
+
+    def impureBooleanExpression(): Boolean = 1 > notPure(); //error: function 'impureBooleanExpression' is using impure expressions and has to be marked as 'impure'.
+}

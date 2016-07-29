@@ -29,7 +29,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -145,7 +144,7 @@ public class TypeInterface implements TreeVisitor<Type> {
          .map(Argument::getTypeName)
          .map(this::lookupType)
          .collect(Collectors.toList());
-      return new FunctionType(argumentTypes, () -> type);
+      return new FunctionType(argumentTypes, () -> type, true);
    }
 
    private Type createConstructor(SecondaryConstructor secondaryConstructor, Type type) {
@@ -153,7 +152,7 @@ public class TypeInterface implements TreeVisitor<Type> {
          .map(Argument::getTypeName)
          .map(this::lookupType)
          .collect(Collectors.toList());
-      return new FunctionType(argumentTypes, () -> type);
+      return new FunctionType(argumentTypes, () -> type, true);
    }
 
    @Override
@@ -181,7 +180,7 @@ public class TypeInterface implements TreeVisitor<Type> {
          .map(this::lookupType)
          .collect(Collectors.toList());
 
-      return new FunctionType(argumentTypes, () -> returnType);
+      return new FunctionType(argumentTypes, () -> returnType, functionDefinition.isPure());
    }
 
    private Type lookupType(String name) {

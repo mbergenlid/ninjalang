@@ -16,4 +16,6 @@ public abstract class Expression extends TreeNode {
    public boolean isConstant() {
       return false;
    }
+
+   public abstract boolean isPure();
 }
