@@ -315,7 +315,7 @@ public class ASTBuilder extends ClassBaseVisitor<TreeNode> {
       return new FunctionDefinition(
          SourcePosition.fromParserContext(ctx),
          AccessModifier.PUBLIC, ctx.name.getText(), argumentList,
-         typeName, functionBody
+         typeName, functionBody, ctx.impure == null
       );
    }
 

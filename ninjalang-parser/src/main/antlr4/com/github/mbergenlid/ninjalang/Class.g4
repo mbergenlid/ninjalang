@@ -36,7 +36,7 @@ constructorDefinition
     ;
 
 functionDefinition:
-    accessModifier? 'native'? 'def' name=Identifier '(' functionArgumentList? ')' ':' returnType=typeReference ('=' body=statement)?;
+    accessModifier? 'native'? impure='impure'? 'def' name=Identifier '(' functionArgumentList? ')' ':' returnType=typeReference ('=' body=statement)?;
 
 propertyDefinition:
     accessModifier? modifier=('val' | 'var') name=Identifier ':' type=Identifier

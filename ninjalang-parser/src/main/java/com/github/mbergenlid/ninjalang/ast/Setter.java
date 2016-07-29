@@ -18,6 +18,6 @@ public class Setter extends FunctionDefinition {
       Expression body
    ) {
       super(sourcePosition, accessModifier, name,
-         ImmutableList.of(new Argument(sourcePosition, "value", propertyType)), "Unit", Optional.of(body));
+         ImmutableList.of(new Argument(sourcePosition, "value", propertyType)), "Unit", Optional.of(body), false);
    }
 }

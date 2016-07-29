@@ -55,6 +55,18 @@ public class FunctionDeclarationTest {
    }
 
    @Test
+   public void functionMarkedAsImpure() throws IOException {
+      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/Functions.ninja"));
+      final FunctionDefinition functionDefinition = classDefinition.getBody().get().getFunctions().stream()
+         .filter(f -> f.getName().equals("impureFunction"))
+         .findAny()
+         .get();
+      assertThat(functionDefinition)
+         .isNotPure()
+      ;
+   }
+
+   @Test
    public void testArrayAccess() throws IOException {
       final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream("/examples/ArrayList.ninja"));
       final FunctionDefinition functionDefinition = classDefinition.getBody().get().getFunctions().stream()

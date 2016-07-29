@@ -10,4 +10,6 @@ class Functions {
 
     def maxTen(x: Int): Int =
         if(x > 10) 10 else x
+
+    impure def impureFunction(): Unit = {}
 }

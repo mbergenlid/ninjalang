@@ -12,7 +12,7 @@ public class Getter extends FunctionDefinition {
       String returnType,
       Expression body
    ) {
-      super(sourcePosition, name, ImmutableList.of(), returnType, Optional.of(body));
+      super(sourcePosition, name, ImmutableList.of(), returnType, Optional.of(body), true);
    }
 
    public Getter(
@@ -22,6 +22,6 @@ public class Getter extends FunctionDefinition {
       String returnType,
       Expression body
    ) {
-      super(sourcePosition, accessModifier, name, ImmutableList.of(), returnType, Optional.of(body));
+      super(sourcePosition, accessModifier, name, ImmutableList.of(), returnType, Optional.of(body), true);
    }
 }

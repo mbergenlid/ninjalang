@@ -19,15 +19,17 @@ public class FunctionDefinition extends TreeNode {
    private final String returnTypeName;
    private final SymbolReference<TypeSymbol> returnType;
    private final Optional<Expression> body;
+   private final boolean pure;
 
    public FunctionDefinition(
       final SourcePosition sourcePosition,
       String name,
       List<Argument> argumentList,
       String returnType,
-      Optional<Expression> body
+      Optional<Expression> body,
+      boolean pure
    ) {
-      this(sourcePosition, AccessModifier.PUBLIC, name, argumentList, returnType, body);
+      this(sourcePosition, AccessModifier.PUBLIC, name, argumentList, returnType, body, pure);
    }
 
    public FunctionDefinition(
@@ -36,7 +38,8 @@ public class FunctionDefinition extends TreeNode {
       String name,
       List<Argument> argumentList,
       String returnType,
-      Optional<Expression> body
+      Optional<Expression> body,
+      boolean pure
    ) {
       super(sourcePosition);
       this.accessModifier = accessModifier;
@@ -45,6 +48,7 @@ public class FunctionDefinition extends TreeNode {
       this.returnTypeName = returnType;
       this.returnType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);
       this.body = body;
+      this.pure = pure;
    }
 
    @Override
