@@ -11,6 +11,7 @@ import java.util.Optional;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class Property extends TreeNode {
+   private final boolean val;
    private final String name;
    private final String typeName;
    private final SymbolReference<TypeSymbol> propertyType;
@@ -28,6 +29,7 @@ public class Property extends TreeNode {
       this.typeName = propertyType;
       this.propertyType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);
       this.initialValue = initialValue;
+      this.val = setter == null;
       if(setter == null && initialValue.isConstant()) {
          this.getter = new Getter(sourcePosition, name, propertyType, initialValue);
       } else {
@@ -51,6 +53,7 @@ public class Property extends TreeNode {
       this.initialValue = initialValue;
       this.getter = getter;
       this.setter = setter;
+      this.val = setter.map(s -> false).orElse(true);
    }
 
    public Getter getter() {

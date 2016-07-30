@@ -4,7 +4,7 @@ class ClassWithProperties {
     val prop: Int = 42;
     var mutableProperty: Int = 1;
 
-    def trySetMutableProperty(value: Int): Unit = {
+    impure def trySetMutableProperty(value: Int): Unit = {
         if(value > 10) mutableProperty = value;
     }
 }

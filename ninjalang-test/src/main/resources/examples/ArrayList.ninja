@@ -16,7 +16,7 @@ class ArrayList {
         size = size + 1;
     }
 
-    private def ensureCapacity(newCapacity: Int): Unit = {
+    private impure def ensureCapacity(newCapacity: Int): Unit = {
         if(newCapacity > capacity) {
             array = array.copyWithNewSize(newCapacity);
         }

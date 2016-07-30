@@ -2,6 +2,8 @@ package autotests;
 
 class Purity {
 
+    var someMutableValue: Int = 1;
+
     impure def notPure(): Int = 5;
 
     def error(): Int = notPure(); //error: function 'error' is using impure expressions and has to be marked as 'impure'.
@@ -11,4 +13,6 @@ class Purity {
     def pureBooleanExpression(): Boolean = 1 > 7;
 
     def impureBooleanExpression(): Boolean = 1 > notPure(); //error: function 'impureBooleanExpression' is using impure expressions and has to be marked as 'impure'.
+
+    def modifyingSomeMutableValue(): Unit = someMutableValue = 10; //error: function 'modifyingSomeMutableValue' is using impure expressions and has to be marked as 'impure'.
 }

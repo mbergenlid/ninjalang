@@ -24,7 +24,7 @@ public class Assign extends Statement {
 
    @Override
    public boolean isPure() {
-      return value.isPure();
+      return (!assignee.getSymbol().isPropertySymbol() || assignee.getSymbol().isValSymbol()) && value.isPure();
    }
 
    @Override

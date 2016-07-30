@@ -19,9 +19,18 @@ public class TermSymbol extends Symbol {
    }
 
    protected TermSymbol(String name, Type type, DeferredSymbol owner) {
+      this(name, true, type, owner);
+   }
+
+   protected TermSymbol(String name, boolean isVal, Type type, DeferredSymbol owner) {
       super(type);
       this.name = name;
       this.owner = Optional.ofNullable(owner);
+      this.valSymbol = isVal;
+   }
+
+   public static PropertySymbol mutablePropertyTermSymbol(String name, Type type, DeferredSymbol owner) {
+      return new PropertySymbol(name, false, type, owner);
    }
 
    public static PropertySymbol propertyTermSymbol(String name, Type type, DeferredSymbol owner) {

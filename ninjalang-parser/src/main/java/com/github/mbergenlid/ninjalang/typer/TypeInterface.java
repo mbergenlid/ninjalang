@@ -96,7 +96,13 @@ public class TypeInterface implements TreeVisitor<Type> {
       final List<PropertySymbol> properties = classDefinition.getBody()
          .map(b ->
             b.getProperties().stream()
-               .map(p -> TermSymbol.propertyTermSymbol(p.getName(), p.visit(this), ownerSymbol))
+               .map(p -> {
+                  if(p.isVal()) {
+                     return TermSymbol.propertyTermSymbol(p.getName(), p.visit(this), ownerSymbol);
+                  } else {
+                     return TermSymbol.mutablePropertyTermSymbol(p.getName(), p.visit(this), ownerSymbol);
+                  }
+               })
                .collect(Collectors.toList())
          )
          .orElse(Collections.emptyList());
