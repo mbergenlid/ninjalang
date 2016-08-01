@@ -4,7 +4,6 @@ import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.parser.Parser;
 import com.github.mbergenlid.ninjalang.typer.PurityChecker;
 import com.github.mbergenlid.ninjalang.typer.SymbolTable;
-import com.github.mbergenlid.ninjalang.typer.TypeError;
 import com.github.mbergenlid.ninjalang.typer.TypeInterface;
 import com.github.mbergenlid.ninjalang.typer.Typer;
 import com.github.mbergenlid.ninjalang.typer.Types;
@@ -20,16 +19,26 @@ import java.util.stream.Stream;
 public class Compiler {
 
    public CompilationResult parseAndTypeCheck(final List<URI> uris) throws IOException {
-      final List<ClassDefinition> classDefinitions = uris.stream().map(uri -> {
+      final List<Parser.ParserResult> parseResults = uris.stream().map(uri -> {
          try(InputStream inputStream = uri.toURL().openStream()) {
-            return Parser.classDefinition(inputStream);
+            return Parser.parse(inputStream);
          } catch (IOException e) {
             throw new RuntimeException(e);
          }
       }).collect(Collectors.toList());
 
+      final List<CompilationError> parseErrors = parseResults.stream()
+         .filter(Parser.ParserResult::failed)
+         .flatMap(p -> p.errors().stream())
+         .collect(Collectors.toList());
+      if(!parseErrors.isEmpty()) {
+         return CompilationResult.error(parseErrors);
+      }
+      final List<ClassDefinition> classDefinitions = parseResults.stream()
+         .map(Parser.ParserResult::classDefinition)
+         .collect(Collectors.toList());
       final SymbolTable symbolTable = new TypeInterface(Types.loadDefaults()).loadSymbols(classDefinitions);
-      final List<TypeError> errors = classDefinitions.stream()
+      final List<CompilationError> errors = classDefinitions.stream()
          .flatMap(classDef -> Stream.concat(
             new Typer(symbolTable).typeTree(classDef).stream(),
             new PurityChecker().checkPurity(classDef).stream()
@@ -45,15 +54,15 @@ public class Compiler {
    public static class CompilationResult {
       private final SymbolTable symbolTable;
       private final List<ClassDefinition> typedClassDefinitions;
-      private final List<TypeError> errors;
+      private final List<CompilationError> errors;
 
-      private CompilationResult(SymbolTable symbolTable, List<ClassDefinition> typedClassDefinitions, List<TypeError> errors) {
+      private CompilationResult(SymbolTable symbolTable, List<ClassDefinition> typedClassDefinitions, List<CompilationError> errors) {
          this.symbolTable = symbolTable;
          this.typedClassDefinitions = typedClassDefinitions;
          this.errors = errors;
       }
 
-      public static CompilationResult error(List<TypeError> errors) {
+      public static CompilationResult error(List<CompilationError> errors) {
          return new CompilationResult(null, ImmutableList.of(), errors);
       }
 
@@ -83,7 +92,7 @@ public class Compiler {
          return symbolTable;
       }
 
-      public List<TypeError> errors() {
+      public List<CompilationError> errors() {
          return errors;
       }
    }

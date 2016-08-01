@@ -82,7 +82,7 @@ public class AutomaticTypeTest {
       try(InputStream inputStream = getClass().getResourceAsStream(ninjaFile)) {
          expectedErrors = getExpectedErrors(inputStream);
       }
-      final List<TypeError> errors = parseAndTypeCheck(
+      final List<CompilationError> errors = parseAndTypeCheck(
          Stream.concat(Arrays.stream(dependencies), Stream.of(ninjaFile)).toArray(String[]::new)
       );
       assertThat(errors.size()).withFailMessage(errors.toString()).isEqualTo(expectedErrors.size());
@@ -95,7 +95,7 @@ public class AutomaticTypeTest {
       }
    }
 
-   private List<TypeError> parseAndTypeCheck(final String... name) throws IOException {
+   private List<CompilationError> parseAndTypeCheck(final String... name) throws IOException {
       final List<URI> uris = Arrays.stream(name).map(n -> {
          try {
             return getClass().getResource(n).toURI();

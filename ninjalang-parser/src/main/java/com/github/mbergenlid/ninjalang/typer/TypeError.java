@@ -1,16 +1,13 @@
 package com.github.mbergenlid.ninjalang.typer;
 
+import com.github.mbergenlid.ninjalang.CompilationError;
 import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
 import com.github.mbergenlid.ninjalang.ast.SourcePosition;
 
-public class TypeError {
-
-   private final String message;
-   private final SourcePosition sourcePosition;
+public class TypeError extends CompilationError {
 
    public TypeError(String message, SourcePosition sourcePosition) {
-      this.message = message;
-      this.sourcePosition = sourcePosition;
+      super(message, sourcePosition);
    }
 
    public static TypeError incompatibleTypes(final SourcePosition sourcePosition, final Type expectedType, final Type actualType) {
@@ -32,19 +29,8 @@ public class TypeError {
       );
    }
 
-   public String getMessage() {
-      return message;
-   }
-
-   public SourcePosition getSourcePosition() {
-      return sourcePosition;
-   }
-
    @Override
    public String toString() {
-      return "TypeError{" +
-         "message='" + message + '\'' +
-         ", sourcePosition=" + sourcePosition +
-         '}';
+      return "TypeError" + super.toString();
    }
 }
