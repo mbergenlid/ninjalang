@@ -12,4 +12,8 @@ public class ParseError extends CompilationError {
    public String toString() {
       return "ParseError" + super.toString();
    }
+
+   public static ParseError valPropertyCannotHaveSetter(SourcePosition sourcePosition) {
+      return new ParseError("'val' property can not have a setter", sourcePosition);
+   }
 }

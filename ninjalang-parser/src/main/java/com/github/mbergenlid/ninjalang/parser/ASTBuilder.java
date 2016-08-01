@@ -223,7 +223,7 @@ public class ASTBuilder {
          final boolean isVar = ctx.modifier.getText().equals("var");
 
          final FunctionDefinition accessor1 = ctx.accessor().size() >= 1
-            ? createAccessor(name, declaredType, accessModifier, ctx.modifier.getText(), initialValue, ctx.accessor(0), SourcePosition.fromParserContext(ctx))
+            ? createAccessor(name, declaredType, accessModifier, ctx.modifier.getText(), initialValue, ctx.accessor(0), SourcePosition.fromParserContext(ctx.accessor(0)))
             : (isVar && hasInitialValue)
                ? createDefaultGetter(SourcePosition.fromParserContext(ctx), declaredType, accessModifier, name)
                : new Getter(
@@ -241,6 +241,14 @@ public class ASTBuilder {
             accessor2 = Optional.of(createDefaultGetter(SourcePosition.fromParserContext(ctx), declaredType, accessModifier, name));
          } else if(isVar && hasInitialValue) {
             accessor2 = Optional.of(createDefaultSetter(SourcePosition.fromParserContext(ctx), declaredType, accessModifier, name));
+         }
+
+         if(!isVar) {
+            if(accessor1 instanceof Setter) {
+               errors.add(ParseError.valPropertyCannotHaveSetter(accessor1.getSourcePosition()));
+            } else if(accessor2.map(a -> a instanceof Setter).orElse(false)) {
+               errors.add(ParseError.valPropertyCannotHaveSetter(accessor2.get().getSourcePosition()));
+            }
          }
 
          return new Property(SourcePosition.fromParserContext(ctx), name, declaredType, initialValue,

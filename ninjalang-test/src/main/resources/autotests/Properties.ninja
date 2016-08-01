@@ -1,0 +1,6 @@
+package autotests;
+
+class Properties {
+    val propWithSetter: Int = 1
+        private set; //error: 'val' property can not have a setter
+}

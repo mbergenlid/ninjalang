@@ -77,6 +77,11 @@ public class AutomaticTypeTest {
       test("/autotests/Purity.ninja");
    }
 
+   @Test
+   public void testProperties() throws IOException {
+      test("/autotests/Properties.ninja");
+   }
+
    public void test(final String ninjaFile, final String... dependencies) throws IOException {
       List<TypeError> expectedErrors;
       try(InputStream inputStream = getClass().getResourceAsStream(ninjaFile)) {
@@ -89,7 +94,11 @@ public class AutomaticTypeTest {
 
       for(int i = 0; i < expectedErrors.size(); i++) {
          assertThat(errors.get(i).getSourcePosition().getLine())
-            .isEqualTo(expectedErrors.get(i).getSourcePosition().getLine());
+            .withFailMessage(
+               String.format("Error {%s} is not on the correct line\nExpected: %d\n     Was: %d",
+                  errors.get(i).getMessage(), expectedErrors.get(i).getSourcePosition().getLine(),
+                  errors.get(i).getSourcePosition().getLine())
+            ).isEqualTo(expectedErrors.get(i).getSourcePosition().getLine());
          assertThat(errors.get(i).getMessage())
             .isEqualTo(expectedErrors.get(i).getMessage());
       }
