@@ -4,13 +4,8 @@ import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.parser.Parser;
 import com.google.common.collect.ImmutableList;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 

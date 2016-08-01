@@ -70,10 +70,6 @@ public class Compiler {
          return new CompilationResult(symbolTable, typedClassDefinitions, ImmutableList.of());
       }
 
-      public boolean succeeded() {
-         return errors.isEmpty();
-      }
-
       public boolean failed() {
          return !errors.isEmpty();
       }
