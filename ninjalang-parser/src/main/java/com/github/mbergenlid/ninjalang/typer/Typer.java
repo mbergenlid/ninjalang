@@ -134,19 +134,26 @@ public class Typer implements TreeVisitor<Void> {
          if(!inferredType.isSubTypeOf(declaredType) && inferredType != Type.NO_TYPE) {
             errors.add(TypeError.incompatibleTypes(property.getInitialValue().getSourcePosition(), declaredType, inferredType));
          } else {
-            final Getter getter = property.getGetter();
-            getter.visit(this);
-            property.getSetter().ifPresent(s -> s.visit(this));
+            typeGetterAndSetter(property, declaredType);
          }
       } else {
-         final Getter getter = property.getGetter();
-         getter.visit(this);
-         property.getSetter().ifPresent(s -> s.visit(this));
+         typeGetterAndSetter(property, declaredType);
       }
       property.setType(declaredType);
       symbolTable.exitScope();
 
       return null;
+   }
+
+   private void typeGetterAndSetter(Property property, Type declaredType) {
+      final Getter getter = property.getGetter();
+      symbolTable.newScope();
+      final DeferredSymbol deferredThisSymbol = new DeferredSymbol();
+      deferredThisSymbol.set(symbolTable.lookupTerm("this"));
+      symbolTable.addSymbol(new TermSymbol("field", declaredType, deferredThisSymbol));
+      getter.visit(this);
+      property.getSetter().ifPresent(s -> s.visit(this));
+      symbolTable.exitScope();
    }
 
    @Override

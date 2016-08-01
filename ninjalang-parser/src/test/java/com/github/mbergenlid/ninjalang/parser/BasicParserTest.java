@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.mbergenlid.ninjalang.ast.TestHelpers.select;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import static com.github.mbergenlid.ninjalang.ast.SourcePosition.NO_SOURCE;
@@ -31,7 +32,7 @@ public class BasicParserTest {
    @Test
    public void testClassWithProperties() throws IOException {
       ClassDefinition classDefinition = Parser.classDefinition(getClass()
-         .getResourceAsStream("/ClassWithProperties.ninja"));
+         .getResourceAsStream("/parser/ClassWithProperties.ninja"));
       assertThat(classDefinition.getName()).isEqualTo("ClassWithProperties");
       assertThat(classDefinition.getBody()).isPresent();
       assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
@@ -39,13 +40,87 @@ public class BasicParserTest {
             new Getter(NO_SOURCE, "name", "String", new StringLiteral(NO_SOURCE, "hello")), Optional.empty()),
          new Property(NO_SOURCE, "prop", "Int", new IntLiteral(NO_SOURCE, 42),
             new Getter(NO_SOURCE, "prop", "Int", new IntLiteral(NO_SOURCE, 42)), Optional.empty()),
-         new Property(NO_SOURCE, "mutableProperty", "Int", new IntLiteral(NO_SOURCE, 1),
+         new Property(
+            NO_SOURCE,
+            AccessModifier.PUBLIC,
+            false,
+            "mutableProperty",
+            "Int",
+            new IntLiteral(NO_SOURCE, 1),
+            null,
+            null
+         ),
+         new Property(
+            NO_SOURCE,
+            AccessModifier.PUBLIC,
+            false,
+            "propWithExplicitSetAndGet",
+            "Int",
+            new IntLiteral(NO_SOURCE, 1),
+            new Getter(NO_SOURCE, "propWithExplicitSetAndGet", "Int", new Select(NO_SOURCE, "field")),
             new Setter(
                NO_SOURCE,
-               "mutableProperty",
+               "propWithExplicitSetAndGet",
                "Int",
-               new AssignBackingField(NO_SOURCE, "mutableProperty", new Select(NO_SOURCE, "value")))
+               new Assign(NO_SOURCE, new Select(NO_SOURCE, "field"), new Select(NO_SOURCE, "value"))
             )
+         ),
+         new Property(
+            SourcePosition.NO_SOURCE,
+            AccessModifier.PUBLIC,
+            false,
+            "mutableWithExplicitGet",
+            "Int",
+            new IntLiteral(SourcePosition.NO_SOURCE, 1),
+            new Getter(
+               SourcePosition.NO_SOURCE,
+               AccessModifier.PUBLIC,
+               "mutableWithExplicitGet",
+               "Int",
+               new Apply(
+                  SourcePosition.NO_SOURCE,
+                  select("field.plus"),
+                  ImmutableList.of(new IntLiteral(SourcePosition.NO_SOURCE, 1))
+               )
+            ),
+            null
+         ),
+         new Property(
+            SourcePosition.NO_SOURCE,
+            AccessModifier.PUBLIC,
+            true,
+            "immutableWithExplicitGet",
+            "Int",
+            new IntLiteral(SourcePosition.NO_SOURCE, 1),
+            new Getter(
+               SourcePosition.NO_SOURCE,
+               AccessModifier.PUBLIC,
+               "immutableWithExplicitGet",
+               "Int",
+               new Apply(
+                  SourcePosition.NO_SOURCE,
+                  select("field.plus"),
+                  ImmutableList.of(new IntLiteral(SourcePosition.NO_SOURCE, 1))
+               )
+            ),
+            null
+         ),
+         new Property(
+            SourcePosition.NO_SOURCE,
+            AccessModifier.PUBLIC,
+            false,
+            "mutableWithNoBackingField",
+            "Int",
+            new EmptyExpression(NO_SOURCE),
+            new Getter(
+               SourcePosition.NO_SOURCE,
+               AccessModifier.PUBLIC,
+               "mutableWithNoBackingField",
+               "Int",
+               select("someOtherVariable.prop")
+            ),
+            null
+         )
       );
    }
 

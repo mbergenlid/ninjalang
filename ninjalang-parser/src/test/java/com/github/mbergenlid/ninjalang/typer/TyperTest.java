@@ -29,7 +29,9 @@ public class TyperTest {
    @Test
    public void testPropertyTypes() {
       final Property intProperty = new Property(SourcePosition.NO_SOURCE, "intProperty", "Int", new IntLiteral(SourcePosition.NO_SOURCE, 5));
-      final Typer typer = new Typer();
+      final SymbolTable symbolTable = Types.loadDefaults();
+      symbolTable.addSymbol(new TermSymbol("this", Type.fromIdentifier("SomeClass")));
+      final Typer typer = new Typer(symbolTable);
       typer.typeTree(intProperty);
 
       assertThat(intProperty.getType()).isEqualTo(Type.fromIdentifier("ninjalang.Int"));

@@ -90,11 +90,17 @@ public class ASTBuilder {
          final Optional<List<Property>> constructorProperties = constructor.map(c ->
             c.getClassArguments()
                .filter(ClassArgument::isPropertyArgument)
-               .map(ca -> new Property(
-                  ca.getSourcePosition(),
-                  ca.getName(),
-                  ca.getTypeName(),
-                  new Select(ca.getSourcePosition(), ca.getName()))
+               .map(ca ->
+                  new Property(
+                     ca.getSourcePosition(),
+                     AccessModifier.PUBLIC,
+                     true,
+                     ca.getName(),
+                     ca.getTypeName(),
+                     new Select(ca.getSourcePosition(), ca.getName()),
+                     Getter.defaultGetterWithBackingField(ca.getSourcePosition(), AccessModifier.PUBLIC, ca.getName(), ca.getTypeName()),
+                     null
+                  )
                ).collect(Collectors.toList())
          );
          Optional<ClassBody> body = classDefinitionCtx.body != null
@@ -222,40 +228,47 @@ public class ASTBuilder {
          final String name = ctx.name.getText();
          final boolean isVar = ctx.modifier.getText().equals("var");
 
-         final FunctionDefinition accessor1 = ctx.accessor().size() >= 1
-            ? createAccessor(name, declaredType, accessModifier, ctx.modifier.getText(), initialValue, ctx.accessor(0), SourcePosition.fromParserContext(ctx.accessor(0)))
-            : (isVar && hasInitialValue)
-               ? createDefaultGetter(SourcePosition.fromParserContext(ctx), declaredType, accessModifier, name)
-               : new Getter(
-                  SourcePosition.fromParserContext(ctx),
-                  AccessModifier.valueOf(accessModifier.toUpperCase()),
-                  name,
-                  declaredType, initialValue
-               )
-            ;
 
-         Optional<FunctionDefinition> accessor2 = Optional.empty();
-         if(ctx.accessor().size() >= 2) {
-            accessor2 = Optional.of(createAccessor(name, declaredType, accessModifier, ctx.modifier.getText(), initialValue, ctx.accessor(0), SourcePosition.fromParserContext(ctx)));
-         } else if(accessor1 instanceof Setter) {
-            accessor2 = Optional.of(createDefaultGetter(SourcePosition.fromParserContext(ctx), declaredType, accessModifier, name));
-         } else if(isVar && hasInitialValue) {
-            accessor2 = Optional.of(createDefaultSetter(SourcePosition.fromParserContext(ctx), declaredType, accessModifier, name));
-         }
-
-         if(!isVar) {
-            if(accessor1 instanceof Setter) {
-               errors.add(ParseError.valPropertyCannotHaveSetter(accessor1.getSourcePosition()));
-            } else if(accessor2.map(a -> a instanceof Setter).orElse(false)) {
-               errors.add(ParseError.valPropertyCannotHaveSetter(accessor2.get().getSourcePosition()));
+         Getter getter = null;
+         Setter setter = null;
+         if(ctx.accessor1 != null) {
+            final FunctionDefinition accessor1 = createAccessor(name, declaredType, accessModifier, ctx.accessor1);
+            if(accessor1 instanceof Getter) {
+               getter = (Getter) accessor1;
+            } else if(accessor1 instanceof Setter) {
+               setter = (Setter) accessor1;
             }
          }
+         if(ctx.accessor2 != null) {
+            final FunctionDefinition accessor2 = createAccessor(name, declaredType, accessModifier, ctx.accessor2);
+            if(accessor2 instanceof Getter) {
+               if(getter != null) {
+                  errors.add(ParseError.multipleGettersIsNotAllowed(SourcePosition.fromParserContext(ctx.accessor2)));
+               } else {
+                  getter = (Getter)accessor2;
+               }
+            } else if(accessor2 instanceof Setter) {
+               if(setter != null) {
+                  errors.add(ParseError.multipleSettersIsNotAllowed(SourcePosition.fromParserContext(ctx.accessor2)));
+               } else {
+                  setter = (Setter)accessor2;
+               }
+            }
+         }
+         if(!isVar && setter != null) {
+            errors.add(ParseError.valPropertyCannotHaveSetter(setter.getSourcePosition()));
+            setter = null;
+         }
 
-         return new Property(SourcePosition.fromParserContext(ctx), name, declaredType, initialValue,
-            accessor1 instanceof Getter ? (Getter) accessor1 : (Getter) accessor2.get(),
-            accessor1 instanceof Setter
-               ? Optional.of((Setter)accessor1)
-               : accessor2.map(s -> (Setter)s)
+         return new Property(
+            SourcePosition.fromParserContext(ctx),
+            AccessModifier.valueOf(accessModifier.toUpperCase()),
+            !isVar,
+            name,
+            declaredType,
+            initialValue,
+            getter,
+            setter
          );
       }
 
@@ -278,13 +291,32 @@ public class ASTBuilder {
          );
       }
 
-      private FunctionDefinition createAccessor(final String propertyName, final String propertyType,
-                                                final String propertyAccessModifier, final String modifier,
-                                                final Expression initialValue, ClassParser.AccessorContext ctx, SourcePosition sourcePosition) {
+      private FunctionDefinition createAccessor(
+         final String propertyName,
+         final String propertyType,
+         final String propertyAccessModifier,
+         ClassParser.AccessorContext ctx
+      ) {
+         final SourcePosition sourcePosition = SourcePosition.fromParserContext(ctx);
+         final AccessModifier accessModifier = ctx.accessModifier() != null
+            ? AccessModifier.valueOf(ctx.accessModifier().getText().toUpperCase())
+            : AccessModifier.valueOf(propertyAccessModifier.toUpperCase());
          if(ctx.accessorName1.getText().equals("get")) {
-            return createGetter(propertyName, propertyType, modifier, propertyAccessModifier, initialValue, ctx, sourcePosition);
+            return new Getter(
+               sourcePosition,
+               accessModifier,
+               propertyName,
+               propertyType,
+               Optional.ofNullable(ctx.expression()).map(e -> (Expression)visit(e)).orElse(null)
+            );
          } else if(ctx.accessorName1.getText().equals("set")) {
-            return createSetter(propertyName, propertyType, modifier, propertyAccessModifier, initialValue, ctx, sourcePosition);
+            return new Setter(
+               sourcePosition,
+               accessModifier,
+               propertyName,
+               propertyType,
+               Optional.ofNullable(ctx.expression()).map(e -> (Expression)visit(e)).orElse(null)
+            );
          }
          throw new IllegalArgumentException(String.format("Unkown token '%s', Expceted get or set", ctx.accessorName1.getText()));
       }

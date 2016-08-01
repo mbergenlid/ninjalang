@@ -41,8 +41,8 @@ functionDefinition:
 propertyDefinition:
     accessModifier? modifier=('val' | 'var') name=Identifier ':' type=Identifier
         ('=' init=expression)?
-        accessor?
-        accessor?
+            accessor1=accessor?
+            accessor2=accessor?
         ';'
      ;
 

@@ -3,4 +3,9 @@ package autotests;
 class Properties {
     val propWithSetter: Int = 1
         private set; //error: 'val' property can not have a setter
+
+    var propWithTwoSetters: Int = 1
+        set = field = value
+        get = field
+        ;
 }

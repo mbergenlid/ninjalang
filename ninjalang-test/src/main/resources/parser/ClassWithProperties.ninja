@@ -1,0 +1,30 @@
+
+class ClassWithProperties {
+    val name: String = "hello";
+    val prop: Int = 42;
+    var mutableProperty: Int = 1;
+
+    var propWithExplicitSetAndGet: Int = 1
+        set = field = value
+        get = field
+    ;
+
+    impure def trySetMutableProperty(value: Int): Unit = {
+        if(value > 10) mutableProperty = value;
+    }
+
+    //Should generate a setter because it is a 'var' and uses a backing field.
+    var mutableWithExplicitGet: Int = 1
+        get = field+1
+    ;
+
+    //Should not generate a setter because it is a 'val' even though it is using a backing field.
+    val immutableWithExplicitGet: Int = 1
+        get = field+1
+    ;
+
+    //Should not generate a setter because it is not using a backing field.
+    var mutableWithNoBackingField: Int
+        get = someOtherVariable.prop
+    ;
+}

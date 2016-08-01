@@ -44,7 +44,8 @@ public class Select extends Expression {
 
    @Override
    public void foreachPostfix(TreeVisitor<Void> visitor) {
-
+      qualifier.ifPresent(t -> t.visit(visitor));
+      visit(visitor);
    }
 
    @Override

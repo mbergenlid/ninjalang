@@ -16,4 +16,12 @@ public class ParseError extends CompilationError {
    public static ParseError valPropertyCannotHaveSetter(SourcePosition sourcePosition) {
       return new ParseError("'val' property can not have a setter", sourcePosition);
    }
+
+   public static ParseError multipleGettersIsNotAllowed(SourcePosition sourcePosition) {
+      return new ParseError("multiple getters is not allowed", sourcePosition);
+   }
+
+   public static ParseError multipleSettersIsNotAllowed(SourcePosition sourcePosition) {
+      return new ParseError("multiple setters is not allowed", sourcePosition);
+   }
 }
