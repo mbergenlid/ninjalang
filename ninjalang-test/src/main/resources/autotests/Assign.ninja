@@ -1,0 +1,10 @@
+package autotests;
+
+class Assign {
+
+    var stringProperty: String = "";
+
+    impure def assign1(x: Int): Unit = {
+        stringProperty = x; //error: incompatible types: ninjalang.Int can not be converted to ninjalang.String
+    }
+}

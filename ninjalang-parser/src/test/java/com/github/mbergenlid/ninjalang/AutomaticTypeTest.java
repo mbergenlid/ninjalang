@@ -82,6 +82,11 @@ public class AutomaticTypeTest {
       test("/autotests/Properties.ninja");
    }
 
+   @Test
+   public void testAssign() throws IOException {
+      test("/autotests/Assign.ninja");
+   }
+
    public void test(final String ninjaFile, final String... dependencies) throws IOException {
       List<TypeError> expectedErrors;
       try(InputStream inputStream = getClass().getResourceAsStream(ninjaFile)) {
@@ -90,7 +95,9 @@ public class AutomaticTypeTest {
       final List<CompilationError> errors = parseAndTypeCheck(
          Stream.concat(Arrays.stream(dependencies), Stream.of(ninjaFile)).toArray(String[]::new)
       );
-      assertThat(errors.size()).withFailMessage(errors.toString()).isEqualTo(expectedErrors.size());
+      assertThat(errors.size())
+         .withFailMessage(String.format("Expected to find %d error(s)\nActual errors was %s", expectedErrors.size(), errors.toString()))
+         .isEqualTo(expectedErrors.size());
 
       for(int i = 0; i < expectedErrors.size(); i++) {
          assertThat(errors.get(i).getSourcePosition().getLine())

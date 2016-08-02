@@ -213,6 +213,11 @@ public class Typer implements TreeVisitor<Void> {
       assign.getAssignee().visit(this);
       assign.getValue().visit(this);
 
+      final Type targetType = assign.getAssignee().getType();
+      final Type sourceType = assign.getValue().getType();
+      if(!sourceType.isSubTypeOf(targetType)) {
+         errors.add(TypeError.incompatibleTypes(assign.getValue().getSourcePosition(), targetType, sourceType));
+      }
       assign.setType(symbolTable.lookupType("ninjalang.Unit").getType());
       return null;
    }
