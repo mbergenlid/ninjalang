@@ -3,7 +3,6 @@ package com.github.mbergenlid.ninjalang.ast.visitor;
 import com.github.mbergenlid.ninjalang.ast.Apply;
 import com.github.mbergenlid.ninjalang.ast.Argument;
 import com.github.mbergenlid.ninjalang.ast.Assign;
-import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
 import com.github.mbergenlid.ninjalang.ast.Block;
 import com.github.mbergenlid.ninjalang.ast.ClassArgument;
 import com.github.mbergenlid.ninjalang.ast.ClassBody;
@@ -100,11 +99,6 @@ public abstract class SingleMethodVisitor<T> implements TreeVisitor<T> {
    @Override
    public T visit(Apply apply) {
       return visit((TreeNode)apply);
-   }
-
-   @Override
-   public T visit(AssignBackingField assign) {
-      return visit((TreeNode)assign);
    }
 
    @Override

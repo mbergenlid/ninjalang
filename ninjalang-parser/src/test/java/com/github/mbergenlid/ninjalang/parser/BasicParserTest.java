@@ -123,8 +123,8 @@ public class BasicParserTest {
          .hasName("property")
          .hasReturnTypeName("Unit")
          ;
-      AssignBackingFieldAssert.assertThat((AssignBackingField) setter.getBody().get())
-         .hasFieldName("property")
+      AssignAssert.assertThat((Assign) setter.getBody().get())
+         .hasAssignee(new Select(NO_SOURCE, "field"))
          .hasValue(new Select(NO_SOURCE, "value"))
          ;
    }
@@ -170,7 +170,7 @@ public class BasicParserTest {
       assertThat(property1.getSetter()).isPresent();
       assertThat(property1.getSetter().get()).isEqualTo(
          new Setter(NO_SOURCE, AccessModifier.PRIVATE, "size", "Int",
-            new AssignBackingField(NO_SOURCE, "size", new Select(NO_SOURCE, "value")))
+            new Assign(NO_SOURCE, new Select(NO_SOURCE, "field"), new Select(NO_SOURCE, "value")))
       );
    }
 

@@ -1,7 +1,7 @@
 package com.github.mbergenlid.ninjalang.typer;
 
 import com.github.mbergenlid.ninjalang.ast.AccessModifier;
-import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
+import com.github.mbergenlid.ninjalang.ast.Assign;
 import com.github.mbergenlid.ninjalang.ast.ClassBody;
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.ast.Getter;
@@ -77,7 +77,7 @@ public class TyperTest {
             SourcePosition.NO_SOURCE,
             "setProperty",
             "Int",
-            new AssignBackingField(SourcePosition.NO_SOURCE, "property", new Select(SourcePosition.NO_SOURCE, "value"))
+            new Assign(SourcePosition.NO_SOURCE, new Select(SourcePosition.NO_SOURCE, "field"), new Select(SourcePosition.NO_SOURCE, "value"))
          )
       );
       final ClassDefinition classDefinition = new ClassDefinition(

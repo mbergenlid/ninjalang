@@ -4,7 +4,6 @@ import com.github.mbergenlid.ninjalang.ast.AccessModifier;
 import com.github.mbergenlid.ninjalang.ast.Apply;
 import com.github.mbergenlid.ninjalang.ast.Argument;
 import com.github.mbergenlid.ninjalang.ast.Assign;
-import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
 import com.github.mbergenlid.ninjalang.ast.Block;
 import com.github.mbergenlid.ninjalang.ast.ClassArgument;
 import com.github.mbergenlid.ninjalang.ast.EmptyExpression;
@@ -205,6 +204,12 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
          assign.getValue().visit(this);
          instructionList.append(factory.createPutField(classGen.getClassName(),
             symbol.getName(), TypeConverter.fromNinjaType(symbol.getType())));
+      } else if(symbol.isBackingFieldSymbol()) {
+         final BackingFieldSymbol backingFieldSymbol = symbol.asBackingFieldSymbol();
+         instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+         assign.getValue().visit(this);
+         instructionList.append(factory.createPutField(classGen.getClassName(),
+            backingFieldSymbol.fieldName(), TypeConverter.fromNinjaType(backingFieldSymbol.getType())));
       }
       return null;
    }
@@ -279,15 +284,6 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
             ));
       }
       return null;
-   }
-
-   @Override
-   public Void visit(AssignBackingField assign) {
-      instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-      assign.getValue().visit(this);
-      instructionList.append(factory.createPutField(classGen.getClassName(),
-         assign.getBackingField().getName(), TypeConverter.fromNinjaType(assign.getBackingField().getType())));
-      return super.visit(assign);
    }
 
    private static short fromNinjaAccessModifier(AccessModifier modifier) {

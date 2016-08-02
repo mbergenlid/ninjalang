@@ -32,7 +32,7 @@ public class Setter extends FunctionDefinition {
          accessModifier,
          name,
          propertyType,
-         new AssignBackingField(sourcePosition, name, new Select(sourcePosition, "value"))
+         new Assign(sourcePosition, new Select(sourcePosition, "field"), new Select(sourcePosition, "value"))
       );
    }
 }

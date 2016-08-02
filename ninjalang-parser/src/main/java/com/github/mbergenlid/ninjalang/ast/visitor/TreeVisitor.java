@@ -23,7 +23,6 @@ public interface TreeVisitor<T> {
    T visit(final Assign assign);
    T visit(final Select select);
    T visit(final Apply apply);
-   T visit(final AssignBackingField assign);
    T visit(final IntLiteral intLiteral);
    T visit(final StringLiteral stringLiteral);
    T visit(final EmptyExpression emptyExpression);

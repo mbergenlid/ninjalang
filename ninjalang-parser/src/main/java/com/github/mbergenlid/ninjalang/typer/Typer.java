@@ -3,7 +3,6 @@ package com.github.mbergenlid.ninjalang.typer;
 import com.github.mbergenlid.ninjalang.ast.Apply;
 import com.github.mbergenlid.ninjalang.ast.Argument;
 import com.github.mbergenlid.ninjalang.ast.Assign;
-import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
 import com.github.mbergenlid.ninjalang.ast.Block;
 import com.github.mbergenlid.ninjalang.ast.ClassArgument;
 import com.github.mbergenlid.ninjalang.ast.ClassBody;
@@ -214,19 +213,6 @@ public class Typer implements TreeVisitor<Void> {
       assign.getAssignee().visit(this);
       assign.getValue().visit(this);
 
-      assign.setType(symbolTable.lookupType("ninjalang.Unit").getType());
-      return null;
-   }
-
-   @Override
-   public Void visit(AssignBackingField assign) {
-      assign.getValue().visit(this);
-      assign.assignSymbol(symbolTable.lookupTerm(assign.getFieldName()));
-      final Type declaredType = assign.getBackingField().getType();
-      final Type inferredType = assign.getValue().getType();
-      if(!declaredType.equals(inferredType)) {
-         throw TypeException.incompatibleTypes(declaredType, inferredType);
-      }
       assign.setType(symbolTable.lookupType("ninjalang.Unit").getType());
       return null;
    }
