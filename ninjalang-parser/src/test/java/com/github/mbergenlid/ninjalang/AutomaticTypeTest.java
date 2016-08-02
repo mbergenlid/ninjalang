@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,20 +95,23 @@ public class AutomaticTypeTest {
       }
       final List<CompilationError> errors = parseAndTypeCheck(
          Stream.concat(Arrays.stream(dependencies), Stream.of(ninjaFile)).toArray(String[]::new)
-      );
+      ).stream()
+         .sorted((e1, e2) -> e1.getSourcePosition().getLine() < e2.getSourcePosition().getLine() ? -1 : 1 )
+         .collect(Collectors.toList());
+
       assertThat(errors.size())
          .withFailMessage(String.format("Expected to find %d error(s)\nActual errors was %s", expectedErrors.size(), errors.toString()))
          .isEqualTo(expectedErrors.size());
 
       for(int i = 0; i < expectedErrors.size(); i++) {
+         assertThat(errors.get(i).getMessage())
+            .isEqualTo(expectedErrors.get(i).getMessage());
          assertThat(errors.get(i).getSourcePosition().getLine())
             .withFailMessage(
                String.format("Error {%s} is not on the correct line\nExpected: %d\n     Was: %d",
                   errors.get(i).getMessage(), expectedErrors.get(i).getSourcePosition().getLine(),
                   errors.get(i).getSourcePosition().getLine())
             ).isEqualTo(expectedErrors.get(i).getSourcePosition().getLine());
-         assertThat(errors.get(i).getMessage())
-            .isEqualTo(expectedErrors.get(i).getMessage());
       }
    }
 

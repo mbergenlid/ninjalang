@@ -39,7 +39,7 @@ public class Select extends Expression {
 
    @Override
    public boolean isPure() {
-      return true;
+      return symbol.get().isValSymbol();
    }
 
    @Override
