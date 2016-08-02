@@ -32,7 +32,13 @@ public class Getter extends FunctionDefinition {
       String name,
       String propertyType
    ) {
-      return new Getter(sourcePosition, accessModifier, name, propertyType, new AccessBackingField(sourcePosition, name));
+      return new Getter(
+         sourcePosition,
+         accessModifier,
+         name,
+         propertyType,
+         new Select(sourcePosition, "field")
+      );
    }
 
    public static Getter constantGetter(

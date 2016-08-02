@@ -3,6 +3,14 @@ package com.github.mbergenlid.ninjalang.typer;
 public class DeferredSymbol {
    private Symbol symbol;
 
+   public DeferredSymbol() {
+
+   }
+
+   public DeferredSymbol(Symbol symbol) {
+      this.symbol = symbol;
+   }
+
    public Symbol get() {
       if(symbol == null) {
          throw new IllegalStateException("Deferred has not been set");

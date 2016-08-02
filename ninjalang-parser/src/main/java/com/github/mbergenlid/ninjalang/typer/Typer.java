@@ -1,6 +1,5 @@
 package com.github.mbergenlid.ninjalang.typer;
 
-import com.github.mbergenlid.ninjalang.ast.AccessBackingField;
 import com.github.mbergenlid.ninjalang.ast.Apply;
 import com.github.mbergenlid.ninjalang.ast.Argument;
 import com.github.mbergenlid.ninjalang.ast.Assign;
@@ -126,6 +125,7 @@ public class Typer implements TreeVisitor<Void> {
    public Void visit(Property property) {
       property.assignSymbol(symbolTable.lookupType(property.getTypeName()));
       final Type declaredType = property.getPropertyType().getType();
+      property.setType(declaredType);
 
       symbolTable.newScope();
       property.getInitialValue().visit(this);
@@ -139,7 +139,6 @@ public class Typer implements TreeVisitor<Void> {
       } else {
          typeGetterAndSetter(property, declaredType);
       }
-      property.setType(declaredType);
       symbolTable.exitScope();
 
       return null;
@@ -148,9 +147,7 @@ public class Typer implements TreeVisitor<Void> {
    private void typeGetterAndSetter(Property property, Type declaredType) {
       final Getter getter = property.getGetter();
       symbolTable.newScope();
-      final DeferredSymbol deferredThisSymbol = new DeferredSymbol();
-      deferredThisSymbol.set(symbolTable.lookupTerm("this"));
-      symbolTable.addSymbol(new TermSymbol("field", declaredType, deferredThisSymbol));
+      symbolTable.addSymbol(new BackingFieldSymbol(property, symbolTable.lookupTerm("this")));
       getter.visit(this);
       property.getSetter().ifPresent(s -> s.visit(this));
       symbolTable.exitScope();
@@ -231,12 +228,6 @@ public class Typer implements TreeVisitor<Void> {
          throw TypeException.incompatibleTypes(declaredType, inferredType);
       }
       assign.setType(symbolTable.lookupType("ninjalang.Unit").getType());
-      return null;
-   }
-
-   @Override
-   public Void visit(AccessBackingField access) {
-      access.assignSymbol(symbolTable.lookupTerm(access.getFieldName()));
       return null;
    }
 

@@ -100,11 +100,6 @@ public abstract class AbstractVoidTreeVisitor implements TreeVisitor<Void> {
    }
 
    @Override
-   public Void visit(AccessBackingField access) {
-      return null;
-   }
-
-   @Override
    public Void visit(EmptyExpression emptyExpression) {
       return null;
    }

@@ -1,5 +1,6 @@
 package com.github.mbergenlid.ninjalang.typer;
 
+import com.github.mbergenlid.ninjalang.ast.AccessModifier;
 import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
 import com.github.mbergenlid.ninjalang.ast.ClassBody;
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
@@ -10,7 +11,6 @@ import com.github.mbergenlid.ninjalang.ast.Select;
 import com.github.mbergenlid.ninjalang.ast.Setter;
 import com.github.mbergenlid.ninjalang.ast.SourcePosition;
 import com.github.mbergenlid.ninjalang.ast.StringLiteral;
-import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,7 +28,10 @@ public class TyperTest {
 
    @Test
    public void testPropertyTypes() {
-      final Property intProperty = new Property(SourcePosition.NO_SOURCE, "intProperty", "Int", new IntLiteral(SourcePosition.NO_SOURCE, 5));
+      final Property intProperty = Property
+         .publicValProperty("intProperty", "Int", new IntLiteral(SourcePosition.NO_SOURCE, 5))
+         .build(SourcePosition.NO_SOURCE);
+
       final SymbolTable symbolTable = Types.loadDefaults();
       symbolTable.addSymbol(new TermSymbol("this", Type.fromIdentifier("SomeClass")));
       final Typer typer = new Typer(symbolTable);
@@ -36,14 +39,25 @@ public class TyperTest {
 
       assertThat(intProperty.getType()).isEqualTo(Type.fromIdentifier("ninjalang.Int"));
 
-      final Property stringProperty = new Property(SourcePosition.NO_SOURCE, "stringProperty", "String", new StringLiteral(SourcePosition.NO_SOURCE, "Blaha"));
+      final Property stringProperty = Property
+         .publicValProperty("stringProperty", "String", new StringLiteral(SourcePosition.NO_SOURCE, "Blaha"))
+         .build(SourcePosition.NO_SOURCE);
       typer.typeTree(stringProperty);
       assertThat(stringProperty.getType()).isEqualTo(Type.fromIdentifier("ninjalang.String"));
    }
 
    @Test
    public void shouldFailIfDeclaredTypeDoesntMatchRealType() {
-      final Property prop = new Property(SourcePosition.NO_SOURCE, "prop", "String", new IntLiteral(SourcePosition.NO_SOURCE, 5));
+      final Property prop = new Property(
+         SourcePosition.NO_SOURCE,
+         AccessModifier.PUBLIC,
+         true,
+         "prop",
+         "String",
+         new IntLiteral(SourcePosition.NO_SOURCE, 5),
+         null,
+         null
+      );
       final Typer typer = new Typer();
       final List<TypeError> typeErrors = typer.typeTree(prop);
       assertThat(typeErrors).hasSize(1);
@@ -51,10 +65,20 @@ public class TyperTest {
 
    @Test
    public void testMethodDeclarationWithInputParameter() {
-      final Property property = new Property(SourcePosition.NO_SOURCE,
-         "property", "Int", new IntLiteral(SourcePosition.NO_SOURCE, 1),
-         new Setter(SourcePosition.NO_SOURCE, "setProperty", "Int",
-            new AssignBackingField(SourcePosition.NO_SOURCE, "property", new Select(SourcePosition.NO_SOURCE, "value")))
+      final Property property = new Property(
+         SourcePosition.NO_SOURCE,
+         AccessModifier.PUBLIC,
+         false,
+         "property",
+         "Int",
+         new IntLiteral(SourcePosition.NO_SOURCE, 1),
+         null,
+         new Setter(
+            SourcePosition.NO_SOURCE,
+            "setProperty",
+            "Int",
+            new AssignBackingField(SourcePosition.NO_SOURCE, "property", new Select(SourcePosition.NO_SOURCE, "value"))
+         )
       );
       final ClassDefinition classDefinition = new ClassDefinition(
          SourcePosition.NO_SOURCE,

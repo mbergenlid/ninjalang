@@ -36,43 +36,30 @@ public class BasicParserTest {
       assertThat(classDefinition.getName()).isEqualTo("ClassWithProperties");
       assertThat(classDefinition.getBody()).isPresent();
       assertThat(classDefinition.getBody().get().getProperties()).containsExactly(
-         new Property(NO_SOURCE, "name", "String", new StringLiteral(NO_SOURCE, "hello"),
-            new Getter(NO_SOURCE, "name", "String", new StringLiteral(NO_SOURCE, "hello")), Optional.empty()),
-         new Property(NO_SOURCE, "prop", "Int", new IntLiteral(NO_SOURCE, 42),
-            new Getter(NO_SOURCE, "prop", "Int", new IntLiteral(NO_SOURCE, 42)), Optional.empty()),
-         new Property(
-            NO_SOURCE,
-            AccessModifier.PUBLIC,
-            false,
-            "mutableProperty",
-            "Int",
-            new IntLiteral(NO_SOURCE, 1),
-            null,
-            null
-         ),
-         new Property(
-            NO_SOURCE,
-            AccessModifier.PUBLIC,
-            false,
-            "propWithExplicitSetAndGet",
-            "Int",
-            new IntLiteral(NO_SOURCE, 1),
-            new Getter(NO_SOURCE, "propWithExplicitSetAndGet", "Int", new Select(NO_SOURCE, "field")),
-            new Setter(
+         Property
+            .publicValProperty("name", "String", new StringLiteral(NO_SOURCE, "hello"))
+            .getter(new Getter(NO_SOURCE, "name", "String", new StringLiteral(NO_SOURCE, "hello")))
+            .build(NO_SOURCE),
+         Property
+            .publicValProperty("prop", "Int", new IntLiteral(NO_SOURCE, 42))
+            .getter(new Getter(NO_SOURCE, "prop", "Int", new IntLiteral(NO_SOURCE, 42)))
+            .build(NO_SOURCE),
+         Property
+            .publicVarProperty("mutableProperty", "Int", new IntLiteral(NO_SOURCE, 1))
+            .build(NO_SOURCE),
+         Property
+            .publicVarProperty("propWithExplicitSetAndGet", "Int", new IntLiteral(NO_SOURCE, 1))
+            .getter(new Getter(NO_SOURCE, "propWithExplicitSetAndGet", "Int", new Select(NO_SOURCE, "field")))
+            .setter(new Setter(
                NO_SOURCE,
                "propWithExplicitSetAndGet",
                "Int",
                new Assign(NO_SOURCE, new Select(NO_SOURCE, "field"), new Select(NO_SOURCE, "value"))
-            )
-         ),
-         new Property(
-            SourcePosition.NO_SOURCE,
-            AccessModifier.PUBLIC,
-            false,
-            "mutableWithExplicitGet",
-            "Int",
-            new IntLiteral(SourcePosition.NO_SOURCE, 1),
-            new Getter(
+            ))
+            .build(NO_SOURCE),
+         Property
+            .publicVarProperty("mutableWithExplicitGet", "Int", new IntLiteral(SourcePosition.NO_SOURCE, 1))
+            .getter(new Getter(
                SourcePosition.NO_SOURCE,
                AccessModifier.PUBLIC,
                "mutableWithExplicitGet",
@@ -82,17 +69,11 @@ public class BasicParserTest {
                   select("field.plus"),
                   ImmutableList.of(new IntLiteral(SourcePosition.NO_SOURCE, 1))
                )
-            ),
-            null
-         ),
-         new Property(
-            SourcePosition.NO_SOURCE,
-            AccessModifier.PUBLIC,
-            true,
-            "immutableWithExplicitGet",
-            "Int",
-            new IntLiteral(SourcePosition.NO_SOURCE, 1),
-            new Getter(
+            ))
+            .build(NO_SOURCE),
+         Property
+            .publicValProperty("immutableWithExplicitGet", "Int", new IntLiteral(SourcePosition.NO_SOURCE, 1))
+            .getter(new Getter(
                SourcePosition.NO_SOURCE,
                AccessModifier.PUBLIC,
                "immutableWithExplicitGet",
@@ -102,25 +83,18 @@ public class BasicParserTest {
                   select("field.plus"),
                   ImmutableList.of(new IntLiteral(SourcePosition.NO_SOURCE, 1))
                )
-            ),
-            null
-         ),
-         new Property(
-            SourcePosition.NO_SOURCE,
-            AccessModifier.PUBLIC,
-            false,
-            "mutableWithNoBackingField",
-            "Int",
-            new EmptyExpression(NO_SOURCE),
-            new Getter(
+            ))
+            .build(NO_SOURCE),
+         Property
+            .publicVarProperty("mutableWithNoBackingField", "Int", new EmptyExpression(NO_SOURCE))
+            .getter(new Getter(
                SourcePosition.NO_SOURCE,
                AccessModifier.PUBLIC,
                "mutableWithNoBackingField",
                "Int",
                select("someOtherVariable.prop")
-            ),
-            null
-         )
+            ))
+            .build(NO_SOURCE)
       );
    }
 
@@ -138,8 +112,7 @@ public class BasicParserTest {
          .hasTypeName("Int")
          .hasInitialValue(new IntLiteral(NO_SOURCE, 1))
          .hasGetter(
-            new Getter(NO_SOURCE, AccessModifier.PRIVATE, "property", "Int",
-               new AccessBackingField(NO_SOURCE, "property"))
+            Getter.defaultGetterWithBackingField(NO_SOURCE, AccessModifier.PRIVATE, "property", "Int")
          )
          ;
       assertThat(property.getSetter()).isPresent();
@@ -192,7 +165,7 @@ public class BasicParserTest {
       final Property property1 = classDefinition.getBody().get().getProperties().get(0);
       assertThat(property1.getInitialValue()).isEqualTo(new IntLiteral(NO_SOURCE, 5));
       assertThat(property1.getGetter()).isEqualTo(
-         new Getter(NO_SOURCE, "size", "Int", new AccessBackingField(NO_SOURCE, "size"))
+         Getter.defaultGetterWithBackingField(NO_SOURCE, AccessModifier.PUBLIC, "size", "Int")
       );
       assertThat(property1.getSetter()).isPresent();
       assertThat(property1.getSetter().get()).isEqualTo(

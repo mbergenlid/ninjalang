@@ -1,6 +1,5 @@
 package com.github.mbergenlid.ninjalang.jvm;
 
-import com.github.mbergenlid.ninjalang.ast.AccessBackingField;
 import com.github.mbergenlid.ninjalang.ast.AccessModifier;
 import com.github.mbergenlid.ninjalang.ast.Apply;
 import com.github.mbergenlid.ninjalang.ast.Argument;
@@ -23,6 +22,7 @@ import com.github.mbergenlid.ninjalang.ast.TreeNode;
 import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.github.mbergenlid.ninjalang.ast.visitor.AbstractVoidTreeVisitor;
 import com.github.mbergenlid.ninjalang.jvm.builtin.BuiltInFunctions;
+import com.github.mbergenlid.ninjalang.typer.BackingFieldSymbol;
 import com.github.mbergenlid.ninjalang.typer.PropertySymbol;
 import com.github.mbergenlid.ninjalang.typer.Symbol;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
@@ -221,6 +221,14 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
             node.visit(this);
          } else if(localVariables.containsKey(symbol)) {
             instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(select.getType()), localVariables.get(symbol)));
+         } else if(symbol.isBackingFieldSymbol()) {
+            final BackingFieldSymbol backingFieldSymbol = symbol.asBackingFieldSymbol();
+            instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+            instructionList.append(factory.createGetField(
+               classGen.getClassName(),
+               backingFieldSymbol.fieldName(),
+               TypeConverter.fromNinjaType(backingFieldSymbol.getType())
+            ));
          } else {
             instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
          }
@@ -280,14 +288,6 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
       instructionList.append(factory.createPutField(classGen.getClassName(),
          assign.getBackingField().getName(), TypeConverter.fromNinjaType(assign.getBackingField().getType())));
       return super.visit(assign);
-   }
-
-   @Override
-   public Void visit(AccessBackingField field) {
-      instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-      instructionList.append(factory.createGetField(classGen.getClassName(), field.getBackingField().getName(),
-         TypeConverter.fromNinjaType(field.getBackingField().getType())));
-      return null;
    }
 
    private static short fromNinjaAccessModifier(AccessModifier modifier) {

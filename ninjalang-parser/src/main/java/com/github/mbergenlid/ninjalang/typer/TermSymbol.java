@@ -81,6 +81,14 @@ public class TermSymbol extends Symbol {
       return (PropertySymbol) this;
    }
 
+   public boolean isBackingFieldSymbol() {
+      return this instanceof BackingFieldSymbol;
+   }
+
+   public BackingFieldSymbol asBackingFieldSymbol() {
+      return (BackingFieldSymbol) this;
+   }
+
    public boolean isValSymbol() {
       return valSymbol;
    }

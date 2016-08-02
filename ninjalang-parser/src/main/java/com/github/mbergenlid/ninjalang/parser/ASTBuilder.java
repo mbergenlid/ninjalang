@@ -2,12 +2,10 @@ package com.github.mbergenlid.ninjalang.parser;
 
 import com.github.mbergenlid.ninjalang.ClassBaseVisitor;
 import com.github.mbergenlid.ninjalang.ClassParser;
-import com.github.mbergenlid.ninjalang.ast.AccessBackingField;
 import com.github.mbergenlid.ninjalang.ast.AccessModifier;
 import com.github.mbergenlid.ninjalang.ast.Apply;
 import com.github.mbergenlid.ninjalang.ast.Argument;
 import com.github.mbergenlid.ninjalang.ast.Assign;
-import com.github.mbergenlid.ninjalang.ast.AssignBackingField;
 import com.github.mbergenlid.ninjalang.ast.Block;
 import com.github.mbergenlid.ninjalang.ast.ClassArgument;
 import com.github.mbergenlid.ninjalang.ast.ClassBody;
@@ -34,7 +32,6 @@ import com.github.mbergenlid.ninjalang.ast.ValDef;
 import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -272,25 +269,6 @@ public class ASTBuilder {
          );
       }
 
-      @NotNull
-      private Getter createDefaultGetter(SourcePosition sourcePosition, String declaredType, String accessModifier, String name) {
-         return new Getter(
-            sourcePosition,
-            AccessModifier.valueOf(accessModifier.toUpperCase()),
-            name,
-            declaredType, new AccessBackingField(sourcePosition, name)
-         );
-      }
-      @NotNull
-      private Setter createDefaultSetter(SourcePosition sourcePosition, String declaredType, String accessModifier, String name) {
-         return new Setter(
-            sourcePosition,
-            AccessModifier.valueOf(accessModifier.toUpperCase()),
-            name,
-            declaredType, new AssignBackingField(sourcePosition, name, new Select(sourcePosition, "value"))
-         );
-      }
-
       private FunctionDefinition createAccessor(
          final String propertyName,
          final String propertyType,
@@ -321,47 +299,6 @@ public class ASTBuilder {
          throw new IllegalArgumentException(String.format("Unkown token '%s', Expceted get or set", ctx.accessorName1.getText()));
       }
 
-
-      private Getter createGetter(final String propertyName, final String propertyType, final String propertyModifier,
-                                  final String propertyAccessModifier, final Expression initialValue,
-                                  final ClassParser.AccessorContext ctx, SourcePosition sourcePosition) {
-         final String accessModifier = ctx.accessModifier() != null ? ctx.accessModifier().getText() : propertyAccessModifier;
-         final boolean isVar = propertyModifier.equals("var");
-         final Expression body = ctx.expression() != null
-            ? (Expression) visit(ctx.expression())
-            : (isVar ? new AccessBackingField(SourcePosition.fromParserContext(ctx), propertyName) : initialValue);
-
-         return new Getter(
-            sourcePosition,
-            AccessModifier.valueOf(accessModifier.toUpperCase()),
-            propertyName,
-            propertyType, body
-         );
-      }
-
-      private Setter createSetter(final String propertyName, final String propertyType, final String propertyModifier,
-                                  final String propertyAccessModifier, final Expression initialValue,
-                                  final ClassParser.AccessorContext ctx, SourcePosition sourcePosition) {
-         final String accessModifier = ctx.accessModifier() != null
-            ? ctx.accessModifier().getText()
-            : propertyAccessModifier
-            ;
-         final boolean isVar = propertyModifier.equals("var");
-         final boolean hasInitialValue = !initialValue.equals(new EmptyExpression(SourcePosition.fromParserContext(ctx)));
-         final Expression body = ctx.expression() != null
-            ? (Expression) visit(ctx.expression())
-            : ((isVar && hasInitialValue)
-               ? new AssignBackingField(SourcePosition.fromParserContext(ctx), propertyName,
-                  new Select(SourcePosition.fromParserContext(ctx), "value"))
-               : new EmptyExpression(SourcePosition.fromParserContext(ctx))
-            );
-         return new Setter(
-            sourcePosition,
-            AccessModifier.valueOf(accessModifier.toUpperCase()),
-            propertyName,
-            propertyType, body
-         );
-      }
 
       @Override
       public TreeNode visitFunctionDefinition(ClassParser.FunctionDefinitionContext ctx) {

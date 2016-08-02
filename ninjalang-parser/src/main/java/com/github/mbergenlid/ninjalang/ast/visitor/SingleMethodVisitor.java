@@ -1,6 +1,5 @@
 package com.github.mbergenlid.ninjalang.ast.visitor;
 
-import com.github.mbergenlid.ninjalang.ast.AccessBackingField;
 import com.github.mbergenlid.ninjalang.ast.Apply;
 import com.github.mbergenlid.ninjalang.ast.Argument;
 import com.github.mbergenlid.ninjalang.ast.Assign;
@@ -106,11 +105,6 @@ public abstract class SingleMethodVisitor<T> implements TreeVisitor<T> {
    @Override
    public T visit(AssignBackingField assign) {
       return visit((TreeNode)assign);
-   }
-
-   @Override
-   public T visit(AccessBackingField access) {
-      return visit((TreeNode)access);
    }
 
    @Override

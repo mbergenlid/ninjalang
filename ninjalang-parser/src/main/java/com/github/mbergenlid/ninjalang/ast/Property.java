@@ -1,7 +1,5 @@
 package com.github.mbergenlid.ninjalang.ast;
 
-import com.github.mbergenlid.ninjalang.ast.visitor.AbstractTreeVisitor;
-import com.github.mbergenlid.ninjalang.ast.visitor.AbstractVoidTreeVisitor;
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
 import com.github.mbergenlid.ninjalang.typer.SymbolReference;
 import com.github.mbergenlid.ninjalang.typer.TypeSymbol;
@@ -21,45 +19,6 @@ public class Property extends TreeNode {
    private final Expression initialValue;
    private final Getter getter;
    private final Optional<Setter> setter;
-
-   public Property(final SourcePosition sourcePosition, String name, String propertyType, Expression value) {
-      this(sourcePosition, name, propertyType, value, null);
-   }
-
-   public Property(final SourcePosition sourcePosition, String name, String propertyType, Expression initialValue, Setter setter) {
-      super(sourcePosition);
-      this.name = name;
-      this.typeName = propertyType;
-      this.propertyType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);
-      this.initialValue = initialValue;
-      this.val = setter == null;
-      this.needsBackingField = false;
-      if(setter == null && initialValue.isConstant()) {
-         this.getter = new Getter(sourcePosition, name, propertyType, initialValue);
-      } else {
-         this.getter = new Getter(sourcePosition, name, propertyType, new AccessBackingField(sourcePosition, name));
-      }
-      this.setter = Optional.ofNullable(setter);
-   }
-
-   public Property(
-      final SourcePosition sourcePosition,
-      String name,
-      String propertyType,
-      Expression initialValue,
-      Getter getter,
-      Optional<Setter> setter
-   ) {
-      super(sourcePosition);
-      this.name = name;
-      this.typeName = propertyType;
-      this.propertyType = new SymbolReference<>(TypeSymbol.NO_SYMBOL);
-      this.initialValue = initialValue;
-      this.getter = getter;
-      this.setter = setter;
-      this.val = setter.map(s -> false).orElse(true);
-      this.needsBackingField = false;
-   }
 
    public Property(
       final SourcePosition sourcePosition,
@@ -136,7 +95,6 @@ public class Property extends TreeNode {
                t instanceof Select &&
                   !((Select) t).getQualifier().isPresent() &&
                   ((Select) t).getName().equals("field")
-               || t instanceof AccessBackingField
             )).orElse(false);
 
       return getterUsesBackingField ||
@@ -154,10 +112,59 @@ public class Property extends TreeNode {
       propertyType.set(symbol);
    }
 
-   private static class BackingFieldDetector extends AbstractVoidTreeVisitor {
-      @Override
-      public Void visit(Select select) {
-         return super.visit(select);
+   public static PropertyBuilder publicValProperty(String name, String typeName, Expression initialValue) {
+      return new PropertyBuilder(AccessModifier.PUBLIC, true, name, typeName, initialValue);
+   }
+
+   public static PropertyBuilder publicVarProperty(String name, String typeName, Expression initialValue) {
+      return new PropertyBuilder(AccessModifier.PUBLIC, false, name, typeName, initialValue);
+   }
+
+   public static class PropertyBuilder {
+      private final AccessModifier accessModifier;
+      private final boolean val;
+      private final String name;
+      private final String typeName;
+      private final Expression initialValue;
+      private Getter getter;
+      private Setter setter;
+
+      public PropertyBuilder(
+         AccessModifier accessModifier,
+         boolean val,
+         String name,
+         String typeName,
+         Expression initialValue
+      ) {
+         this.accessModifier = accessModifier;
+         this.val = val;
+         this.name = name;
+         this.typeName = typeName;
+         this.initialValue = initialValue;
+      }
+
+      public PropertyBuilder getter(Getter getter) {
+         this.getter = getter;
+         return this;
+      }
+
+      public PropertyBuilder setter(Setter setter) {
+         this.setter = setter;
+         return this;
+      }
+
+      public Property build(SourcePosition sourcePosition) {
+         return new Property(
+            sourcePosition,
+            accessModifier,
+            val,
+            name,
+            typeName,
+            initialValue,
+            getter,
+            setter
+         );
       }
    }
+
 }

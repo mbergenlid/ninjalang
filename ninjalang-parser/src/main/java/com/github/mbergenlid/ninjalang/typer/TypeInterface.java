@@ -1,6 +1,5 @@
 package com.github.mbergenlid.ninjalang.typer;
 
-import com.github.mbergenlid.ninjalang.ast.AccessBackingField;
 import com.github.mbergenlid.ninjalang.ast.Apply;
 import com.github.mbergenlid.ninjalang.ast.Argument;
 import com.github.mbergenlid.ninjalang.ast.Assign;
@@ -231,11 +230,6 @@ public class TypeInterface implements TreeVisitor<Type> {
 
    @Override
    public Type visit(AssignBackingField assign) {
-      return null;
-   }
-
-   @Override
-   public Type visit(AccessBackingField access) {
       return null;
    }
 
