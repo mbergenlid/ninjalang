@@ -386,7 +386,7 @@ public class ASTBuilder {
          } else if(ctx.lessThan != null) {
             final Select select = new Select(
                SourcePosition.fromParserContext(ctx),
-               visitExpression(ctx.expression(0)),
+               (Expression) visitExpression(ctx.expression(0)),
                "lessThan"
             );
             return new Apply(
@@ -397,7 +397,7 @@ public class ASTBuilder {
          } else if(ctx.greaterThan != null) {
             final Select select = new Select(
                SourcePosition.fromParserContext(ctx),
-               visitExpression(ctx.expression(0)),
+               (Expression) visitExpression(ctx.expression(0)),
                "greaterThan"
             );
             return new Apply(
@@ -426,7 +426,12 @@ public class ASTBuilder {
          if(ctx.select != null) {
             final TerminalNode identifier = ctx.Identifier();
             final TreeNode qualifier = visitTerm(ctx.term());
-            return new Select(SourcePosition.fromParserContext(ctx), qualifier, identifier.getText());
+            if(qualifier instanceof Expression) {
+               return new Select(SourcePosition.fromParserContext(ctx), (Expression) qualifier, identifier.getText());
+            } else {
+               errors.add(ParseError.notAnExpression(SourcePosition.fromParserContext(ctx.term())));
+               return new Select(SourcePosition.fromParserContext(ctx), identifier.getText());
+            }
          } else if(ctx.arrayAccess != null) {
             final Expression instance = (Expression) visitTerm(ctx.term());
             final Expression index = (Expression) visitExpression(ctx.expression(0));

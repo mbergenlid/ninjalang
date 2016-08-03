@@ -24,4 +24,8 @@ public class ParseError extends CompilationError {
    public static ParseError multipleSettersIsNotAllowed(SourcePosition sourcePosition) {
       return new ParseError("multiple setters is not allowed", sourcePosition);
    }
+
+   public static ParseError notAnExpression(SourcePosition sourcePosition) {
+      return new ParseError("no an expression", sourcePosition);
+   }
 }

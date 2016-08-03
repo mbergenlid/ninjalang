@@ -13,7 +13,7 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = false)
 public class Select extends Expression {
 
-   private final Optional<TreeNode> qualifier;
+   private final Optional<Expression> qualifier;
    private final String name;
    private final SymbolReference<TermSymbol> symbol;
 
@@ -21,11 +21,11 @@ public class Select extends Expression {
       this(sourcePosition, Optional.empty(), name);
    }
 
-   public Select(final SourcePosition sourcePosition, TreeNode qualifier, String name) {
+   public Select(final SourcePosition sourcePosition, Expression qualifier, String name) {
       this(sourcePosition, Optional.of(qualifier), name);
    }
 
-   public Select(final SourcePosition sourcePosition, Optional<TreeNode> qualifier, String name) {
+   public Select(final SourcePosition sourcePosition, Optional<Expression> qualifier, String name) {
       super(sourcePosition);
       this.qualifier = qualifier;
       this.name = name;
@@ -39,7 +39,7 @@ public class Select extends Expression {
 
    @Override
    public boolean isPure() {
-      return symbol.get().isValSymbol();
+      return qualifier.map(Expression::isPure).orElse(true) && symbol.get().isValSymbol();
    }
 
    @Override

@@ -2,10 +2,15 @@ package autotests;
 
 class Purity {
 
+    private var array: Array = Array.ofSize(10);
+
     var someMutableValue: Int = 1;
 
     val immutableProperty: Int = 1
         get = someMutableValue; //error: property 'immutableProperty' is marked as 'val' and is not allowed to use any 'impure' expressions.
+
+    val withGetter: Int
+        get = array.size; //error: property 'withGetter' is marked as 'val' and is not allowed to use any 'impure' expressions.
 
     impure def notPure(): Int = 5;
 

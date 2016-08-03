@@ -29,6 +29,13 @@ public class TypeError extends CompilationError {
       );
    }
 
+   public static TypeError purePropertyUsingImpureExpressions(final SourcePosition sourcePosition, final FunctionDefinition functionDefinition) {
+      return new TypeError(
+         String.format("property '%s' is marked as 'val' and is not allowed to use any 'impure' expressions.", functionDefinition.getName()),
+         sourcePosition
+      );
+   }
+
    @Override
    public String toString() {
       return "TypeError" + super.toString();
