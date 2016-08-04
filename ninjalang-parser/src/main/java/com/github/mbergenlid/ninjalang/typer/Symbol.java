@@ -35,6 +35,9 @@ public abstract class Symbol {
    public TermSymbol asTermSymbol() {
       return (TermSymbol) this;
    }
+   public Optional<TermSymbol> asTermSymbolOptional() {
+      return isTermSymbol() ? Optional.of((TermSymbol) this) : Optional.empty();
+   }
    public TypeSymbol asTypeSymbol() {
       return (TypeSymbol) this;
    }
@@ -47,5 +50,13 @@ public abstract class Symbol {
    @Override
    public int hashCode() {
       return super.hashCode();
+   }
+
+   public boolean isPropertySymbol() {
+      return isTermSymbol() && asTermSymbol().isPropertySymbol();
+   }
+
+   public boolean isValSymbol() {
+      return isTermSymbol() && asTermSymbol().isValSymbol();
    }
 }

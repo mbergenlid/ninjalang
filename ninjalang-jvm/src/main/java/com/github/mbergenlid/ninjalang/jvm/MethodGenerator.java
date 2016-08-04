@@ -196,54 +196,59 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
    @Override
    public Void visit(Assign assign) {
       final Select assignee = assign.getAssignee();
-      final TermSymbol symbol = assignee.getSymbol();
-      if(symbol.isPropertySymbol()) {
-         //Invoke setter
-         //assignee.getQualifier().ifPresent(t -> t.visit(this));
-         instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-         assign.getValue().visit(this);
-         instructionList.append(factory.createPutField(classGen.getClassName(),
-            symbol.getName(), TypeConverter.fromNinjaType(symbol.getType())));
-      } else if(symbol.isBackingFieldSymbol()) {
-         final BackingFieldSymbol backingFieldSymbol = symbol.asBackingFieldSymbol();
-         instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-         assign.getValue().visit(this);
-         instructionList.append(factory.createPutField(classGen.getClassName(),
-            backingFieldSymbol.fieldName(), TypeConverter.fromNinjaType(backingFieldSymbol.getType())));
+      final Symbol symbol = assignee.getSymbol();
+      if(symbol.isTermSymbol()) {
+         final TermSymbol termSymbol = symbol.asTermSymbol();
+         if(termSymbol.isPropertySymbol()) {
+            //Invoke setter
+            //assignee.getQualifier().ifPresent(t -> t.visit(this));
+            instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+            assign.getValue().visit(this);
+            instructionList.append(factory.createPutField(classGen.getClassName(),
+               termSymbol.getName(), TypeConverter.fromNinjaType(termSymbol.getType())));
+         } else if(termSymbol.isBackingFieldSymbol()) {
+            final BackingFieldSymbol backingFieldSymbol = termSymbol.asBackingFieldSymbol();
+            instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+            assign.getValue().visit(this);
+            instructionList.append(factory.createPutField(classGen.getClassName(),
+               backingFieldSymbol.fieldName(), TypeConverter.fromNinjaType(backingFieldSymbol.getType())));
+         }
       }
       return null;
    }
 
    @Override
    public Void visit(Select select) {
-      TermSymbol symbol = select.getSymbol();
-      if(builtInFunctions.contains(symbol)) {
-         builtInFunctions.getBuiltInType(symbol, this).generate(
-            new BuiltInFunctions.FunctionApplication(symbol, select.getQualifier().orElse(new EmptyExpression(SourcePosition.NO_SOURCE)), ImmutableList.of()), instructionList, factory);
-      } else {
-         if(select.getQualifier().isPresent()) {
-            final TreeNode node = select.getQualifier().get();
-            node.visit(this);
-         } else if(localVariables.containsKey(symbol)) {
-            instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(select.getType()), localVariables.get(symbol)));
-         } else if(symbol.isBackingFieldSymbol()) {
-            final BackingFieldSymbol backingFieldSymbol = symbol.asBackingFieldSymbol();
-            instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-            instructionList.append(factory.createGetField(
-               classGen.getClassName(),
-               backingFieldSymbol.fieldName(),
-               TypeConverter.fromNinjaType(backingFieldSymbol.getType())
-            ));
+      if(select.getSymbol().isTermSymbol()) {
+         final TermSymbol symbol = select.getSymbol().asTermSymbol();
+         if(builtInFunctions.contains(symbol)) {
+            builtInFunctions.getBuiltInType(symbol, this).generate(
+               new BuiltInFunctions.FunctionApplication(symbol, select.getQualifier().orElse(new EmptyExpression(SourcePosition.NO_SOURCE)), ImmutableList.of()), instructionList, factory);
          } else {
-            instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
-         }
-         if(symbol.isPropertySymbol()) {
-            //Invoke getter...
-            final PropertySymbol propertySymbol = symbol.asPropertySymbol();
-            final String methodName = propertySymbol.getterName();
-            final String className = propertySymbol.owningType().getName();
-            instructionList.append(factory.createInvoke(
-               className, methodName, TypeConverter.fromNinjaType(select.getType()), new Type[]{}, Constants.INVOKEVIRTUAL));
+            if(select.getQualifier().isPresent()) {
+               final TreeNode node = select.getQualifier().get();
+               node.visit(this);
+            } else if(localVariables.containsKey(symbol)) {
+               instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(select.getType()), localVariables.get(symbol)));
+            } else if(symbol.isBackingFieldSymbol()) {
+               final BackingFieldSymbol backingFieldSymbol = symbol.asBackingFieldSymbol();
+               instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+               instructionList.append(factory.createGetField(
+                  classGen.getClassName(),
+                  backingFieldSymbol.fieldName(),
+                  TypeConverter.fromNinjaType(backingFieldSymbol.getType())
+               ));
+            } else {
+               instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
+            }
+            if(symbol.isPropertySymbol()) {
+               //Invoke getter...
+               final PropertySymbol propertySymbol = symbol.asPropertySymbol();
+               final String methodName = propertySymbol.getterName();
+               final String className = propertySymbol.owningType().getName();
+               instructionList.append(factory.createInvoke(
+                  className, methodName, TypeConverter.fromNinjaType(select.getType()), new Type[]{}, Constants.INVOKEVIRTUAL));
+            }
          }
       }
       return null;
@@ -252,36 +257,38 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
    @Override
    public Void visit(Apply apply) {
       final Select instance = apply.getFunction();
-      final TermSymbol functionSymbol = instance.getSymbol();
-      if(builtInFunctions.contains(functionSymbol)) {
-         builtInFunctions.getBuiltInType(functionSymbol, this).generate(
-            new BuiltInFunctions.FunctionApplication(
-               functionSymbol,
-               instance.getQualifier().orElse(new EmptyExpression(SourcePosition.NO_SOURCE)),
-               apply.getArguments()
-            ), instructionList, factory);
-      } else {
-         instance.visit(this);
-         final FunctionType functionType = functionSymbol.getType().asFunctionType();
-         final Type[] argTypes = apply.getArguments().stream()
-            .map(a -> TypeConverter.fromNinjaType(a.getType()))
-            .toArray(Type[]::new);
-         apply.getArguments().stream().forEach(a -> a.visit(this));
-         functionSymbol.owner()
-            .filter(Symbol::isTypeSymbol)
-            .map(Symbol::asTypeSymbol)
-            .map(TypeSymbol::getType)
-            .map(com.github.mbergenlid.ninjalang.typer.Type::getIdentifier)
-            .ifPresent(className ->
-               instructionList.append(
-                  factory.createInvoke(
-                  className,
-                  functionSymbol.getName(),
-                  TypeConverter.fromNinjaType(functionType.getReturnType()),
-                  argTypes,
-                  Constants.INVOKEVIRTUAL
-               )
-            ));
+      if(instance.getSymbol().isTermSymbol()) {
+         final TermSymbol functionSymbol = instance.getSymbol().asTermSymbol();
+         if(builtInFunctions.contains(functionSymbol)) {
+            builtInFunctions.getBuiltInType(functionSymbol, this).generate(
+               new BuiltInFunctions.FunctionApplication(
+                  functionSymbol,
+                  instance.getQualifier().orElse(new EmptyExpression(SourcePosition.NO_SOURCE)),
+                  apply.getArguments()
+               ), instructionList, factory);
+         } else {
+            instance.visit(this);
+            final FunctionType functionType = functionSymbol.getType().asFunctionType();
+            final Type[] argTypes = apply.getArguments().stream()
+               .map(a -> TypeConverter.fromNinjaType(a.getType()))
+               .toArray(Type[]::new);
+            apply.getArguments().stream().forEach(a -> a.visit(this));
+            functionSymbol.owner()
+               .filter(Symbol::isTypeSymbol)
+               .map(Symbol::asTypeSymbol)
+               .map(TypeSymbol::getType)
+               .map(com.github.mbergenlid.ninjalang.typer.Type::getIdentifier)
+               .ifPresent(className ->
+                  instructionList.append(
+                     factory.createInvoke(
+                     className,
+                     functionSymbol.getName(),
+                     TypeConverter.fromNinjaType(functionType.getReturnType()),
+                     argTypes,
+                     Constants.INVOKEVIRTUAL
+                  )
+               ));
+         }
       }
       return null;
    }

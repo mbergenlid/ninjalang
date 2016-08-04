@@ -7,6 +7,7 @@ import com.github.mbergenlid.ninjalang.typer.SymbolTable;
 import com.github.mbergenlid.ninjalang.typer.TypeInterface;
 import com.github.mbergenlid.ninjalang.typer.Typer;
 import com.github.mbergenlid.ninjalang.typer.Types;
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 
 import java.io.IOException;
@@ -39,16 +40,29 @@ public class Compiler {
          .collect(Collectors.toList());
       final SymbolTable symbolTable = new TypeInterface(Types.loadDefaults()).loadSymbols(classDefinitions);
       final List<CompilationError> errors = classDefinitions.stream()
-         .flatMap(classDef -> Stream.concat(
-            new Typer(symbolTable).typeTree(classDef).stream(),
-            new PurityChecker().checkPurity(classDef).stream()
-         ))
+         .flatMap(classDef ->
+            doPhases(
+               () -> new Typer(symbolTable).typeTree(classDef),
+               () -> new PurityChecker().checkPurity(classDef)
+            )
+         )
          .collect(Collectors.toList());
       if(!errors.isEmpty()) {
          return CompilationResult.error(errors);
       } else {
          return CompilationResult.success(symbolTable, classDefinitions);
       }
+   }
+
+   @SafeVarargs
+   private final Stream<? extends CompilationError> doPhases(Supplier<List<? extends CompilationError>>... phases) {
+      for(Supplier<List<? extends CompilationError>> phase : phases) {
+         final List<? extends CompilationError> compilationErrorStream = phase.get();
+         if(!compilationErrorStream.isEmpty()) {
+            return compilationErrorStream.stream();
+         }
+      }
+      return Stream.empty();
    }
 
    public static class CompilationResult {

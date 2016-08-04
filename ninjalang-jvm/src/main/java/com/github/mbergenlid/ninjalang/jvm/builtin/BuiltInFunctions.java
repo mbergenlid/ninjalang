@@ -21,7 +21,7 @@ public class BuiltInFunctions {
 
    public BuiltInFunctions(SymbolTable symbolTable) {
       BUILT_IN = ImmutableMap.of(
-         symbolTable.lookupTerm("ninjalang.Array").getType().member("ofSize").get(), ArrayObject::new,
+         symbolTable.lookupType("ninjalang.Array").statics().getType().member("ofSize").get(), ArrayObject::new,
          symbolTable.lookupType("ninjalang.Array"), Array::new,
          symbolTable.lookupType("ninjalang.Int"), Int::new
       );

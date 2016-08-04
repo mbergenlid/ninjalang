@@ -83,12 +83,10 @@ public class Typer implements TreeVisitor<Void> {
       symbolTable.newScope();
       symbolTable.addSymbol(new TermSymbol("this", classDefinition.getType()));
       symbolTable.importPackage("ninjalang");
-      symbolTable.importTerm("ninjalang");
+      symbolTable.importPackage(classDefinition.getNinjaPackage());
       classDefinition.getTypeImports().stream().forEach(imp -> {
          symbolTable.importType(imp);
-         symbolTable.importTerm(imp);
       });
-      symbolTable.importTerm(Import.wildCardImport(classDefinition.getNinjaPackage()));
       classDefinition.getType().termMembers().stream()
          .forEach(symbolTable::addSymbol);
       classDefinition.getPrimaryConstructor().visit(this);
@@ -133,17 +131,17 @@ public class Typer implements TreeVisitor<Void> {
          if(!inferredType.isSubTypeOf(declaredType) && inferredType != Type.NO_TYPE) {
             errors.add(TypeError.incompatibleTypes(property.getInitialValue().getSourcePosition(), declaredType, inferredType));
          } else {
-            typeGetterAndSetter(property, declaredType);
+            typeGetterAndSetter(property);
          }
       } else {
-         typeGetterAndSetter(property, declaredType);
+         typeGetterAndSetter(property);
       }
       symbolTable.exitScope();
 
       return null;
    }
 
-   private void typeGetterAndSetter(Property property, Type declaredType) {
+   private void typeGetterAndSetter(Property property) {
       final Getter getter = property.getGetter();
       symbolTable.newScope();
       symbolTable.addSymbol(new BackingFieldSymbol(property, symbolTable.lookupTerm("this")));
@@ -228,13 +226,13 @@ public class Typer implements TreeVisitor<Void> {
       if(select.getQualifier().isPresent()) {
          select.getQualifier()
             .map(TreeNode::getType)
-            .flatMap(type -> type.termMember(select.getName()))
+            .flatMap(type -> type.member(select.getName()))
             .ifPresent(select::setSymbol);
          if(!select.hasType()) {
             errors.add(TypeError.noSuchMember(select.getSourcePosition(), select.getName()));
          }
       } else {
-         final Optional<TermSymbol> symbol = symbolTable.lookupTermOptional(select.getName());
+         final Optional<Symbol> symbol = symbolTable.lookupTermOptional(select.getName());
          if(symbol.isPresent()) {
             select.setSymbol(symbol.get());
          } else {

@@ -32,7 +32,16 @@ public abstract class Type {
    }
 
    public Optional<Symbol> member(final String name) {
-      return symbols.stream().filter(s -> s.getName().equals(name)).findFirst();
+      final Optional<Symbol> ownMember = symbols.stream()
+         .filter(s -> s.getName().equals(name))
+         .findFirst();
+      if(ownMember.isPresent()) {
+         return ownMember;
+      } else {
+         return parentTypes.stream()
+            .flatMap(t -> t.member(name).map(Stream::of).orElse(Stream.empty()))
+            .findFirst();
+      }
    }
 
    public List<TermSymbol> termMembers() {

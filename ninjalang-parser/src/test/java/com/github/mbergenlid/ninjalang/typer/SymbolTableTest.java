@@ -10,20 +10,20 @@ public class SymbolTableTest {
    @Test
    public void symbolInScopeShouldOverrideParentScope() {
       final SymbolTable symbolTable = new SymbolTable();
-      final TypeSymbol s1Scope1 = new TypeSymbol("s1");
-      final TypeSymbol s1Scope2 = new TypeSymbol("s1");
+      final TermSymbol s1Scope1 = new TermSymbol("s1");
+      final TermSymbol s1Scope2 = new TermSymbol("s1");
       symbolTable.addSymbol(s1Scope1);
       symbolTable.newScope();
       symbolTable.addSymbol(s1Scope2);
 
-      assertThat(symbolTable.lookupType("s1")).isSameAs(s1Scope2);
+      assertThat(symbolTable.lookupTerm("s1")).isSameAs(s1Scope2);
    }
 
    @Test(expected = IllegalArgumentException.class)
-   public void canNotAddTwoSymbolsWithSameNameInSameScope() {
+   public void canNotAddTwoTermSymbolsWithSameNameInSameScope() {
       final SymbolTable symbolTable = new SymbolTable();
-      symbolTable.addSymbol(new TypeSymbol("s1"));
-      symbolTable.addSymbol(new TypeSymbol("s1"));
+      symbolTable.addSymbol(new TermSymbol("s1"));
+      symbolTable.addSymbol(new TermSymbol("s1"));
    }
 
    @Test
@@ -35,6 +35,7 @@ public class SymbolTableTest {
       assertThat(symbolTable.lookupTypeOptional("Type")).isEmpty();
       symbolTable.importPackage("com.package");
       assertThat(symbolTable.lookupTypeOptional("Type")).isPresent();
+      assertThat(symbolTable.lookupTermOptional("Type")).isPresent();
    }
 
    @Test
@@ -43,21 +44,25 @@ public class SymbolTableTest {
       symbolTable.addSymbol(new TypeSymbol("com.package.Type"));
       symbolTable.newScope();
 
+      assertThat(symbolTable.lookupTypeOptional("com.package.Type")).isPresent();
       assertThat(symbolTable.lookupTypeOptional("Type")).isEmpty();
       symbolTable.importType(new Import("com.package.Type"));
       assertThat(symbolTable.lookupTypeOptional("Type")).isPresent();
+      assertThat(symbolTable.lookupTermOptional("Type")).isPresent();
    }
 
    @Test
    public void importType2() {
       final SymbolTable symbolTable = new SymbolTable();
-      symbolTable.addSymbol(new TypeSymbol("com.package.Type"));
+      final TypeSymbol type = new TypeSymbol("com.package.Type");
+      symbolTable.addSymbol(type);
       symbolTable.newScope();
 
       symbolTable.importPackage("com.package");
-      final TypeSymbol type = new TypeSymbol("Type");
-      symbolTable.addSymbol(type);
+      final TermSymbol term = new TermSymbol("Type");
+      symbolTable.addSymbol(term);
       assertThat(symbolTable.lookupType("Type")).isSameAs(type);
+      assertThat(symbolTable.lookupTerm("Type")).isSameAs(term);
    }
 
    @Test

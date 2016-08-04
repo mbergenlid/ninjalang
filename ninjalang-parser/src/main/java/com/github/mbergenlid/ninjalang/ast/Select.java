@@ -1,6 +1,7 @@
 package com.github.mbergenlid.ninjalang.ast;
 
 import com.github.mbergenlid.ninjalang.ast.visitor.TreeVisitor;
+import com.github.mbergenlid.ninjalang.typer.Symbol;
 import com.github.mbergenlid.ninjalang.typer.SymbolReference;
 import com.github.mbergenlid.ninjalang.typer.TermSymbol;
 import com.github.mbergenlid.ninjalang.typer.Type;
@@ -15,7 +16,7 @@ public class Select extends Expression {
 
    private final Optional<Expression> qualifier;
    private final String name;
-   private final SymbolReference<TermSymbol> symbol;
+   private final SymbolReference<Symbol> symbol;
 
    public Select(final SourcePosition sourcePosition, String name) {
       this(sourcePosition, Optional.empty(), name);
@@ -39,7 +40,8 @@ public class Select extends Expression {
 
    @Override
    public boolean isPure() {
-      return qualifier.map(Expression::isPure).orElse(true) && symbol.get().isValSymbol();
+      return qualifier.map(Expression::isPure).orElse(true) &&
+         symbol.get().asTermSymbolOptional().map(TermSymbol::isValSymbol).orElse(true);
    }
 
    @Override
@@ -58,11 +60,11 @@ public class Select extends Expression {
       return symbol.get().getType() != Type.NO_TYPE;
    }
 
-   public TermSymbol getSymbol() {
+   public Symbol getSymbol() {
       return symbol.get();
    }
 
-   public void setSymbol(final TermSymbol symbol) {
+   public void setSymbol(final Symbol symbol) {
       this.symbol.set(symbol);
    }
 }

@@ -54,4 +54,8 @@ public class Import {
    public String fullName() {
       return packageString() + typeName.map(n -> "." + n).orElse("");
    }
+
+   public boolean isWildcardImport() {
+      return !typeName.isPresent();
+   }
 }

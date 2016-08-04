@@ -11,6 +11,7 @@ import com.github.mbergenlid.ninjalang.ast.EmptyExpression;
 import com.github.mbergenlid.ninjalang.ast.Expression;
 import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
 import com.github.mbergenlid.ninjalang.ast.IfExpression;
+import com.github.mbergenlid.ninjalang.ast.Import;
 import com.github.mbergenlid.ninjalang.ast.IntLiteral;
 import com.github.mbergenlid.ninjalang.ast.PrimaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Property;
@@ -34,6 +35,7 @@ public class TypeInterface implements TreeVisitor<Type> {
 
    private final SymbolTable symbolTable;
    private final List<PlaceHolderTypeInScope> placeHolders;
+   private List<Import> imports;
 
    public TypeInterface() {
       this(new SymbolTable());
@@ -47,11 +49,11 @@ public class TypeInterface implements TreeVisitor<Type> {
    public SymbolTable loadSymbols(List<ClassDefinition> nodes) {
       nodes.stream().forEach(node -> node.visit(this));
       placeHolders.stream().forEach(p -> {
+         p.imports.forEach(p.symbolTable::importType);
          final TypeSymbol actualType = p.symbolTable.lookupType(p.placeHolderType.getIdentifier());
          p.placeHolderType.setActualType(actualType.getType());
       });
       symbolTable.importPackage(ImmutableList.of("ninjalang"));
-      symbolTable.importTerm("ninjalang");
       return symbolTable;
    }
 
@@ -78,8 +80,9 @@ public class TypeInterface implements TreeVisitor<Type> {
    @Override
    public Type visit(ClassDefinition classDefinition) {
       symbolTable.newScope();
-      symbolTable.importPackage(classDefinition.getNinjaPackage());
-      classDefinition.getTypeImports().stream().forEach(symbolTable::importType);
+      imports = new ArrayList<>();
+      imports.add(Import.wildCardImport(classDefinition.getNinjaPackage()));
+      classDefinition.getTypeImports().stream().forEach(imports::add);
       final List<Type> superTypes = classDefinition.getSuperClasses().getNames().stream()
          .map(this::lookupType).collect(Collectors.toList());
 
@@ -110,11 +113,11 @@ public class TypeInterface implements TreeVisitor<Type> {
          superTypes
       );
       classDefinition.setType(type);
-      final TypeSymbol typeSymbol = new TypeSymbol(classDefinition.getFullyQualifiedName(), type);
-      ownerSymbol.set(typeSymbol);
       final Type typeObject = createTypeObject(classDefinition, type);
+      final TermSymbol objectSymbol = new TermSymbol(classDefinition.getFullyQualifiedName(), typeObject);
+      final TypeSymbol typeSymbol = new TypeSymbol(classDefinition.getFullyQualifiedName(), type, null, objectSymbol);
+      ownerSymbol.set(typeSymbol);
       symbolTable.exitScope();
-      symbolTable.addSymbol(new TermSymbol(classDefinition.getFullyQualifiedName(), typeObject));
       symbolTable.addSymbol(typeSymbol);
       return type;
    }
@@ -192,7 +195,7 @@ public class TypeInterface implements TreeVisitor<Type> {
          .map(TypeSymbol::getType)
          .orElseGet(() -> {
             final PlaceHolderType type = new PlaceHolderType(name);
-            placeHolders.add(new PlaceHolderTypeInScope(type, symbolTable.copy()));
+            placeHolders.add(new PlaceHolderTypeInScope(type, symbolTable.copy(), imports));
             return type;
          });
    }
@@ -254,10 +257,12 @@ public class TypeInterface implements TreeVisitor<Type> {
    private class PlaceHolderTypeInScope {
       private final PlaceHolderType placeHolderType;
       private final SymbolTable symbolTable;
+      private final List<Import> imports;
 
-      private PlaceHolderTypeInScope(PlaceHolderType placeHolderType, SymbolTable symbolTable) {
+      private PlaceHolderTypeInScope(PlaceHolderType placeHolderType, SymbolTable symbolTable, List<Import> imports) {
          this.placeHolderType = placeHolderType;
          this.symbolTable = symbolTable;
+         this.imports = imports;
       }
    }
 }
