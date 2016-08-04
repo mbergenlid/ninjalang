@@ -99,12 +99,6 @@ public class SymbolTable {
       importType(Import.wildCardImport(ninjaPackage));
    }
 
-   public SymbolTable copy() {
-      final SymbolTable symbolTable = new SymbolTable(typeCache);
-      symbolTable.scopes = scopes;
-      return symbolTable;
-   }
-
    protected class Scope2 {
       private final Scope2 parentScope;
       private final Map<String, TermSymbol> symbols = new HashMap<>();
