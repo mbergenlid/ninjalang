@@ -12,7 +12,6 @@ import com.github.mbergenlid.ninjalang.ast.Expression;
 import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
 import com.github.mbergenlid.ninjalang.ast.Getter;
 import com.github.mbergenlid.ninjalang.ast.IfExpression;
-import com.github.mbergenlid.ninjalang.ast.Import;
 import com.github.mbergenlid.ninjalang.ast.IntLiteral;
 import com.github.mbergenlid.ninjalang.ast.PrimaryConstructor;
 import com.github.mbergenlid.ninjalang.ast.Property;
@@ -84,9 +83,7 @@ public class Typer implements TreeVisitor<Void> {
       symbolTable.addSymbol(new TermSymbol("this", classDefinition.getType()));
       symbolTable.importPackage("ninjalang");
       symbolTable.importPackage(classDefinition.getNinjaPackage());
-      classDefinition.getTypeImports().stream().forEach(imp -> {
-         symbolTable.importType(imp);
-      });
+      classDefinition.getTypeImports().stream().forEach(symbolTable::importType);
       classDefinition.getType().termMembers().stream()
          .forEach(symbolTable::addSymbol);
       classDefinition.getPrimaryConstructor().visit(this);
