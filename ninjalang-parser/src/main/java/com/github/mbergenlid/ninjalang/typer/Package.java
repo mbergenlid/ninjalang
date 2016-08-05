@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Package extends Symbol {
 
@@ -14,6 +15,7 @@ public class Package extends Symbol {
    private final Package parent;
    private final Map<String, Package> children;
    private final Map<String, TypeSymbol> types;
+   private Type type;
 
    public static Package fromTypes(Iterable<TypeSymbol> types) {
       final Package root = new Package("_root_", null);
@@ -99,10 +101,23 @@ public class Package extends Symbol {
 
    @Override
    public Type getType() {
-      return Type.fromIdentifier(
-         name,
-         children.values().stream().map(p -> (Symbol) p).collect(Collectors.toList()),
-         Collections.emptyList()
-      );
+      Type type = super.getType();
+      if(type == Type.NO_TYPE) {
+         type = Type.fromIdentifier(
+            name,
+            Stream.concat(
+               children.values().stream().map(p -> (Symbol) p),
+               types.values().stream().map(TypeSymbol::statics)
+            ).collect(Collectors.toList()),
+            Collections.emptyList()
+         );
+         super.setType(type);
+      }
+      return type;
+   }
+
+   @Override
+   public void setType(Type type) {
+      throw new UnsupportedOperationException();
    }
 }

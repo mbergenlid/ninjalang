@@ -1,0 +1,6 @@
+package autotests;
+
+class Imports {
+
+    val array: Array = ninjalang.Array.ofSize(10);
+}

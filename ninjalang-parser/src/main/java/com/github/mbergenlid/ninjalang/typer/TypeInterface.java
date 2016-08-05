@@ -122,7 +122,7 @@ public class TypeInterface {
          );
          classDefinition.setType(type);
          final Type typeObject = createTypeObject(classDefinition, type);
-         final TermSymbol objectSymbol = new TermSymbol(classDefinition.getFullyQualifiedName(), typeObject);
+         final TermSymbol objectSymbol = new TermSymbol(classDefinition.getName(), typeObject);
          final TypeSymbol typeSymbol = new TypeSymbol(classDefinition.getFullyQualifiedName(), type, null, objectSymbol);
          ownerSymbol.set(typeSymbol);
          return new Result(typeSymbol, placeHolders, imports);
