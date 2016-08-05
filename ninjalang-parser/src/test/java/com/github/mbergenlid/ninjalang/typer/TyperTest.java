@@ -32,7 +32,7 @@ public class TyperTest {
          .publicValProperty("intProperty", "Int", new IntLiteral(SourcePosition.NO_SOURCE, 5))
          .build(SourcePosition.NO_SOURCE);
 
-      final SymbolTable symbolTable = Types.loadDefaults();
+      final SymbolTable symbolTable = new SymbolTable(Types.loadDefaults().build());
       symbolTable.addSymbol(new TermSymbol("this", Type.fromIdentifier("SomeClass")));
       final Typer typer = new Typer(symbolTable);
       typer.typeTree(intProperty);
@@ -86,8 +86,9 @@ public class TyperTest {
          Optional.of(new ClassBody(SourcePosition.NO_SOURCE, Collections.singletonList(property), Collections.emptyList()))
       );
 
-      final SymbolTable symbolTable = new TypeInterface(Types.loadDefaults())
-         .loadSymbols(Collections.singletonList(classDefinition));
+      final SymbolTable symbolTable = new SymbolTable(
+         new TypeInterface(Types.loadDefaults())
+         .loadSymbols(Collections.singletonList(classDefinition)).build());
       final Typer typer = new Typer(symbolTable);
 
       typer.typeTree(classDefinition);
@@ -98,7 +99,7 @@ public class TyperTest {
    @Test
    public void testFieldGetter() {
       final Getter getter = new Getter(SourcePosition.NO_SOURCE, "getProperty", "ninjalang.Int", new Select(SourcePosition.NO_SOURCE, "property"));
-      final SymbolTable symbolTable = Types.loadDefaults();
+      final SymbolTable symbolTable = new SymbolTable(Types.loadDefaults().build());
       symbolTable.addSymbol(new TermSymbol("property", symbolTable.lookupType("ninjalang.Int").getType()));
       final Typer typer = new Typer(symbolTable);
       typer.typeTree(getter);

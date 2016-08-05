@@ -14,10 +14,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FunctionTest {
 
    Typer typer;
-   SymbolTable symbolTable = Types.loadDefaults();
+   SymbolTable symbolTable = new SymbolTable(Types.loadDefaults().build());
 
    @Before
    public void setUp() {
+      symbolTable.importPackage("ninjalang");
       typer = new Typer(symbolTable);
    }
 

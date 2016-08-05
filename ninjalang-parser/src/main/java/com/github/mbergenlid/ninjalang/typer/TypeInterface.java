@@ -33,21 +33,24 @@ import java.util.stream.Stream;
 
 public class TypeInterface {
 
-   private final SymbolTable symbolTable;
+   private final TypeCache.TypeCacheBuilder typeCache;
    public TypeInterface() {
-      this(new SymbolTable());
+      this(new TypeCache.TypeCacheBuilder());
    }
 
-   public TypeInterface(SymbolTable symbolTable) {
-      this.symbolTable = symbolTable;
+   public TypeInterface(TypeCache.TypeCacheBuilder typeCache) {
+      this.typeCache = typeCache;
    }
 
-   public SymbolTable loadSymbols(List<ClassDefinition> nodes) {
+   public TypeCache.TypeCacheBuilder loadSymbols(List<ClassDefinition> nodes) {
       final List<Result> symbols = nodes.parallelStream()
          .map(node -> new Visitor(node).typeSymbol())
          .collect(Collectors.toList());
 
-      symbols.forEach(s -> symbolTable.addSymbol(s.typeSymbol));
+      symbols.stream().forEach(t -> typeCache.addType(t.typeSymbol));
+      final TypeCache types = typeCache.build();
+      final SymbolTable symbolTable = new SymbolTable(types);
+      symbolTable.importPackage("ninjalang");
       symbols.stream().forEach(tsp -> {
          symbolTable.newScope();
          tsp.imports.stream().forEach(symbolTable::importType);
@@ -58,8 +61,7 @@ public class TypeInterface {
          });
          symbolTable.exitScope();
       });
-      symbolTable.importPackage(ImmutableList.of("ninjalang"));
-      return symbolTable;
+      return typeCache;
    }
 
    private class Result {
@@ -273,10 +275,6 @@ public class TypeInterface {
       @Override
       public Type visit(ValDef valDef) {
          return null;
-      }
-
-      public SymbolTable getSymbolTable() {
-         return symbolTable;
       }
    }
 }

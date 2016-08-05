@@ -22,7 +22,9 @@ public class BuiltInArrayTest {
 
    private ClassDefinition parseAndTypeCheck(final String name) throws IOException {
       final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream(name));
-      final SymbolTable symbolTable = new TypeInterface(Types.loadDefaults()).loadSymbols(ImmutableList.of(classDefinition));
+      final SymbolTable symbolTable = new SymbolTable(
+         new TypeInterface(Types.loadDefaults()).loadSymbols(ImmutableList.of(classDefinition)).build()
+      );
       new Typer(symbolTable).typeTree(classDefinition);
       return classDefinition;
    }

@@ -3,6 +3,8 @@ package com.github.mbergenlid.ninjalang.typer;
 import com.github.mbergenlid.ninjalang.ast.Import;
 import org.junit.Test;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SymbolTableTest {
@@ -28,8 +30,11 @@ public class SymbolTableTest {
 
    @Test
    public void importWildcardType() {
-      final SymbolTable symbolTable = new SymbolTable();
-      symbolTable.addSymbol(new TypeSymbol("com.package.Type"));
+      final SymbolTable symbolTable = new SymbolTable(
+         TypeCache.builder()
+            .addType(new TypeSymbol("com.package.Type"))
+            .build()
+      );
       symbolTable.newScope();
 
       assertThat(symbolTable.lookupTypeOptional("Type")).isEmpty();
@@ -40,8 +45,11 @@ public class SymbolTableTest {
 
    @Test
    public void importType() {
-      final SymbolTable symbolTable = new SymbolTable();
-      symbolTable.addSymbol(new TypeSymbol("com.package.Type"));
+      final SymbolTable symbolTable = new SymbolTable(
+         TypeCache.builder()
+         .addType(new TypeSymbol("com.package.Type"))
+         .build()
+      );
       symbolTable.newScope();
 
       assertThat(symbolTable.lookupTypeOptional("com.package.Type")).isPresent();
@@ -53,9 +61,12 @@ public class SymbolTableTest {
 
    @Test
    public void importType2() {
-      final SymbolTable symbolTable = new SymbolTable();
       final TypeSymbol type = new TypeSymbol("com.package.Type");
-      symbolTable.addSymbol(type);
+      final SymbolTable symbolTable = new SymbolTable(
+         TypeCache.builder()
+            .addType(type)
+            .build()
+      );
       symbolTable.newScope();
 
       symbolTable.importPackage("com.package");
@@ -67,8 +78,11 @@ public class SymbolTableTest {
 
    @Test
    public void wildcardImportsFromParentScopeShouldBeIncluded() {
-      final SymbolTable symbolTable = new SymbolTable();
-      symbolTable.addSymbol(new TypeSymbol("com.package.Type"));
+      final SymbolTable symbolTable = new SymbolTable(
+         TypeCache.builder()
+            .addType(new TypeSymbol("com.package.Type"))
+            .build()
+      );
       symbolTable.newScope();
 
       symbolTable.importPackage("com.package");
@@ -79,14 +93,31 @@ public class SymbolTableTest {
 
    @Test
    public void importsFromParentScopeShouldBeIncluded() {
-      final SymbolTable symbolTable = new SymbolTable();
-      symbolTable.addSymbol(new TypeSymbol("com.package.Type"));
+      final SymbolTable symbolTable = new SymbolTable(
+         TypeCache.builder()
+            .addType(new TypeSymbol("com.package.Type"))
+            .build()
+      );
       symbolTable.newScope();
 
       symbolTable.importType(new Import("com.package.Type"));
       symbolTable.newScope();
 
       assertThat(symbolTable.lookupTypeOptional("Type")).isPresent();
+   }
+
+   @Test
+   public void selectPackage() {
+      final SymbolTable symbolTable = new SymbolTable(
+         TypeCache.builder()
+            .addType(new TypeSymbol("com.package.Type"))
+            .build()
+      );
+      symbolTable.newScope();
+
+      final Optional<Symbol> com = symbolTable.lookupTermOptional("com");
+      assertThat(com).isPresent();
+      assertThat(com.get().getType().member("package")).isPresent();
    }
 
 }

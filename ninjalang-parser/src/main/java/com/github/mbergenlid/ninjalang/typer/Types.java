@@ -22,7 +22,7 @@ public class Types {
       "/stdtypes/Unit.ninja"
    );
 
-   public static SymbolTable loadDefaults() {
+   public static TypeCache.TypeCacheBuilder loadDefaults() {
 
       final List<ClassDefinition> classes = DEFAULT_FILES.stream()
          .map(f -> {
@@ -34,8 +34,8 @@ public class Types {
             }
          }).collect(Collectors.toList());
       final TypeInterface typeInterface = new TypeInterface();
-      final SymbolTable symbolTable = typeInterface.loadSymbols(classes);
-      symbolTable.addSymbol(new TypeSymbol("ninjalang.Nothing", new Nothing()));
-      return symbolTable;
+      final TypeCache.TypeCacheBuilder typeCache = typeInterface.loadSymbols(classes);
+      typeCache.addType(new TypeSymbol("ninjalang.Nothing", new Nothing()));
+      return typeCache;
    }
 }

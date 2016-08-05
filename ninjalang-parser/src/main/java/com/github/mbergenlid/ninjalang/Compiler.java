@@ -4,6 +4,7 @@ import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.parser.Parser;
 import com.github.mbergenlid.ninjalang.typer.PurityChecker;
 import com.github.mbergenlid.ninjalang.typer.SymbolTable;
+import com.github.mbergenlid.ninjalang.typer.TypeCache;
 import com.github.mbergenlid.ninjalang.typer.TypeInterface;
 import com.github.mbergenlid.ninjalang.typer.Typer;
 import com.github.mbergenlid.ninjalang.typer.Types;
@@ -38,7 +39,9 @@ public class Compiler {
       final List<ClassDefinition> classDefinitions = parseResults.stream()
          .map(Parser.ParserResult::classDefinition)
          .collect(Collectors.toList());
-      final SymbolTable symbolTable = new TypeInterface(Types.loadDefaults()).loadSymbols(classDefinitions);
+      final TypeCache typeCache =
+         new TypeInterface(Types.loadDefaults()).loadSymbols(classDefinitions).build();
+      final SymbolTable symbolTable = new SymbolTable(typeCache);
       final List<CompilationError> errors = classDefinitions.stream()
          .flatMap(classDef ->
             doPhases(
