@@ -3,10 +3,10 @@ package com.github.mbergenlid.ninjalang.typer;
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
 import com.github.mbergenlid.ninjalang.parser.Parser;
-import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,18 +14,19 @@ public class BuiltInArrayTest {
 
    @Test
    public void setArrayElement() throws IOException {
-      final ClassDefinition classDefinition = parseAndTypeCheck("/examples/ArrayList.ninja");
+      final ClassDefinition classDefinition = parseAndTypeCheck("/examples/ArrayList.ninja").get(0);
       final FunctionDefinition set = classDefinition.getBody().get().getFunctions().stream()
          .filter(f -> f.getName().equals("set")).findAny().get();
       assertThat(set.getReturnType().isTypeSymbol()).isTrue();
    }
 
-   private ClassDefinition parseAndTypeCheck(final String name) throws IOException {
-      final ClassDefinition classDefinition = Parser.classDefinition(getClass().getResourceAsStream(name));
+   private List<ClassDefinition> parseAndTypeCheck(final String name) throws IOException {
+      final List<ClassDefinition> classDefinitions = Parser.classDefinitions(getClass().getResourceAsStream(name));
       final SymbolTable symbolTable = new SymbolTable(
-         new TypeInterface(Types.loadDefaults()).loadSymbols(ImmutableList.of(classDefinition)).build()
+         new TypeInterface(Types.loadDefaults()).loadSymbols(classDefinitions).build()
       );
-      new Typer(symbolTable).typeTree(classDefinition);
-      return classDefinition;
+      classDefinitions.stream().forEach(classDefinition -> new Typer(symbolTable).typeTree(classDefinition));
+
+      return classDefinitions;
    }
 }

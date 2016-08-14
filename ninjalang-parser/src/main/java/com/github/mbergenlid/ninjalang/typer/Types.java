@@ -25,10 +25,10 @@ public class Types {
    public static TypeCache.TypeCacheBuilder loadDefaults() {
 
       final List<ClassDefinition> classes = DEFAULT_FILES.stream()
-         .map(f -> {
+         .flatMap(f -> {
             try (InputStream inputStream = Types.class.getResourceAsStream(f)) {
                assert inputStream != null;
-               return Parser.classDefinition(inputStream);
+               return Parser.classDefinitions(inputStream).stream();
             } catch (IOException e) {
                throw new RuntimeException(e);
             }

@@ -37,7 +37,7 @@ public class Compiler {
          return CompilationResult.error(parseErrors);
       }
       final List<ClassDefinition> classDefinitions = parseResults.stream()
-         .map(Parser.ParserResult::classDefinition)
+         .flatMap(p -> p.classDefinitions().stream())
          .collect(Collectors.toList());
       final TypeCache typeCache =
          new TypeInterface(Types.loadDefaults()).loadSymbols(classDefinitions).build();

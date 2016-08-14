@@ -5,6 +5,7 @@ import com.github.mbergenlid.ninjalang.ClassLexer;
 import com.github.mbergenlid.ninjalang.ClassParser;
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.ast.SourcePosition;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -16,7 +17,13 @@ import java.util.List;
 public class Parser extends ClassBaseListener {
 
    public static ClassDefinition classDefinition(final InputStream is) throws IOException {
-      return parse(is).classDefinition();
+      final ParserResult parse = parse(is);
+      Preconditions.checkArgument(parse.classDefinitions().size() == 1);
+      return parse.classDefinitions().get(0);
+   }
+
+   public static List<ClassDefinition> classDefinitions(final InputStream is) throws IOException {
+      return parse(is).classDefinitions();
    }
 
    public static ParserResult parse(final InputStream is) throws IOException {
@@ -36,11 +43,11 @@ public class Parser extends ClassBaseListener {
    }
 
    public static class ParserResult {
-      private final ClassDefinition classDefinition;
+      private final List<ClassDefinition> classDefinition;
       private final List<ParseError> parseErrors;
 
 
-      private ParserResult(ClassDefinition classDefinition, List<ParseError> parseErrors) {
+      private ParserResult(List<ClassDefinition> classDefinition, List<ParseError> parseErrors) {
          this.classDefinition = classDefinition;
          this.parseErrors = parseErrors;
       }
@@ -49,7 +56,7 @@ public class Parser extends ClassBaseListener {
          return new ParserResult(null, errors);
       }
 
-      public static ParserResult success(ClassDefinition classDefinitions) {
+      public static ParserResult success(List<ClassDefinition> classDefinitions) {
          return new ParserResult(classDefinitions, ImmutableList.of());
       }
 
@@ -65,9 +72,9 @@ public class Parser extends ClassBaseListener {
          return parseErrors;
       }
 
-      public ClassDefinition classDefinition() {
+      public List<ClassDefinition> classDefinitions() {
          if(!succeeded()) {
-            throw new IllegalStateException("Can not get classDefinition of failed ParserResult");
+            throw new IllegalStateException("Can not get classDefinitions of failed ParserResult");
          }
          return classDefinition;
       }

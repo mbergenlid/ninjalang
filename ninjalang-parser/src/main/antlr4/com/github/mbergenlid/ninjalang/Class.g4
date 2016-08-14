@@ -1,7 +1,7 @@
 grammar Class;
 
 ninjaFile
-    : packageDefinition? importStatement* classDefinition EOF
+    : packageDefinition? importStatement* classDefinition+ EOF
     ;
 
 packageDefinition

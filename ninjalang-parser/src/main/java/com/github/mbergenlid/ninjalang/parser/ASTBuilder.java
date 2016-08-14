@@ -42,16 +42,16 @@ import java.util.stream.Stream;
 
 public class ASTBuilder {
 
-   private final ClassDefinition classDefinition;
+   private final List<ClassDefinition> classDefinition;
    private final List<ParseError> errors;
 
    public ASTBuilder(ClassParser.NinjaFileContext ninjaFileContext) {
       final ClassVisitor classVisitor = new ClassVisitor();
-      this.classDefinition = (ClassDefinition) classVisitor.visit(ninjaFileContext);
+      this.classDefinition = classVisitor.createClassDefinitions(ninjaFileContext);
       this.errors = Collections.unmodifiableList(classVisitor.errors);
    }
 
-   public ClassDefinition classDefinition() {
+   public List<ClassDefinition> classDefinition() {
       return classDefinition;
    }
 
@@ -68,8 +68,7 @@ public class ASTBuilder {
 
       private final List<ParseError> errors = new ArrayList<>();
 
-      @Override
-      public TreeNode visitNinjaFile(ClassParser.NinjaFileContext ctx) {
+      public List<ClassDefinition> createClassDefinitions(ClassParser.NinjaFileContext ctx) {
          final List<String> ninjaPackage = ctx.packageDefinition() != null
             ? ctx.packageDefinition().Identifier().stream()
                   .map(TerminalNode::getText)
@@ -79,7 +78,17 @@ public class ASTBuilder {
          final List<Import> typeImports = ctx.importStatement() != null
             ? ctx.importStatement().stream().map(this::resolveImports).collect(Collectors.toList())
             : ImmutableList.of();
-         final ClassParser.ClassDefinitionContext classDefinitionCtx = ctx.classDefinition();
+
+         return ctx.classDefinition().stream()
+            .map(c -> createClassDefinition(c, ninjaPackage, typeImports))
+            .collect(Collectors.toList());
+      }
+
+      public ClassDefinition createClassDefinition(
+         ClassParser.ClassDefinitionContext classDefinitionCtx,
+         List<String> ninjaPackage,
+         List<Import> typeImports
+      ) {
          Optional<PrimaryConstructor> constructor = (classDefinitionCtx.constructor != null)
             ? Optional.of((PrimaryConstructor)visit(classDefinitionCtx.constructor))
             : Optional.empty()
@@ -120,14 +129,14 @@ public class ASTBuilder {
          ;
          final List<SecondaryConstructor> secondaryConstructors = classDefinitionCtx.body != null
             ? classDefinitionCtx.body.constructorDefinition().stream()
-               .map(this::visitConstructorDefinition)
-               .map(c -> (SecondaryConstructor) c)
-               .collect(Collectors.toList())
+            .map(this::visitConstructorDefinition)
+            .map(c -> (SecondaryConstructor) c)
+            .collect(Collectors.toList())
             : Collections.emptyList()
             ;
          final SuperClassList superClassList = (SuperClassList) visitExtendsClause(classDefinitionCtx.extendsClause());
          return ClassDefinition.builder()
-            .sourcePosition(SourcePosition.fromParserContext(ctx))
+            .sourcePosition(SourcePosition.fromParserContext(classDefinitionCtx))
             .ninjaPackage(ninjaPackage)
             .typeImports(typeImports)
             .name(classDefinitionCtx.name.getText())
