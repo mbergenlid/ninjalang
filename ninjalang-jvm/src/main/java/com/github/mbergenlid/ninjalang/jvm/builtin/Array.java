@@ -12,7 +12,7 @@ public class Array implements BuiltInFunctions.BuiltInType {
 
    private final MethodGenerator methodGenerator;
 
-   public Array(MethodGenerator methodGenerator) {
+   Array(MethodGenerator methodGenerator) {
       this.methodGenerator = methodGenerator;
    }
 
@@ -21,7 +21,7 @@ public class Array implements BuiltInFunctions.BuiltInType {
       //Array instance
       function.instance.visit(methodGenerator);
       //Array index, [value]
-      function.arguments.stream().forEach(a -> a.visit(methodGenerator));
+      function.arguments.forEach(a -> a.visit(methodGenerator));
       switch (function.functionSymbol.getName()) {
          case "get":
             list.append(InstructionFactory.createArrayLoad(Type.OBJECT));

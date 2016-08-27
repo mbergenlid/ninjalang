@@ -28,7 +28,7 @@ public class ClassGeneratorTestHelper {
    private final File classDirectory;
    private URLClassLoader classLoader;
 
-   public ClassGeneratorTestHelper(final String ninjaClassName) {
+   ClassGeneratorTestHelper(final String ninjaClassName) {
       this("", ninjaClassName);
    }
 
@@ -65,21 +65,20 @@ public class ClassGeneratorTestHelper {
    private void compile() throws IOException {
       final Compiler.CompilationResult compilationResult = new Compiler().parseAndTypeCheck(classesToCompile);
       if(compilationResult.failed()) {
-         compilationResult.errors().stream().forEach(System.err::println);
+         compilationResult.errors().forEach(System.err::println);
          throw new RuntimeException("Type error");
       }
-      compilationResult.classDefinitions().stream()
-         .forEach(classDefinition -> {
-            try {
-               JavaClass javaClass = new ClassGenerator(new BuiltInFunctions(compilationResult.symbolTable()))
-                  .generateClass(classDefinition);
-               File classFile = new File(classDirectory, String.format("%s.class", classDefinition.getName()));
-               javaClass.dump(classFile);
-               System.out.println(classFile.getAbsoluteFile().getParentFile().toURI().toURL());
-            } catch (IOException e) {
-               throw new RuntimeException(e);
-            }
-         });
+      compilationResult.classDefinitions().forEach(classDefinition -> {
+         try {
+            JavaClass javaClass = new ClassGenerator(new BuiltInFunctions(compilationResult.symbolTable()))
+               .generateClass(classDefinition);
+            File classFile = new File(classDirectory, String.format("%s.class", classDefinition.getName()));
+            javaClass.dump(classFile);
+            System.out.println(classFile.getAbsoluteFile().getParentFile().toURI().toURL());
+         } catch (IOException e) {
+            throw new RuntimeException(e);
+         }
+      });
    }
 
    public Class<?> loadClass(String className) throws Exception {
@@ -111,7 +110,7 @@ public class ClassGeneratorTestHelper {
       private final Class<?> clazz;
       private final Object instance;
 
-      public Proxy(Class<?> clazz, Arg... args) throws Exception {
+      Proxy(Class<?> clazz, Arg... args) throws Exception {
          this.clazz = clazz;
          final Class[] argumentTypes = Arrays.stream(args).map(Arg::getType).toArray(Class[]::new);
          final Object[] argumentValues = Arrays.stream(args).map(Arg::getValue).toArray();
@@ -131,20 +130,22 @@ public class ClassGeneratorTestHelper {
       }
 
    }
-   public static class Arg {
-      public final Class<?> type;
-      public final Object value;
 
-      public Arg(Class<?> type, Object value) {
+   @SuppressWarnings("WeakerAccess")
+   public static class Arg {
+      final Class<?> type;
+      final Object value;
+
+      Arg(Class<?> type, Object value) {
          this.type = type;
          this.value = value;
       }
 
-      public Class<?> getType() {
+      Class<?> getType() {
          return type;
       }
 
-      public Object getValue() {
+      Object getValue() {
          return value;
       }
    }

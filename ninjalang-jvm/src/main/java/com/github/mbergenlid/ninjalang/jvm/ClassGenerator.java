@@ -12,21 +12,19 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ClassGenerator {
+class ClassGenerator {
 
    private final BuiltInFunctions builtInFunctions;
 
-   public ClassGenerator(BuiltInFunctions builtInFunctions) {
+   ClassGenerator(BuiltInFunctions builtInFunctions) {
       this.builtInFunctions = builtInFunctions;
    }
 
-   public JavaClass generateClass(final ClassDefinition classDef) throws IOException {
+   JavaClass generateClass(final ClassDefinition classDef) throws IOException {
       final String superClass = classDef.getSuperClasses().getNames().stream().findAny().orElse("java.lang.Object");
       final ClassGen classGen = new ClassGen(classDef.getName(), superClass, classDef.getName(), Constants.ACC_PUBLIC, new String[]{});
       generatePrimaryConstructor(classDef, classGen);
-      if(classDef.getBody().isPresent()) {
-         generateBody(classDef.getBody().get(), classGen);
-      }
+      classDef.getBody().ifPresent(body -> generateBody(body, classGen));
       return classGen.getJavaClass();
    }
 
@@ -41,10 +39,8 @@ public class ClassGenerator {
    }
 
    private void generateBody(ClassBody body, ClassGen classGen) {
-      body.getProperties().stream()
-         .forEach(p -> generateProperty(p, classGen));
-      body.getFunctions().stream()
-         .forEach(f -> generateFunction(f, classGen));
+      body.getProperties().forEach(p -> generateProperty(p, classGen));
+      body.getFunctions().forEach(f -> generateFunction(f, classGen));
    }
 
    private void generateFunction(FunctionDefinition functionDefinition, ClassGen classGen) {

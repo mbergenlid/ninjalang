@@ -7,6 +7,7 @@ import com.github.mbergenlid.ninjalang.ast.Assign;
 import com.github.mbergenlid.ninjalang.ast.Block;
 import com.github.mbergenlid.ninjalang.ast.ClassArgument;
 import com.github.mbergenlid.ninjalang.ast.EmptyExpression;
+import com.github.mbergenlid.ninjalang.ast.Expression;
 import com.github.mbergenlid.ninjalang.ast.FunctionDefinition;
 import com.github.mbergenlid.ninjalang.ast.IfExpression;
 import com.github.mbergenlid.ninjalang.ast.IntLiteral;
@@ -43,6 +44,7 @@ import org.apache.bcel.generic.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MethodGenerator extends AbstractVoidTreeVisitor {
@@ -54,7 +56,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
    private final InstructionFactory factory;
    private final Map<TermSymbol, Integer> localVariables;
 
-   public MethodGenerator(final ClassGen classGen, final BuiltInFunctions builtInFunctions) {
+   MethodGenerator(final ClassGen classGen, final BuiltInFunctions builtInFunctions) {
       this.classGen = classGen;
       this.builtInFunctions = builtInFunctions;
       this.constantPoolGen = classGen.getConstantPool();
@@ -63,7 +65,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
       this.localVariables = new HashMap<>();
    }
 
-   public Method generateConstructor(PrimaryConstructor primaryConstructor, List<Property> properties) {
+   Method generateConstructor(PrimaryConstructor primaryConstructor, List<Property> properties) {
       final Type[] types = primaryConstructor.getArguments().stream()
          .map(Argument::getType)
          .map(TypeConverter::fromNinjaType)
@@ -86,7 +88,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
          constantPoolGen);
       instructionList.append(InstructionConstants.THIS);
       instructionList.append(new INVOKESPECIAL(classGen.getConstantPool().addMethodref(classGen.getSuperclassName(), "<init>", "()V")));
-      properties.stream().forEach(prop -> {
+      properties.forEach(prop -> {
          instructionList.append(InstructionFactory.createLoad(Type.OBJECT, 0));
          prop.getInitialValue().visit(this);
          instructionList.append(factory.createPutField(
@@ -100,7 +102,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
       return method;
    }
 
-   public Method generateFromFunction(final FunctionDefinition function) {
+   Method generateFromFunction(final FunctionDefinition function) {
       final Type type = TypeConverter.fromNinjaType(function.getReturnType().getType());
       int index = 1;
       for(Argument arg : function.getArgumentList()) {
@@ -176,7 +178,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
 
    @Override
    public Void visit(Block block) {
-      block.getStatements().stream().forEach(s -> s.visit(this));
+      block.getStatements().forEach(s -> s.visit(this));
       block.getReturnExpression().visit(this);
       return null;
    }
@@ -184,7 +186,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
    @Override
    public Void visit(IfExpression ifExpression) {
       ifExpression.getCondition().visit(this);
-      new ConditionalBranchGenerator(instructionList, factory)
+      new ConditionalBranchGenerator(instructionList)
          .branch(Constants.IFEQ,
             list -> {ifExpression.getThenClause().visit(this); return list.getEnd();},
             list -> {ifExpression.getElseClause().visit(this); return list.getEnd();});
@@ -225,8 +227,9 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
             builtInFunctions.getBuiltInType(symbol, this).generate(
                new BuiltInFunctions.FunctionApplication(symbol, select.getQualifier().orElse(new EmptyExpression(SourcePosition.NO_SOURCE)), ImmutableList.of()), instructionList, factory);
          } else {
-            if(select.getQualifier().isPresent()) {
-               final TreeNode node = select.getQualifier().get();
+            final Optional<Expression> qualifier = select.getQualifier();
+            if(qualifier.isPresent()) {
+               final TreeNode node = qualifier.get();
                node.visit(this);
             } else if(localVariables.containsKey(symbol)) {
                instructionList.append(InstructionFactory.createLoad(TypeConverter.fromNinjaType(select.getType()), localVariables.get(symbol)));
@@ -272,7 +275,7 @@ public class MethodGenerator extends AbstractVoidTreeVisitor {
             final Type[] argTypes = apply.getArguments().stream()
                .map(a -> TypeConverter.fromNinjaType(a.getType()))
                .toArray(Type[]::new);
-            apply.getArguments().stream().forEach(a -> a.visit(this));
+            apply.getArguments().forEach(a -> a.visit(this));
             functionSymbol.owner()
                .filter(Symbol::isTypeSymbol)
                .map(Symbol::asTypeSymbol)

@@ -1,12 +1,7 @@
 package com.github.mbergenlid.ninjalang.jvm.examples;
 
 import com.github.mbergenlid.ninjalang.jvm.ClassGeneratorTestHelper;
-import org.junit.Ignore;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.util.NoSuchElementException;
-import java.util.Objects;
 
 import static com.github.mbergenlid.ninjalang.jvm.ClassGeneratorTestHelper.arg;
 import static org.assertj.core.api.Assertions.assertThat;

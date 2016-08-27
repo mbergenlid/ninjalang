@@ -5,17 +5,17 @@ import org.apache.bcel.generic.InstructionFactory;
 import org.apache.bcel.generic.InstructionList;
 import org.apache.bcel.generic.Type;
 
-public class ArrayObject implements BuiltInFunctions.BuiltInType {
+class ArrayObject implements BuiltInFunctions.BuiltInType {
 
    private final MethodGenerator methodGenerator;
 
-   public ArrayObject(MethodGenerator methodGenerator) {
+   ArrayObject(MethodGenerator methodGenerator) {
       this.methodGenerator = methodGenerator;
    }
 
    @Override
    public void generate(BuiltInFunctions.FunctionApplication function, InstructionList list, InstructionFactory factory) {
-      function.arguments.stream().forEach(a -> a.visit(methodGenerator));
+      function.arguments.forEach(a -> a.visit(methodGenerator));
       //TODO: Change the type here when we implement generic types
       list.append(factory.createNewArray(Type.OBJECT, (short) 1));
    }

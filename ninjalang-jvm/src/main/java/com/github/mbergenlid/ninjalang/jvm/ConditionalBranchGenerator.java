@@ -8,17 +8,15 @@ import org.apache.bcel.generic.NOP;
 
 import java.util.function.Function;
 
-public class ConditionalBranchGenerator {
+class ConditionalBranchGenerator {
 
    private final InstructionList instructionList;
-   private final InstructionFactory factory;
 
-   public ConditionalBranchGenerator(InstructionList instructionList, InstructionFactory factory) {
+   ConditionalBranchGenerator(InstructionList instructionList) {
       this.instructionList = instructionList;
-      this.factory = factory;
    }
 
-   public void branch(short branchType, Function<InstructionList, InstructionHandle> ifTrue, Function<InstructionList, InstructionHandle> ifFalse) {
+   void branch(short branchType, Function<InstructionList, InstructionHandle> ifTrue, Function<InstructionList, InstructionHandle> ifFalse) {
       //else (positive branch)
       final InstructionHandle firstInstruction = instructionList.getEnd();
       final InstructionHandle elseClause = ifTrue.apply(instructionList);

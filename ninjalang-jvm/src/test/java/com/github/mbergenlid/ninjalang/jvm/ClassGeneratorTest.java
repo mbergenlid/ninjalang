@@ -1,7 +1,6 @@
 package com.github.mbergenlid.ninjalang.jvm;
 
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
-import com.github.mbergenlid.ninjalang.ast.PrimaryConstructor;
 import com.github.mbergenlid.ninjalang.jvm.builtin.BuiltInFunctions;
 import com.github.mbergenlid.ninjalang.typer.SymbolTable;
 import com.github.mbergenlid.ninjalang.typer.Types;
@@ -23,7 +22,7 @@ public class ClassGeneratorTest {
       final SymbolTable symbolTable = new SymbolTable(Types.loadDefaults().build());
       JavaClass blaha = new ClassGenerator(new BuiltInFunctions(symbolTable))
          .generateClass(ClassDefinition.builder().name("SimpleClass")
-         .primaryConstructor(Optional.<PrimaryConstructor>empty()).build());
+         .primaryConstructor(Optional.empty()).build());
 
       File classFile = File.createTempFile("SimpleClass", ".class");
       blaha.dump(classFile);

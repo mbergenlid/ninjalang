@@ -21,7 +21,10 @@ public class BuiltInFunctions {
 
    public BuiltInFunctions(SymbolTable symbolTable) {
       BUILT_IN = ImmutableMap.of(
-         symbolTable.lookupType("ninjalang.Array").statics().getType().member("ofSize").get(), ArrayObject::new,
+         symbolTable.lookupType("ninjalang.Array").statics()
+            .getType().member("ofSize").orElseThrow(() ->
+               new IllegalStateException("Built in types are not loaded")
+         ), ArrayObject::new,
          symbolTable.lookupType("ninjalang.Array"), Array::new,
          symbolTable.lookupType("ninjalang.Int"), Int::new
       );
@@ -49,14 +52,14 @@ public class BuiltInFunctions {
       return result.apply(caller);
    }
 
-   public interface BuiltInType {
+   interface BuiltInType {
       void generate(BuiltInFunctions.FunctionApplication function, InstructionList list, InstructionFactory factory);
    }
 
    public static class FunctionApplication {
-      public final TermSymbol functionSymbol;
-      public final TreeNode instance;
-      public final List<Expression> arguments;
+      final TermSymbol functionSymbol;
+      final TreeNode instance;
+      final List<Expression> arguments;
 
       public FunctionApplication(TermSymbol functionSymbol, TreeNode instance, List<Expression> arguments) {
          this.functionSymbol = functionSymbol;

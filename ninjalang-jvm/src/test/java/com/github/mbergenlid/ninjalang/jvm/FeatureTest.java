@@ -2,8 +2,6 @@ package com.github.mbergenlid.ninjalang.jvm;
 
 import org.junit.Test;
 
-import java.io.IOException;
-
 import static com.github.mbergenlid.ninjalang.jvm.ClassGeneratorTestHelper.arg;
 import static org.assertj.core.api.Assertions.assertThat;
 
