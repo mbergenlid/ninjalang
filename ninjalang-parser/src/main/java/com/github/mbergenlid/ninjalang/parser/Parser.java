@@ -1,8 +1,8 @@
 package com.github.mbergenlid.ninjalang.parser;
 
-import com.github.mbergenlid.ninjalang.ClassBaseListener;
-import com.github.mbergenlid.ninjalang.ClassLexer;
-import com.github.mbergenlid.ninjalang.ClassParser;
+import com.github.mbergenlid.ninjalang.NinjaFileBaseListener;
+import com.github.mbergenlid.ninjalang.NinjaFileLexer;
+import com.github.mbergenlid.ninjalang.NinjaFileParser;
 import com.github.mbergenlid.ninjalang.ast.ClassDefinition;
 import com.github.mbergenlid.ninjalang.ast.SourcePosition;
 import com.google.common.base.Preconditions;
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-public class Parser extends ClassBaseListener {
+public class Parser extends NinjaFileBaseListener {
 
    public static ClassDefinition classDefinition(final InputStream is) throws IOException {
       final ParserResult parse = parse(is);
@@ -27,10 +27,10 @@ public class Parser extends ClassBaseListener {
    }
 
    public static ParserResult parse(final InputStream is) throws IOException {
-      final ClassLexer l = new ClassLexer(new ANTLRInputStream(is));
-      final ClassParser p = new ClassParser(new CommonTokenStream(l));
+      final NinjaFileLexer l = new NinjaFileLexer(new ANTLRInputStream(is));
+      final NinjaFileParser p = new NinjaFileParser(new CommonTokenStream(l));
 
-      ClassParser.NinjaFileContext classDefinitionContext = p.ninjaFile();
+      NinjaFileParser.NinjaFileContext classDefinitionContext = p.ninjaFile();
       if(p.getNumberOfSyntaxErrors() > 0) {
          return ParserResult.error(ImmutableList.of(new ParseError("Parse fail", SourcePosition.NO_SOURCE)));
       }

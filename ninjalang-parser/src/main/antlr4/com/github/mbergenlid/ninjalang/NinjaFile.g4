@@ -1,4 +1,4 @@
-grammar Class;
+grammar NinjaFile;
 
 ninjaFile
     : packageDefinition? importStatement* classDefinition+ EOF

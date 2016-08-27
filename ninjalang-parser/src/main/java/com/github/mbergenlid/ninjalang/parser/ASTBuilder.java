@@ -1,7 +1,7 @@
 package com.github.mbergenlid.ninjalang.parser;
 
-import com.github.mbergenlid.ninjalang.ClassBaseVisitor;
-import com.github.mbergenlid.ninjalang.ClassParser;
+import com.github.mbergenlid.ninjalang.NinjaFileBaseVisitor;
+import com.github.mbergenlid.ninjalang.NinjaFileParser;
 import com.github.mbergenlid.ninjalang.ast.AccessModifier;
 import com.github.mbergenlid.ninjalang.ast.Apply;
 import com.github.mbergenlid.ninjalang.ast.Argument;
@@ -40,12 +40,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ASTBuilder {
+class ASTBuilder {
 
    private final List<ClassDefinition> classDefinition;
    private final List<ParseError> errors;
 
-   public ASTBuilder(ClassParser.NinjaFileContext ninjaFileContext) {
+   ASTBuilder(NinjaFileParser.NinjaFileContext ninjaFileContext) {
       final ClassVisitor classVisitor = new ClassVisitor();
       this.classDefinition = classVisitor.createClassDefinitions(ninjaFileContext);
       this.errors = Collections.unmodifiableList(classVisitor.errors);
@@ -55,20 +55,20 @@ public class ASTBuilder {
       return classDefinition;
    }
 
-   public boolean hasErrors() {
+   boolean hasErrors() {
       return !errors.isEmpty();
    }
 
-   public List<ParseError> errors() {
+   List<ParseError> errors() {
       return Collections.unmodifiableList(errors);
    }
 
 
-   private class ClassVisitor extends ClassBaseVisitor<TreeNode> {
+   private class ClassVisitor extends NinjaFileBaseVisitor<TreeNode> {
 
       private final List<ParseError> errors = new ArrayList<>();
 
-      public List<ClassDefinition> createClassDefinitions(ClassParser.NinjaFileContext ctx) {
+      List<ClassDefinition> createClassDefinitions(NinjaFileParser.NinjaFileContext ctx) {
          final List<String> ninjaPackage = ctx.packageDefinition() != null
             ? ctx.packageDefinition().Identifier().stream()
                   .map(TerminalNode::getText)
@@ -84,8 +84,8 @@ public class ASTBuilder {
             .collect(Collectors.toList());
       }
 
-      public ClassDefinition createClassDefinition(
-         ClassParser.ClassDefinitionContext classDefinitionCtx,
+      ClassDefinition createClassDefinition(
+         NinjaFileParser.ClassDefinitionContext classDefinitionCtx,
          List<String> ninjaPackage,
          List<Import> typeImports
       ) {
@@ -148,7 +148,7 @@ public class ASTBuilder {
       }
 
       @Override
-      public TreeNode visitExtendsClause(ClassParser.ExtendsClauseContext ctx) {
+      public TreeNode visitExtendsClause(NinjaFileParser.ExtendsClauseContext ctx) {
          if(ctx == null) {
             return SuperClassList.empty();
          }
@@ -156,12 +156,12 @@ public class ASTBuilder {
          return new SuperClassList(SourcePosition.fromParserContext(ctx), baseClasses);
       }
 
-      public Import resolveImports(ClassParser.ImportStatementContext ctx) {
+      Import resolveImports(NinjaFileParser.ImportStatementContext ctx) {
          return new Import(ctx.Identifier().stream().map(ParseTree::getText).collect(Collectors.toList()));
       }
 
       @Override
-      public TreeNode visitPrimaryConstructor(ClassParser.PrimaryConstructorContext ctx) {
+      public TreeNode visitPrimaryConstructor(NinjaFileParser.PrimaryConstructorContext ctx) {
          List<ClassArgument> args = ctx.classArgumentList() != null
             ? visit(ctx.classArgumentList())
             : ImmutableList.of()
@@ -175,12 +175,12 @@ public class ASTBuilder {
          );
       }
 
-      public List<ClassArgument> visit(ClassParser.ClassArgumentListContext ctx) {
+      public List<ClassArgument> visit(NinjaFileParser.ClassArgumentListContext ctx) {
          return ctx.classArgument().stream().map(this::visit).map(arg -> (ClassArgument)arg).collect(Collectors.toList());
       }
 
       @Override
-      public TreeNode visitConstructorDefinition(ClassParser.ConstructorDefinitionContext ctx) {
+      public TreeNode visitConstructorDefinition(NinjaFileParser.ConstructorDefinitionContext ctx) {
          final List<Argument> arguments = ctx.functionArgumentList() != null
             ? ctx.functionArgumentList().functionArgument().stream()
                .map(this::visitFunctionArgument)
@@ -196,7 +196,7 @@ public class ASTBuilder {
       }
 
       @Override
-      public TreeNode visitClassArgument(ClassParser.ClassArgumentContext ctx) {
+      public TreeNode visitClassArgument(NinjaFileParser.ClassArgumentContext ctx) {
          if(ctx.isVal != null) {
             return ClassArgument.propertyArgument(
                SourcePosition.fromParserContext(ctx), ctx.name.getText(), ctx.type.getText());
@@ -207,7 +207,7 @@ public class ASTBuilder {
       }
 
       @Override
-      public TreeNode visitClassBody(ClassParser.ClassBodyContext ctx) {
+      public TreeNode visitClassBody(NinjaFileParser.ClassBodyContext ctx) {
          List<TreeNode> children = ctx.children.stream()
             .map(this::visit)
             .filter(ASTBuilder::isNotNull)
@@ -226,7 +226,7 @@ public class ASTBuilder {
       }
 
       @Override
-      public Property visitPropertyDefinition(ClassParser.PropertyDefinitionContext ctx) {
+      public Property visitPropertyDefinition(NinjaFileParser.PropertyDefinitionContext ctx) {
          final boolean hasInitialValue = ctx.init != null;
          final Expression initialValue = hasInitialValue ? (Expression) visit(ctx.init) : new EmptyExpression(SourcePosition.fromParserContext(ctx));
          final String declaredType = ctx.type.getText();
@@ -282,7 +282,7 @@ public class ASTBuilder {
          final String propertyName,
          final String propertyType,
          final String propertyAccessModifier,
-         ClassParser.AccessorContext ctx
+         NinjaFileParser.AccessorContext ctx
       ) {
          final SourcePosition sourcePosition = SourcePosition.fromParserContext(ctx);
          final AccessModifier accessModifier = ctx.accessModifier() != null
@@ -310,7 +310,7 @@ public class ASTBuilder {
 
 
       @Override
-      public TreeNode visitFunctionDefinition(ClassParser.FunctionDefinitionContext ctx) {
+      public TreeNode visitFunctionDefinition(NinjaFileParser.FunctionDefinitionContext ctx) {
          final Optional<Expression> functionBody = ctx.body != null
             ? Optional.of((Expression) visit(ctx.body))
             : Optional.empty()
@@ -333,13 +333,13 @@ public class ASTBuilder {
       }
 
       @Override
-      public TreeNode visitFunctionArgument(ClassParser.FunctionArgumentContext ctx) {
+      public TreeNode visitFunctionArgument(NinjaFileParser.FunctionArgumentContext ctx) {
          final String type = ctx.Identifier().stream().skip(1).map(TerminalNode::getText).collect(Collectors.joining("."));
          return new Argument(SourcePosition.fromParserContext(ctx), ctx.name.getText(), type);
       }
 
       @Override
-      public TreeNode visitLiteral(ClassParser.LiteralContext ctx) {
+      public TreeNode visitLiteral(NinjaFileParser.LiteralContext ctx) {
          if(ctx.Integer() != null) {
             return new IntLiteral(SourcePosition.fromParserContext(ctx), Integer.parseInt(ctx.Integer().getText()));
          } else if(ctx.StringLiteral() != null) {
@@ -350,7 +350,7 @@ public class ASTBuilder {
       }
 
       @Override
-      public TreeNode visitStatement(ClassParser.StatementContext ctx) {
+      public TreeNode visitStatement(NinjaFileParser.StatementContext ctx) {
          if(ctx.declaration != null) {
             return new ValDef(
                SourcePosition.fromParserContext(ctx),
@@ -364,7 +364,7 @@ public class ASTBuilder {
       }
 
       @Override
-      public TreeNode visitBlock(ClassParser.BlockContext ctx) {
+      public TreeNode visitBlock(NinjaFileParser.BlockContext ctx) {
          final List<Expression> expressions = ctx.statement().stream()
             .map(this::visitStatement).map(n -> (Expression) n).collect(Collectors.toList());
 
@@ -379,7 +379,7 @@ public class ASTBuilder {
       }
 
       @Override
-      public TreeNode visitExpression(ClassParser.ExpressionContext ctx) {
+      public TreeNode visitExpression(NinjaFileParser.ExpressionContext ctx) {
          if(ctx.ifExpression != null) {
             final Expression elseClause = ctx.elseClause != null
                ? (Expression) visitExpression(ctx.elseClause)
@@ -421,7 +421,7 @@ public class ASTBuilder {
       }
 
       @Override
-      public TreeNode visitAddExpression(ClassParser.AddExpressionContext ctx) {
+      public TreeNode visitAddExpression(NinjaFileParser.AddExpressionContext ctx) {
          if(ctx.plus != null) {
             final Expression instance = (Expression) visitAddExpression(ctx.addExpression());
             final Expression argument = (Expression) visitTerm(ctx.term());
@@ -431,7 +431,7 @@ public class ASTBuilder {
       }
 
       @Override
-      public TreeNode visitTerm(ClassParser.TermContext ctx) {
+      public TreeNode visitTerm(NinjaFileParser.TermContext ctx) {
          if(ctx.select != null) {
             final TerminalNode identifier = ctx.Identifier();
             final TreeNode qualifier = visitTerm(ctx.term());
