@@ -11,7 +11,7 @@
    </parent>
 
    <artifactId>ninjalang-parser</artifactId>
-   <version>${parent.version}</version>
+   <version>${project.parent.version}</version>
 
    <dependencies>
       <dependency>

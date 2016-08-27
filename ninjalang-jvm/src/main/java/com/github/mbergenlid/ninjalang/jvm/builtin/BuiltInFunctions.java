@@ -52,7 +52,7 @@ public class BuiltInFunctions {
       return result.apply(caller);
    }
 
-   interface BuiltInType {
+   public interface BuiltInType {
       void generate(BuiltInFunctions.FunctionApplication function, InstructionList list, InstructionFactory factory);
    }
 

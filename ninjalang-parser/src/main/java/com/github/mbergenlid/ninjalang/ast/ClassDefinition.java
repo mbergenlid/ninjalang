@@ -13,8 +13,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@SuppressWarnings("Lombok")
 @Data
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode
 public class ClassDefinition extends TreeNode {
    private final List<String> ninjaPackage;
    private final List<Import> typeImports;
